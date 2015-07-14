@@ -59,7 +59,7 @@ public class NewComponentWizardPage extends AbstractVaadinNewTypeWizardPage {
 
     /**
      * Constructor for Component wizard page.
-     * 
+     *
      * @param pageName
      */
     public NewComponentWizardPage(IProject project,
@@ -150,7 +150,7 @@ public class NewComponentWizardPage extends AbstractVaadinNewTypeWizardPage {
                     for (IType ws : wsSubtypes) {
                         if (project.equals(ws.getResource().getProject())) {
                             extWidgetSetNameText
-                                    .add(ws.getFullyQualifiedName());
+                            .add(ws.getFullyQualifiedName());
                         }
                     }
 
@@ -166,10 +166,10 @@ public class NewComponentWizardPage extends AbstractVaadinNewTypeWizardPage {
 
         } catch (CoreException e1) {
             ErrorUtil
-                    .handleBackgroundException(
-                            IStatus.WARNING,
-                            "Failed to select the project in the New Widget wizard",
-                            e1);
+            .handleBackgroundException(
+                    IStatus.WARNING,
+                    "Failed to select the project in the New Widget wizard",
+                    e1);
         }
     }
 
@@ -194,9 +194,15 @@ public class NewComponentWizardPage extends AbstractVaadinNewTypeWizardPage {
                 }
             });
 
-            templateCombo.select(0);
-            selectTemplate((TEMPLATES) templateCombo.getData(templateCombo
-                    .getText()));
+            // avoid NPE in the case of an unknown/unavailable Vaadin version
+            if (templateCombo.getItemCount() > 0) {
+                templateCombo.select(0);
+                selectTemplate((TEMPLATES) templateCombo.getData(templateCombo
+                        .getText()));
+            }
+
+            // Ensure combobox width is updated if the contents change
+            templateCombo.getParent().layout();
         }
     }
 
@@ -322,7 +328,7 @@ public class NewComponentWizardPage extends AbstractVaadinNewTypeWizardPage {
             type.createMethod(
                     "@Override\n\tpublic String getTag(){\n\t\treturn \""
                             + type.getElementName().toLowerCase() + "\" ;\n}\n",
-                    null, false, monitor);
+                            null, false, monitor);
         }
 
         if (currentTemplate.hasClientTemplates()) {
