@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.vaadin.eclipse</groupId>
+  <version>0.1.0</version>
+  <packaging>pom</packaging>
+  <modules>
+  </modules>
+ 
+  <repositories> 
+    <repository>
+      <id>eclipse-luna</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/releases/luna</url>
+    </repository>
+    <repository>
+      <id>vaadin-plugin</id>
+      <layout>p2</layout>
+      <url>http://vaadin.com/eclipse</url>
+    </repository>
+    <repository>
+      <id>ivyDE</id>
+      <layout>p2</layout>
+      <url>http://www.apache.org/dist/ant/ivyde/updatesite</url>
+    </repository>
+  </repositories>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>0.21.0</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+  <artifactId>integration-root</artifactId>
+</project>
