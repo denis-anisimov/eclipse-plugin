@@ -8,6 +8,7 @@
   <modules>
     <module>com.vaadin.integration.eclipse</module>
     <module>com.vaadin.integration.eclipse.feature</module>
+    <module>update-site</module>
   </modules>
  
   <repositories> 
@@ -36,6 +37,16 @@
         <version>0.21.0</version>
         <extensions>true</extensions>
       </plugin>
+
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-repository-plugin</artifactId>
+        <version>0.21.0</version>
+        <configuration>
+          <includeAllDependencies>false</includeAllDependencies>
+        </configuration>
+      </plugin>
+
     </plugins>
   </build>
   <artifactId>integration-root</artifactId>
