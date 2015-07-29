@@ -9,4 +9,38 @@
   </parent>
   <artifactId>com.vaadin.integration.eclipse.repository</artifactId>
   <packaging>eclipse-repository</packaging>
+
+  <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+                <execution>
+                    <id>deploy-to-update-site</id>
+                    <phase>deploy</phase>
+                    <configuration>
+                        <tasks>
+                            <echo message="Deploying to update site ${updatesite.url}" />
+                            <exec executable="scp" searchpath="true" resultproperty="nightly.install.scp.result">
+                                <arg value="-B"/>
+                                <arg value="-r"/>
+                                <arg value="target/repository/content.jar"/>
+                                <arg value="target/repository/artifacts.jar"/>
+                                <arg value="target/repository/features"/>
+                                <arg value="target/repository/plugins"/>
+                                <arg value="${updatesite.url}"/>
+                            </exec>
+                        </tasks>
+                    </configuration>
+                    <goals>
+                        <goal>run</goal>
+                    </goals>
+                </execution>
+             </executions>
+        </plugin>
+    </plugins>
+  </build>
+
 </project>

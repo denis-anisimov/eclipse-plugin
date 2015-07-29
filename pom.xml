@@ -11,12 +11,28 @@
     <module>update-site</module>
   </modules>
  
+  <properties>
+    <updatesite.url>No update site defined</updatesite.url>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <tycho.version>0.21.0</tycho.version>
+
+    <!-- Development signature -->
+    <keystore.path>${project.parent.basedir}/plugin.keystore</keystore.path>
+    <keystore.type>JKS</keystore.type>
+    <keystore.alias>vaadin</keystore.alias>
+    <keystore.password>reindeer</keystore.password>
+    <keystore.store.password>reindeer</keystore.store.password>
+    <keystore.key.password>reindeer</keystore.key.password>
+  </properties>
+ 
   <repositories> 
     <repository>
       <id>eclipse-luna</id>
       <layout>p2</layout>
       <url>http://download.eclipse.org/releases/luna</url>
     </repository>
+    <!-- This is still needed for the old wysiwyg editor plug-in -->
     <repository>
       <id>vaadin-plugin</id>
       <layout>p2</layout>
@@ -34,17 +50,82 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>0.21.0</version>
+        <version>${tycho.version}</version>
         <extensions>true</extensions>
+      </plugin>
+
+       <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>0.21.0</version>
+          <configuration>
+              <environments>
+                  <environment>
+                      <os>linux</os>
+                      <ws>gtk</ws>
+                      <arch>x86</arch>
+                  </environment>
+                  <environment>
+                      <os>linux</os>
+                      <ws>gtk</ws>
+                      <arch>x86_64</arch>
+                  </environment>
+                  <environment>
+                      <os>win32</os>
+                      <ws>win32</ws>
+                      <arch>x86</arch>
+                  </environment>
+                  <environment>
+                      <os>win32</os>
+                      <ws>win32</ws>
+                      <arch>x86_64</arch>
+                  </environment>
+                  <environment>
+                      <os>macosx</os>
+                      <ws>cocoa</ws>
+                      <arch>x86_64</arch>
+                  </environment>
+              </environments>
+          </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-repository-plugin</artifactId>
-        <version>0.21.0</version>
+        <version>${tycho.version}</version>
         <configuration>
           <includeAllDependencies>false</includeAllDependencies>
         </configuration>
+      </plugin>
+
+      <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.6</version>
+            <configuration>
+                <!-- Replace maven deploy with ant deploy -->
+                <skip>true</skip>
+            </configuration>
+      </plugin>        
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jarsigner-plugin</artifactId>
+        <version>1.2</version>
+        <configuration>
+            <storetype>${keystore.type}</storetype>
+            <keystore>${keystore.path}</keystore>
+            <alias>${keystore.alias}</alias>
+            <storepass>${keystore.store.password}</storepass>
+            <keypass>${keystore.key.password}</keypass>
+        </configuration>
+        <executions>
+            <execution>
+                <id>sign</id>
+                <goals>
+                    <goal>sign</goal>
+                </goals>
+            </execution>
+        </executions>
       </plugin>
 
     </plugins>

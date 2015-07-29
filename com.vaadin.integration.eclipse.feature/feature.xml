@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- FIXME the old feature name is com.vaadin.integration.eclipse, so the plug-in might need to be renamed -->
 <feature
       id="com.vaadin.integration.eclipse.feature"
       label="Vaadin Plug-in for Eclipse"
