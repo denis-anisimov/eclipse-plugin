@@ -163,7 +163,7 @@ public class VaadinPluginUtil {
 
     public static void copySourceFileToProject(IProject project,
             Path sourceFile, String destinationPackage, String destinationFile)
-            throws CoreException {
+                    throws CoreException {
         try {
             // JavaCore.createCompilationUnitFrom();
             Bundle bundle = VaadinPlugin.getInstance().getBundle();
@@ -525,7 +525,7 @@ public class VaadinPluginUtil {
             try {
                 return new Path(FileLocator.toFileURL(configurationLocation)
                         .getPath()).append(IPath.SEPARATOR
-                        + VaadinPlugin.PLUGIN_ID);
+                                + VaadinPlugin.PLUGIN_ID);
             } catch (IOException e) {
                 throw ErrorUtil.newCoreException("getConfigurationPath failed",
                         e);
@@ -535,7 +535,7 @@ public class VaadinPluginUtil {
         if (userLocation != null) {
             try {
                 return new Path(FileLocator.toFileURL(userLocation).getPath())
-                        .append(IPath.SEPARATOR + VaadinPlugin.PLUGIN_ID);
+                .append(IPath.SEPARATOR + VaadinPlugin.PLUGIN_ID);
             } catch (IOException e) {
                 throw ErrorUtil.newCoreException("getConfigurationPath failed",
                         e);
@@ -643,7 +643,7 @@ public class VaadinPluginUtil {
 
     public static IType[] getSubClasses(IProject project, String superClass,
             boolean allSubTypes, IProgressMonitor monitor)
-            throws JavaModelException {
+                    throws JavaModelException {
         // find all non-binary subclasses of a named class in the project
         IJavaProject javaProject = JavaCore.create(project);
         if (javaProject == null) {
@@ -719,12 +719,12 @@ public class VaadinPluginUtil {
                 String message = (jarFile == null) ? "Could not access JAR"
                         : "Could not access JAR " + jarFile.getName();
                 ErrorUtil
-                        .handleBackgroundException(IStatus.WARNING, message, e);
+                .handleBackgroundException(IStatus.WARNING, message, e);
             } catch (IOException e) {
                 String message = (jarFile == null) ? "Could not access JAR"
                         : "Could not access JAR " + jarFile.getName();
                 ErrorUtil
-                        .handleBackgroundException(IStatus.WARNING, message, e);
+                .handleBackgroundException(IStatus.WARNING, message, e);
             } finally {
                 closeJarFile(jarFile);
             }
@@ -778,7 +778,7 @@ public class VaadinPluginUtil {
      */
     public static String getProjectBaseClasspath(IJavaProject jproject,
             IVMInstall vmInstall, boolean includeOutputDirectories)
-            throws CoreException, JavaModelException {
+                    throws CoreException, JavaModelException {
         String classpathSeparator = PlatformUtil.getClasspathSeparator();
         IProject project = jproject.getProject();
 
@@ -855,7 +855,7 @@ public class VaadinPluginUtil {
                     .findProjectVaadinJarPath(jproject);
             if (vaadinJarPath == null) {
                 throw ErrorUtil
-                        .newCoreException("Vaadin JAR could not be found");
+                .newCoreException("Vaadin JAR could not be found");
             }
             IRuntimeClasspathEntry vaadinJar = JavaRuntime
                     .newArchiveRuntimeClasspathEntry(vaadinJarPath);
@@ -875,7 +875,7 @@ public class VaadinPluginUtil {
                 IPath outputLocation = classPathEntry.getOutputLocation();
                 if (outputLocation != null) {
                     outputLocations
-                            .add(getRawLocation(project, outputLocation));
+                    .add(getRawLocation(project, outputLocation));
                 }
                 // } else {
                 // IPath path = classPathEntry.getPath();
@@ -955,7 +955,26 @@ public class VaadinPluginUtil {
             return false;
         }
         return version.startsWith(JavaCore.VERSION_1_6)
-                || version.startsWith(JavaCore.VERSION_1_7) || version.startsWith("1.8");
+                || version.startsWith(JavaCore.VERSION_1_7)
+                || isJdk18(vmInstall);
+    }
+
+    /**
+     * Checks whether a VM installation is Java 1.8 or later.
+     *
+     * @param vmInstall
+     * @return true if the VM version is 1.8 or later, false if older or unknown
+     */
+    public static boolean isJdk18(IVMInstall vmInstall) {
+        if (!(vmInstall instanceof IVMInstall2)) {
+            return false;
+        }
+        // simplified from what JavaModelUtil does
+        String version = ((IVMInstall2) vmInstall).getJavaVersion();
+        if (version == null) {
+            return false;
+        }
+        return version.startsWith("1.") && version.compareTo("1.8") > 0;
     }
 
     /**
@@ -1092,7 +1111,7 @@ public class VaadinPluginUtil {
                                     "");
                     if (project.getName().equals(launchProject)) {
                         ErrorUtil
-                                .logInfo("GWT development mode launch already exists for the project");
+                        .logInfo("GWT development mode launch already exists for the project");
                         return launchConfiguration;
                     }
                 }
@@ -1154,9 +1173,9 @@ public class VaadinPluginUtil {
                 vmargs = vmargs + " -XstartOnFirstThread";
             }
             workingCopy
-                    .setAttribute(
-                            IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
-                            vmargs);
+            .setAttribute(
+                    IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS,
+                    vmargs);
 
             // construct the launch classpath
 
@@ -1190,9 +1209,9 @@ public class VaadinPluginUtil {
             }
 
             workingCopy
-                    .setAttribute(
-                            IJavaLaunchConfigurationConstants.ATTR_CLASSPATH,
-                            classPath);
+            .setAttribute(
+                    IJavaLaunchConfigurationConstants.ATTR_CLASSPATH,
+                    classPath);
             workingCopy.setAttribute(
                     IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH,
                     false);
@@ -1380,9 +1399,9 @@ public class VaadinPluginUtil {
         workingCopy.setAttribute(
                 IJavaLaunchConfigurationConstants.ATTR_CLASSPATH, classPath);
         workingCopy
-                .setAttribute(
-                        IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH,
-                        false);
+        .setAttribute(
+                IJavaLaunchConfigurationConstants.ATTR_DEFAULT_CLASSPATH,
+                false);
 
         return workingCopy.doSave();
 
@@ -1390,7 +1409,7 @@ public class VaadinPluginUtil {
 
     public static void ensureFileFromTemplate(IJavaProject jProject,
             String locationInProject, String locationInTemplate)
-            throws CoreException {
+                    throws CoreException {
         ensureFileFromTemplate(jProject, locationInProject, locationInTemplate,
                 Collections.<String, String> emptyMap());
     }

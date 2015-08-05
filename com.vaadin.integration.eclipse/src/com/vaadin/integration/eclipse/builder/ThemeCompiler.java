@@ -94,6 +94,7 @@ public class ThemeCompiler {
         compilerArgs.toArray(argsStr);
 
         ProcessBuilder b = new ProcessBuilder(argsStr);
+        b.redirectErrorStream(true);
 
         IPath projectLocation = project.getLocation();
         b.directory(projectLocation.toFile());

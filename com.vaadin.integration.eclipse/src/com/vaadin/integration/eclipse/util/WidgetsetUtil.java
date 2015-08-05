@@ -78,17 +78,17 @@ public class WidgetsetUtil {
 
     /**
      * Helper method to compile a single widgetset.
-     * 
+     *
      * Instead the "old method" of using launch configurations (.launch) running
      * compilation via {@link ProcessBuilder}. Also notifies eclipse of possibly
      * changed files in widgetset directory.
-     * 
+     *
      * Note, this only works for projects with vaadin 6.2 and later.
-     * 
+     *
      * Normally this method should be called by {@link WidgetsetBuildManager} to
      * ensure that multiple builds of the same widgetset are not run
      * concurrently.
-     * 
+     *
      * @param jproject
      * @param moduleName
      *            explicit widgetset module name - not null
@@ -99,7 +99,7 @@ public class WidgetsetUtil {
      */
     public static void compileWidgetset(IJavaProject jproject,
             String moduleName, final IProgressMonitor monitor)
-            throws CoreException, IOException, InterruptedException {
+                    throws CoreException, IOException, InterruptedException {
 
         IProject project = jproject.getProject();
 
@@ -135,11 +135,11 @@ public class WidgetsetUtil {
             if (!VaadinPluginUtil.isJdk16(vmInstall)
                     && ProjectUtil.isGwt24(project)) {
                 ErrorUtil
-                        .displayWarningFromBackgroundThread(
-                                "Java6 required",
-                                "Widget set compilation requires Java6.\n"
-                                        + "The project can still use Java5 but you need to make JDK 6 available in Eclipse\n"
-                                        + "(see Preferences => Java => Installed JREs).");
+                .displayWarningFromBackgroundThread(
+                        "Java6 required",
+                        "Widget set compilation requires Java6.\n"
+                                + "The project can still use Java5 but you need to make JDK 6 available in Eclipse\n"
+                                + "(see Preferences => Java => Installed JREs).");
             }
 
             boolean useNewGwtCompiler = jproject
@@ -180,8 +180,8 @@ public class WidgetsetUtil {
 
                 if (!tempDir.mkdirs()) {
                     throw ErrorUtil
-                            .newCoreException("Could not create temporary directory "
-                                    + tempDir);
+                    .newCoreException("Could not create temporary directory "
+                            + tempDir);
                 }
 
                 compilerArgs.add("-deploy");
@@ -271,7 +271,7 @@ public class WidgetsetUtil {
                                 // happening
 
                                 int currentProgress = (int) (100 * (new Date()
-                                        .getTime() - start) / estimatedCompilationTime);
+                                .getTime() - start) / estimatedCompilationTime);
                                 if (currentProgress > 100) {
                                     currentProgress = 100;
                                 }
@@ -301,7 +301,7 @@ public class WidgetsetUtil {
             newMessageStream.println();
             if (verbose) {
                 newMessageStream
-                        .println("Executing compiler with command line:");
+                .println("Executing compiler with command line:");
                 StringBuilder commandLine = new StringBuilder();
                 for (String arg : compilerArgs) {
                     commandLine.append(" ").append(arg);
@@ -314,8 +314,8 @@ public class WidgetsetUtil {
             // print warning if not using project VM (#8037)
             if (!vmInstall.equals(JavaRuntime.getVMInstall(jproject))) {
                 newMessageStream
-                        .println("Warning: Not using project VM for GWT compilation.\n"
-                                + "When using GWT 2.4, select JRE 1.6 or later in project preferences.");
+                .println("Warning: Not using project VM for GWT compilation.\n"
+                        + "When using GWT 2.4, select JRE 1.6 or later in project preferences.");
             }
 
             InputStream inputStream = exec.getInputStream();
@@ -353,7 +353,7 @@ public class WidgetsetUtil {
                         new SubProgressMonitor(monitor, 1));
                 setWidgetsetDirty(project, false);
                 preferences.setWidgetsetCompilationTimeEstimate(new Date()
-                        .getTime() - start);
+                .getTime() - start);
                 preferences.persist();
 
                 if (!verbose) {
@@ -420,7 +420,9 @@ public class WidgetsetUtil {
         args.add("-Djava.awt.headless=true");
         args.add("-Xss8M");
         args.add("-Xmx512M");
-        args.add("-XX:MaxPermSize=512M");
+        if (!VaadinPluginUtil.isJdk18(vmInstall)) {
+            args.add("-XX:MaxPermSize=512M");
+        }
 
         args.add("-classpath");
         // args.add(classPath.replaceAll(" ", "\\ "));
@@ -431,7 +433,7 @@ public class WidgetsetUtil {
     /**
      * Find the (first) widget set in the project. If there is none, return the
      * default widget set
-     * 
+     *
      * @param project
      * @return the first widget set GWT module name in the project or the
      *         default widget set
@@ -459,10 +461,10 @@ public class WidgetsetUtil {
 
     /**
      * Find the list of widgetsets in the project.
-     * 
+     *
      * Only GWT modules (.gwt.xml files) with "widgetset" in the file name are
      * returned.
-     * 
+     *
      * @param project
      * @param monitor
      * @return list of widgetset module names in the project
@@ -517,10 +519,10 @@ public class WidgetsetUtil {
      * Check if a project contains one or more widgetsets. This method is more
      * efficient than {@link #findWidgetSets(IJavaProject, IProgressMonitor)} as
      * the evaluation stops upon the first match.
-     * 
+     *
      * Only GWT modules (.gwt.xml files) with "widgetset" in the file name are
      * taken into account.
-     * 
+     *
      * @param project
      * @param monitor
      * @return true if the project directly contains at least one widgetset
@@ -567,7 +569,7 @@ public class WidgetsetUtil {
     /**
      * Find the list of widgetsets in the project in a format suitable for a
      * Vaadin addon manifest file.
-     * 
+     *
      * @param project
      * @param monitor
      * @return String comma-separated list of widgetset module names in the
@@ -624,15 +626,15 @@ public class WidgetsetUtil {
             } catch (MalformedURLException e) {
                 String message = (jarFile == null) ? "Could not access JAR when searching for widgetsets"
                         : "Could not access JAR when searching for widgetsets: "
-                                + jarFile.getName();
+                        + jarFile.getName();
                 ErrorUtil
-                        .handleBackgroundException(IStatus.WARNING, message, e);
+                .handleBackgroundException(IStatus.WARNING, message, e);
             } catch (IOException e) {
                 String message = (jarFile == null) ? "Could not access JAR when searching for widgetsets"
                         : "Could not access JAR when searching for widgetsets: "
-                                + jarFile.getName();
+                        + jarFile.getName();
                 ErrorUtil
-                        .handleBackgroundException(IStatus.WARNING, message, e);
+                .handleBackgroundException(IStatus.WARNING, message, e);
             } finally {
                 VaadinPluginUtil.closeJarFile(jarFile);
             }
@@ -645,7 +647,7 @@ public class WidgetsetUtil {
     /**
      * Returns true if the widgetset should be managed (created, compiled etc.)
      * by the plugin.
-     * 
+     *
      * @param project
      * @return true if the widgetset should be automatically managed
      */
@@ -657,11 +659,11 @@ public class WidgetsetUtil {
      * Checks if the widgetset in a project is marked as dirty. If the project
      * is not a Vaadin project or does not have widgetsets, returns
      * <code>false</code>.
-     * 
+     *
      * If the flag is not present in project preferences, test whether there are
      * widgetsets and as a side effect mark dirty (if any exist) / clean (no
      * widgetset) based on that.
-     * 
+     *
      * @param project
      * @return true if the project has widgetset(s) that have not been compiled
      *         since the last relevant modification
@@ -694,10 +696,10 @@ public class WidgetsetUtil {
     /**
      * Mark the widgetset(s) in a project as clean (compiled) or dirty (modified
      * since the last compilation).
-     * 
+     *
      * TODO note: keeping track of this in preferences might be an issue with
      * version control etc. if versioning preferences
-     * 
+     *
      * @param project
      * @param dirty
      */
@@ -720,14 +722,14 @@ public class WidgetsetUtil {
      * Find the (first) widgetset in a project, or indicate where the widgetset
      * should be created. If <code>create</code> is true, create the widgetset
      * if it did not exist.
-     * 
+     *
      * Unless explicitly given, the default location for a new widgetset is
      * based on the location of the Application class with the shortest package
      * path. A "widgetset" package is created under that package.
-     * 
+     *
      * A widgetset file should be named *widgetset*.gwt.xml - the ".gwt.xml" is
      * not a part of the module name.
-     * 
+     *
      * @param project
      * @param create
      *            create widgetset if it does not exist
@@ -897,14 +899,14 @@ public class WidgetsetUtil {
 
                 if (!updated) {
                     ErrorUtil
-                            .displayWarningFromBackgroundThread(
-                                    "Update Widgetset",
-                                    "The widgetset "
-                                            + fullyQualifiedName
-                                            + " has been created but there is no web.xml to update.\n\n"
-                                            + "Please update your @WebServlet or @"
-                                            + VaadinPlugin.VAADIN_SERVLET_CONFIGURATION_ANNOTATION_NAME
-                                            + " annotation parameters.");
+                    .displayWarningFromBackgroundThread(
+                            "Update Widgetset",
+                            "The widgetset "
+                                    + fullyQualifiedName
+                                    + " has been created but there is no web.xml to update.\n\n"
+                                    + "Please update your @WebServlet or @"
+                                    + VaadinPlugin.VAADIN_SERVLET_CONFIGURATION_ANNOTATION_NAME
+                                    + " annotation parameters.");
                 }
             }
 
@@ -918,7 +920,7 @@ public class WidgetsetUtil {
                         IFile file = wsFolder.getFile(wsName + ".gwt.xml");
                         String template = ProjectUtil.isVaadin7(project
                                 .getProject()) ? "widgetsetxmlstub7.txt"
-                                : "widgetsetxmlstub6.txt";
+                                        : "widgetsetxmlstub6.txt";
                         VaadinPluginUtil.ensureFileFromTemplate(file, template);
 
                         // mark the created widgetset as dirty
@@ -950,7 +952,7 @@ public class WidgetsetUtil {
             Document document = new Document(source);
 
             compilationUnit
-                    .becomeWorkingCopy(new SubProgressMonitor(monitor, 1));
+            .becomeWorkingCopy(new SubProgressMonitor(monitor, 1));
 
             try {
                 ASTParser parser = ASTParser.newParser(AST.JLS3);
@@ -1090,7 +1092,7 @@ public class WidgetsetUtil {
      * Returns jar files which contain widgetset for given project.
      * <p>
      * Method will iterate files in WEB-INF/lib and check each jar file there.
-     * 
+     *
      * @param jproject
      * @return
      * @throws CoreException
@@ -1163,7 +1165,7 @@ public class WidgetsetUtil {
     /**
      * Add widgetset nature to a project if not already there. Only modifies
      * Vaadin projects.
-     * 
+     *
      * @param project
      */
     public static void ensureWidgetsetNature(final IProject project) {
@@ -1189,7 +1191,7 @@ public class WidgetsetUtil {
         // find all non-binary subclasses of WidgetSet in the project
         return VaadinPluginUtil.getSubClasses(project,
                 VaadinPlugin.VAADIN_PACKAGE_PREFIX
-                        + "terminal.gwt.client.WidgetSet", true, monitor);
+                + "terminal.gwt.client.WidgetSet", true, monitor);
     }
 
 }
