@@ -471,4 +471,18 @@ Any metadata changes made will be stored in the project manifest.
          </enablement>
       </consolePageParticipant>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.vaadin.integration.eclipse.preferences.VaadinPreferences"
+            id="com.vaadin.integration.eclipse.preferences.VaadinPreferences"
+            name="Vaadin">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.vaadin.integration.eclipse.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
 </plugin>

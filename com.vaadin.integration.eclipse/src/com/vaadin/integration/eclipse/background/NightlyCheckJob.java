@@ -1,5 +1,6 @@
 package com.vaadin.integration.eclipse.background;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,17 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.ui.PlatformUI;
 
+import com.vaadin.integration.eclipse.VaadinFacetUtils;
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 import com.vaadin.integration.eclipse.util.ErrorUtil;
 import com.vaadin.integration.eclipse.util.PreferenceUtil;
 import com.vaadin.integration.eclipse.util.ProjectUtil;
+import com.vaadin.integration.eclipse.util.VersionUtil;
 import com.vaadin.integration.eclipse.util.data.DownloadableVaadinVersion;
+import com.vaadin.integration.eclipse.util.data.MavenVaadinVersion;
 import com.vaadin.integration.eclipse.util.network.DownloadManager;
+import com.vaadin.integration.eclipse.util.network.MavenVersionManager;
 
 /**
  * User-visible job that checks for new nightly builds and then re-schedules a
@@ -43,10 +49,11 @@ public final class NightlyCheckJob extends Job {
             // map from project with "use latest nightly" to the current
             // Vaadin version number string in the project
             Map<IProject, String> nightlyProjects = getProjectsUsingLatestNightly();
+            List<IProject> vaadin7Projects = getVaadin7Projects();
 
             monitor.worked(1);
 
-            if (nightlyProjects.isEmpty()) {
+            if (nightlyProjects.isEmpty() && vaadin7Projects.isEmpty()) {
                 return Status.OK_STATUS;
             } else if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
@@ -72,9 +79,27 @@ public final class NightlyCheckJob extends Job {
                 }
             }
 
+            final Map<IProject, List<MavenVaadinVersion>> vaadin7Upgrades;
+            if (!VaadinPlugin
+                    .getInstance()
+                    .getPreferenceStore()
+                    .getBoolean(
+                            PreferenceConstants.DISABLE_ALL_UPDATE_NOTIFICATIONS)) {
+                // For each project that has upgrade notifications
+                // allowed, find suggestions for Vaadin version upgrades: newest
+                // maintenance release with same minor version, newest stable
+                // version (any minor) and, if the project uses alpha/beta/rc
+                // version, also the newest prerelease version.
+                vaadin7Upgrades = getVaadinUpgrades(vaadin7Projects);
+            } else {
+                // Vaadin 7 upgrade notifications disallowed for all projects
+                // regardless of project settings.
+                vaadin7Upgrades = new HashMap<IProject, List<MavenVaadinVersion>>();
+            }
+
             monitor.worked(1);
 
-            if (possibleUpgrades.isEmpty()) {
+            if (possibleUpgrades.isEmpty() && vaadin7Upgrades.isEmpty()) {
                 return Status.OK_STATUS;
             } else if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
@@ -98,7 +123,7 @@ public final class NightlyCheckJob extends Job {
                 public void run() {
                     final UpgradeNotificationPopup popup = new UpgradeNotificationPopup(
                             PlatformUI.getWorkbench().getDisplay(),
-                            possibleUpgrades);
+                            possibleUpgrades, vaadin7Upgrades);
                     popup.open();
                 }
             });
@@ -143,6 +168,99 @@ public final class NightlyCheckJob extends Job {
             }
         }
         return projectsWithNightly;
+    }
+
+    private List<IProject> getVaadin7Projects() {
+        List<IProject> vaadin7Projects = new ArrayList<IProject>();
+        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+        IProject[] projects = workspaceRoot.getProjects();
+        for (IProject project : projects) {
+            PreferenceUtil preferences = PreferenceUtil.get(project);
+            if (VaadinFacetUtils.isVaadinProject(project)
+                    && ProjectUtil.isVaadin7(project)) {
+                vaadin7Projects.add(project);
+            }
+        }
+        return vaadin7Projects;
+    }
+
+    private Map<IProject, List<MavenVaadinVersion>> getVaadinUpgrades(
+            List<IProject> vaadinProjects) {
+        Map<IProject, List<MavenVaadinVersion>> availableUpgrades = new HashMap<IProject, List<MavenVaadinVersion>>();
+        List<MavenVaadinVersion> availableVersions = new ArrayList<MavenVaadinVersion>();
+        try {
+            availableVersions = MavenVersionManager.getAvailableVersions(true);
+        } catch (CoreException e) {
+            // Could not load the list of upgrades, handle as if none were
+            // available.
+            return availableUpgrades;
+        }
+        for (IProject project : vaadinProjects) {
+            try {
+                if (!PreferenceUtil.get(project).isUpdateNotificationEnabled()) {
+                    continue;
+                }
+                String currentVersion = ProjectUtil.getVaadinLibraryVersion(
+                        project, true);
+                List<MavenVaadinVersion> allUpgrades = new ArrayList<MavenVaadinVersion>();
+                MavenVaadinVersion newestUpgradeSameMinor = getLatestUpgrade(
+                        currentVersion, availableVersions, true, false);
+                if (newestUpgradeSameMinor != null) {
+                    allUpgrades.add(newestUpgradeSameMinor);
+                }
+                MavenVaadinVersion newestStableUpgrade = getLatestUpgrade(
+                        currentVersion, availableVersions, false, true);
+                if (newestStableUpgrade != null
+                        && !allUpgrades.contains(newestStableUpgrade)) {
+                    allUpgrades.add(newestStableUpgrade);
+                }
+                // Suggest upgrading to the newest alpha/beta/rc version if
+                // the current version is not a stable version
+                if (!VersionUtil.isStableVersion(currentVersion)) {
+                    MavenVaadinVersion newestUpgrade = getLatestUpgrade(
+                            currentVersion, availableVersions, false, false);
+                    if (newestUpgrade != null
+                            && !allUpgrades.contains(newestUpgrade)) {
+                        allUpgrades.add(newestUpgrade);
+                    }
+                }
+                if (!allUpgrades.isEmpty()) {
+                    availableUpgrades.put(project, allUpgrades);
+                }
+            } catch (CoreException e) {
+                ErrorUtil.handleBackgroundException(
+                        IStatus.WARNING,
+                        "Could not check Vaadin version in project "
+                                + project.getName(), e);
+            }
+        }
+        return availableUpgrades;
+    }
+
+    private MavenVaadinVersion getLatestUpgrade(String current,
+            List<MavenVaadinVersion> availableVersions,
+            boolean allowOnlySameMinor, boolean allowOnlyStableVersions) {
+        String latestAsString = current;
+        MavenVaadinVersion result = null;
+        for (MavenVaadinVersion version : availableVersions) {
+            String versionNumber = version.getVersionNumber();
+            // Always require at least the major version to be the same as in
+            // the current version.
+            boolean acceptVersion = !allowOnlySameMinor ? VersionUtil
+                    .isSameVersion(versionNumber, current, 1) : VersionUtil
+                    .isSameVersion(versionNumber, current, 2);
+            if (allowOnlyStableVersions) {
+                acceptVersion = acceptVersion
+                        && VersionUtil.isStableVersion(versionNumber);
+            }
+            if (acceptVersion
+                    && VersionUtil.compareVersions(versionNumber,
+                            latestAsString) > 0) {
+                result = version;
+                latestAsString = version.getVersionNumber();
+            }
+        }
+        return result;
     }
 
     /**

@@ -7,6 +7,7 @@ import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 
 public class PreferenceUtil {
 
@@ -73,6 +74,11 @@ public class PreferenceUtil {
     // "true"/"false"/missing - missing means false
     private static final String PREFERENCES_USE_LATEST_NIGHTLY = VaadinPlugin.PLUGIN_ID
             + "." + "useLatestNightly";
+
+    // "true"/"false"/missing - if missing, default value is taken from
+    // Eclipse preferences
+    private static final String PREFERENCES_UPDATE_NOTIFICATION_ENABLED = VaadinPlugin.PLUGIN_ID
+            + ".notifyOfVaadinUpdates";
 
     // true to suspend scanning for addon themes and creating the addons.scss
     // file
@@ -349,6 +355,38 @@ public class PreferenceUtil {
         prefStore.setValue(PREFERENCES_USE_LATEST_NIGHTLY,
                 Boolean.toString(useLatestNightly));
         return oldValue != useLatestNightly;
+    }
+
+    /**
+     * Checks whether the project is configured to show a notification when it
+     * is possible to update to a newer Vaadin version.
+     *
+     * @return whether Vaadin version update notifications are enabled
+     */
+    public boolean isUpdateNotificationEnabled() {
+        if (prefStore.contains(PREFERENCES_UPDATE_NOTIFICATION_ENABLED)) {
+            return prefStore
+                    .getBoolean(PREFERENCES_UPDATE_NOTIFICATION_ENABLED);
+        }
+        // If the project does not have this preference set, use the default
+        // from Eclipse preferences.
+        return VaadinPlugin
+                .getInstance()
+                .getPreferenceStore()
+                .getBoolean(
+                        PreferenceConstants.UPDATE_NOTIFICATIONS_IN_NEW_PROJECTS);
+    }
+
+    /**
+     * Sets whether a notification should be shown about possible Vaadin version
+     * updates for the project.
+     *
+     * @param enableNotifications
+     *            whether Vaadin update notifications are enabled
+     */
+    public void setUpdateNotificationEnabled(boolean enableNotifications) {
+        prefStore.setValue(PREFERENCES_UPDATE_NOTIFICATION_ENABLED,
+                Boolean.toString(enableNotifications));
     }
 
     /**

@@ -285,6 +285,122 @@ public class VersionUtil {
         return isAtLeastVersionString(vaadinVersion, 7, 3);
     }
 
+    /**
+     * Checks whether version string represents a stable version, as opposed to
+     * snapshots and alphas, betas and release candidates. A stable version
+     * contains only numeric values separated by dots.
+     *
+     * @param version
+     *            a version string
+     * @return whether version is a stable version
+     */
+    public static boolean isStableVersion(String version) {
+        return version.matches("[0-9]+\\.[0-9]+\\.[0-9]+");
+    }
+
+    /**
+     * Checks whether version1 and version2 represent the same version when
+     * taking into account only the beginning parts of the version strings. It
+     * is ignored whether the versions are snapshots. For instance,
+     * isSameVersion("7.5.3", "7.5-SNAPSHOT", 2) returns true.
+     *
+     * The parameter digits must not be greater than the number of dot-separated
+     * substrings in either version string.
+     *
+     * @param version1
+     *            a version string
+     * @param version2
+     *            a version string
+     * @param digits
+     *            how many parts (separated by ".") are taken into account
+     * @return whether version1 and version2 are the same up to the given number
+     *         of "."-separated parts.
+     */
+    public static boolean isSameVersion(String version1, String version2,
+            int digits) {
+        version1 = version1.replaceAll("-.*", "");
+        version2 = version2.replace("-.*", "");
+        String[] v1parts = version1.split("\\.");
+        String[] v2parts = version2.split("\\.");
+        for (int i = 0; i < digits; i++) {
+            if (!v1parts[i].equals(v2parts[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether version1 is newer or older than version2. The version
+     * strings should consist of numeric values separated by dots, except that
+     * the last substring may be nonnumeric, such as "alpha1" or "7.5-SNAPSHOT".
+     *
+     * The version strings should either have the same number of dot-separated
+     * substrings or one should have one part more than the other, the extra
+     * part indicating a prerelease such as "beta1".
+     *
+     * @param version1
+     *            A version of the form a.b.c.
+     * @param version2
+     *            A version in the form x.y.z.w.
+     * @return A positive number, zero or a negative number depending on whether
+     *         version1 is newer than, as new as, or older than version2.
+     */
+    public static int compareVersions(String version1, String version2) {
+        String[] parts1 = version1.split("\\.");
+        String[] parts2 = version2.split("\\.");
+        int partCount = Math.min(parts1.length, parts2.length);
+        for (int i = 0; i < partCount; i++) {
+            int comparePart = compareVersionPart(parts1[i], parts2[i]);
+            if (comparePart != 0) {
+                return comparePart;
+            }
+        }
+        // A stable version is newer than a prerelease, given that no other
+        // difference was found.
+        return (isStableVersion(version1) ? 1 : -1)
+                - (isStableVersion(version2) ? 1 : -1);
+    }
+
+    private static int compareVersionPart(String part1, String part2) {
+        // A snapshot is considered older than a numeric version if the
+        // version is otherwise the same.
+        boolean isSnapShot1 = part1.endsWith("SNAPSHOT");
+        if (isSnapShot1) {
+            part1 = part1.substring(0, part1.length() - 9);
+        }
+        boolean isSnapShot2 = part2.endsWith("SNAPSHOT");
+        if (isSnapShot2) {
+            part2 = part2.substring(0, part2.length() - 9);
+        }
+        Integer version1Part = null, version2Part = null;
+        try {
+            version1Part = Integer.parseInt(part1);
+        } catch (NumberFormatException e) {
+        }
+        try {
+            version2Part = Integer.parseInt(part2);
+        } catch (NumberFormatException e) {
+        }
+        if (version1Part != null && version2Part != null) {
+            // Return a positive number if version1Part >
+            // version2Part or the versions are otherwise the same but part2
+            // is a snapshot.
+            return 2 * (version1Part - version2Part)
+                    + ((isSnapShot2 ? 1 : 0) - (isSnapShot1 ? 1 : 0));
+        } else if (version1Part != null) {
+            // Part1 was numeric but part2 not, part2 is probably a prerelease.
+            return 1;
+        } else if (version2Part != null) {
+            // Part2 was numeric but part1 not, part1 is probably a prerelease.
+            return -1;
+        } else {
+            // Both versions were nonnumeric such as alpha, beta. Use string
+            // comparison.
+            return version1Part.compareTo(version2Part);
+        }
+    }
+
     private static boolean isAtLeastVersionString(String vaadinVersion,
             int majorVersion, int minorVersion) {
         if (null == vaadinVersion) {

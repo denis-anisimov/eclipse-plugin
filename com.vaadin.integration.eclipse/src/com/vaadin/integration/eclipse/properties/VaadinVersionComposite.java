@@ -29,7 +29,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.AbstractElementListSelectionDialog;
 
+import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.background.NightlyCheckJob;
+import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 import com.vaadin.integration.eclipse.util.ErrorUtil;
 import com.vaadin.integration.eclipse.util.PreferenceUtil;
 import com.vaadin.integration.eclipse.util.ProjectUtil;
@@ -56,6 +58,7 @@ public class VaadinVersionComposite extends Composite {
     private IProject project = null;
     private VersionSelectionChangeListener versionSelectionListener;
     private Button latestNightlyCheckbox;
+    private Button updateNotificationCheckbox;
     // by default, do not allow selecting Vaadin 7 versions
     private boolean useDependencyManagement = false;
 
@@ -336,6 +339,26 @@ public class VaadinVersionComposite extends Composite {
         // Note that this can also be modified by the data model provider
         latestNightlyCheckbox.setEnabled(!useDependencyManagement);
 
+        // Add a checkbox for choosing whether to notify the user of Vaadin
+        // version updates.
+        updateNotificationCheckbox = new Button(this, SWT.CHECK);
+        updateNotificationCheckbox.setText("Notify of new Vaadin versions");
+        updateNotificationCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                boolean newValue = updateNotificationCheckbox.getSelection();
+                if (project == null) {
+                    return;
+                }
+                PreferenceUtil prefUtil = PreferenceUtil.get(project);
+                prefUtil.setUpdateNotificationEnabled(newValue);
+            }
+        });
+        GridData gridData = new GridData(GridData.FILL, GridData.BEGINNING,
+                true, false);
+        gridData.horizontalSpan = 3;
+        updateNotificationCheckbox.setLayoutData(gridData);
+
         setControlVisible(downloadButton, !useDependencyManagement);
         setControlVisible(latestNightlyCheckbox, !useDependencyManagement);
         getShell().layout(false);
@@ -583,12 +606,21 @@ public class VaadinVersionComposite extends Composite {
         if (null != project) {
             latestNightlyCheckbox.setSelection(PreferenceUtil.get(project)
                     .isUsingLatestNightly());
+            updateNotificationCheckbox.setSelection(PreferenceUtil.get(project)
+                    .isUpdateNotificationEnabled());
         } else {
             latestNightlyCheckbox.setSelection(false);
+            updateNotificationCheckbox
+                    .setSelection(VaadinPlugin
+                            .getInstance()
+                            .getPreferenceStore()
+                            .getBoolean(
+                                    PreferenceConstants.UPDATE_NOTIFICATIONS_IN_NEW_PROJECTS));
         }
 
         setControlVisible(downloadButton, !useDependencyManagement);
         setControlVisible(latestNightlyCheckbox, !useDependencyManagement);
+        setControlVisible(updateNotificationCheckbox, useDependencyManagement);
         getShell().layout(false);
     }
 

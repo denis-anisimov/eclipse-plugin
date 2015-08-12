@@ -135,9 +135,13 @@ public class VaadinProjectFirstPage extends WebProjectFirstPage implements
                 USE_LATEST_NIGHTLY, new Control[] {});
 
         // Add a check box for choosing whether to create a TB test.
-        final Button b = new Button(group, SWT.CHECK);
+        GridData gd = new GridData(GridData.FILL, GridData.BEGINNING, true,
+                false);
+        gd.horizontalSpan = 3;
+        final Button b = new Button(versionComposite, SWT.CHECK);
         b.setText("Create TestBench test");
-        synchHelper.synchCheckbox(b, CREATE_TB_TEST, new Control[]{ });
+        b.setLayoutData(gd);
+        synchHelper.synchCheckbox(b, CREATE_TB_TEST, new Control[] {});
 
         // update Vaadin 6/7
         vaadinFacetDataModel.addListener(new IDataModelListener() {
