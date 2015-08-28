@@ -1,8 +1,6 @@
 package com.vaadin.integration.eclipse.background;
 
-
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-
 
 /**
  * Periodic job that checks for updates to nightly builds for projects that have
@@ -76,10 +74,14 @@ public class NightlyBuildUpdater {
         nightlyCheckJob.setUser(false);
         // avoid concurrent checks and upgrades
         nightlyCheckJob.setRule(RULE_NIGHTLY_CHECK);
+        
+        CheckVaadinVersionsJob reportUsageStatisticsJob = new CheckVaadinVersionsJob(
+                "Report Usage Statistics");
+        reportUsageStatisticsJob.setUser(false);
 
         nightlyCheckSchedulerJob = new NightlyCheckSchedulerJob(
                 "Scheduler for checking for new Vaadin nightly builds",
-                nightlyCheckJob);
+                nightlyCheckJob, reportUsageStatisticsJob);
         nightlyCheckSchedulerJob.setSystem(true);
         // avoid concurrent checks and upgrades
         nightlyCheckSchedulerJob.setRule(RULE_NIGHTLY_SCHEDULE);
@@ -94,4 +96,5 @@ public class NightlyBuildUpdater {
             nightlyCheckSchedulerJob = null;
         }
     }
+
 }

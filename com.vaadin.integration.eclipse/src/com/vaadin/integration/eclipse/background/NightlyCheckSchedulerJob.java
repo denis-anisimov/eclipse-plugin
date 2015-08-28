@@ -13,12 +13,23 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
  */
 public final class NightlyCheckSchedulerJob extends Job {
     private final Job nightlyCheckJob;
+    private final Job checkVaadinVersionsJob;
 
-    public NightlyCheckSchedulerJob(String name, Job nightlyCheckJob) {
+    public NightlyCheckSchedulerJob(String name, Job nightlyCheckJob, Job checkVaadinVersionsJob) {
         super(name);
         this.nightlyCheckJob = nightlyCheckJob;
 
         nightlyCheckJob.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                // reschedule: check every 24h
+                schedule(24 * 60 * 60 * 1000l);
+            }
+        });
+        
+        this.checkVaadinVersionsJob = checkVaadinVersionsJob;
+
+        checkVaadinVersionsJob.addJobChangeListener(new JobChangeAdapter() {
             @Override
             public void done(IJobChangeEvent event) {
                 // reschedule: check every 24h
@@ -36,11 +47,16 @@ public final class NightlyCheckSchedulerJob extends Job {
         if (null != nightlyCheckJob) {
             nightlyCheckJob.schedule();
         }
+        
+        if (null != checkVaadinVersionsJob){
+            checkVaadinVersionsJob.schedule();
+        }
         return Status.OK_STATUS;
     }
 
     public void stop() {
         nightlyCheckJob.cancel();
+        checkVaadinVersionsJob.cancel();
         cancel();
     }
 

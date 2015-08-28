@@ -33,7 +33,7 @@ public class VaadinPreferences extends FieldEditorPreferencePage implements
                 getFieldEditorParent()));
         new Label(getFieldEditorParent(), SWT.LEFT)
                 .setText("If checked, notifications about new versions of Vaadin are not shown "
-                        + "even for projects that have these notifications enabled.");
+                        + "even for projects that have these notifications enabled. In addition, no usage statistics will be collected. ");
     }
 
     public void init(IWorkbench workbench) {
