@@ -7,10 +7,10 @@
   <packaging>pom</packaging>
   <modules>
     <module>com.vaadin.integration.eclipse</module>
-    <module>com.vaadin.integration.eclipse.feature</module>
+    <module>feature</module>
     <module>update-site</module>
   </modules>
- 
+
   <properties>
     <updatesite.url>No update site defined</updatesite.url>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,8 +25,8 @@
     <keystore.store.password>reindeer</keystore.store.password>
     <keystore.key.password>reindeer</keystore.key.password>
   </properties>
- 
-  <repositories> 
+
+  <repositories>
     <repository>
       <id>eclipse-luna</id>
       <layout>p2</layout>
@@ -44,7 +44,7 @@
       <url>http://www.apache.org/dist/ant/ivyde/updatesite</url>
     </repository>
   </repositories>
-  
+
   <build>
     <plugins>
       <plugin>
@@ -106,7 +106,7 @@
                 <!-- Replace maven deploy with ant deploy -->
                 <skip>true</skip>
             </configuration>
-      </plugin>        
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jarsigner-plugin</artifactId>
