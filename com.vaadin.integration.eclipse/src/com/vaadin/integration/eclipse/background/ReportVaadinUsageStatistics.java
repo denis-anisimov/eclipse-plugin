@@ -17,6 +17,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -47,6 +48,7 @@ public final class ReportVaadinUsageStatistics extends Job {
 
     // Use the GWT Freshness checker URL to store usage reports. 
     private static final String QUERY_URL = "https://tools.vaadin.com/version/currentversion.xml";
+    
     private static final String FIRST_LAUNCH = "firstLaunch";
 
     public ReportVaadinUsageStatistics(String name, Map<IProject, String> vaadinProjects) {
@@ -176,9 +178,9 @@ public final class ReportVaadinUsageStatistics extends Job {
     }
 
     private String makeUserAgent(IVMInstall ivmInstall) {
-        // TODO come up with a better User Agent string that still passes the
-        // whitelist
-        String ua = "GWT Freshness Checker";// (
+        String ua = "Eclipse Plugin ";
+        String pluginVersion = getPluginVersion();
+        ua += pluginVersion;
 
         StringBuffer extra = new StringBuffer();
         appendUserAgentProperty(extra, "java.vendor");
@@ -195,6 +197,11 @@ public final class ReportVaadinUsageStatistics extends Job {
         ua += ivmName;
 
         return ua;
+    }
+
+    private String getPluginVersion() {
+        String version = Platform.getBundle(VaadinPlugin.PLUGIN_ID).getHeaders().get("Bundle-Version");
+        return version;
     }
 
     private void appendUserAgentProperty(StringBuffer sb, String propName) {
