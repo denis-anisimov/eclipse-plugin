@@ -397,7 +397,7 @@ public class VersionUtil {
         } else {
             // Both versions were nonnumeric such as alpha, beta. Use string
             // comparison.
-            return version1Part.compareTo(version2Part);
+            return part1.compareTo(part2);
         }
     }
 
