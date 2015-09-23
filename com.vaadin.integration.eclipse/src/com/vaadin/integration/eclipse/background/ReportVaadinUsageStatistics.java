@@ -3,41 +3,27 @@ package com.vaadin.integration.eclipse.background;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.IVMInstall2;
-import org.eclipse.jdt.launching.IVMInstallType;
-import org.eclipse.jdt.launching.JavaRuntime;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 import com.vaadin.integration.eclipse.util.ErrorUtil;
-import com.vaadin.integration.eclipse.util.ProjectDependencyManager;
-import com.vaadin.integration.eclipse.util.ProjectUtil;
 import com.vaadin.integration.eclipse.util.VaadinPluginUtil;
-import com.vaadin.integration.eclipse.util.data.DownloadableVaadinVersion;
-import com.vaadin.integration.eclipse.util.data.LocalVaadinVersion;
-import com.vaadin.integration.eclipse.util.files.LocalFileManager;
-import com.vaadin.integration.eclipse.util.network.DownloadManager;
 
 /**
  * Background job that upgrades nightly builds in projects.
@@ -62,13 +48,14 @@ public final class ReportVaadinUsageStatistics extends Job {
                 (vaadinProjects.size())); // task size = number of projects
 
         try {
-            if (monitor.isCanceled()) {
-                return Status.CANCEL_STATUS;
-            }
-
             // report vaadin projects
 
             for (IProject project : vaadinProjects.keySet()) {
+
+                if (monitor.isCanceled()) {
+                    return Status.CANCEL_STATUS;
+                }
+
                 IJavaProject jProject;
                 IVMInstall ivmInstall = null;
                 try {
