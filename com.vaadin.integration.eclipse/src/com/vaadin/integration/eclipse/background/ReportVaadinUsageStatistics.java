@@ -69,7 +69,7 @@ public final class ReportVaadinUsageStatistics extends Job {
                             .getJvmInstall(jProject, false);
                 } catch (CoreException e) {
                     // this should never happen as long as all vaadin projects use java
-                    ErrorUtil.displayErrorFromBackgroundThread("Could not find IVM for Vaadin Project", e.getLocalizedMessage());
+                    ErrorUtil.handleBackgroundException("Could not find IVM for Vaadin Project", e);
                 }
 
                 String vaadinVersion = vaadinProjects.get(project);
@@ -159,7 +159,8 @@ public final class ReportVaadinUsageStatistics extends Job {
             }
         }
 
-        ErrorUtil.displayErrorFromBackgroundThread("Caught an exception while executing HTTP query", caught.getLocalizedMessage());
+        //Log the failure throwing up a dialog. Showing an error dialog for every project gets a bit much.  
+        ErrorUtil.handleBackgroundException("Caught an exception while executing HTTP query", caught);
 
         return;
     }
