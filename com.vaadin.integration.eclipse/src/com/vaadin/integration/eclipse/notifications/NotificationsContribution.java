@@ -22,14 +22,19 @@ import com.vaadin.integration.eclipse.VaadinPlugin;
 public class NotificationsContribution
         extends WorkbenchWindowControlContribution {
 
-    private static final String NOTIFICATION_ICON = "icons.notification";
+    static final String NOTIFICATION_ICON = "icons.notification";
 
     @Override
     protected Control createControl(Composite parent) {
-        Button button = new Button(parent, SWT.PUSH);
+        scheduleNotificationRequests();
+        Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
         button.setImage(getIcon());
         button.addSelectionListener(new ButtonListener(parent.getDisplay()));
         return button;
+    }
+
+    private void scheduleNotificationRequests() {
+        // TODO
     }
 
     private Image getIcon() {
@@ -58,8 +63,7 @@ public class NotificationsContribution
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            AbstractNotiifcationPopup popup = new AbstractNotiifcationPopup(
-                    display);
+            NotificationsPopup popup = new NotificationsPopup(display);
             popup.open();
         }
     }

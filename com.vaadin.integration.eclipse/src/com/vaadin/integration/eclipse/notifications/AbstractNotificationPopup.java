@@ -23,8 +23,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IFormColors;
 
-public class AbstractNotiifcationPopup
-        extends AbstractWorkbenchNotificationPopup {
+import com.vaadin.integration.eclipse.VaadinPlugin;
+
+class AbstractNotificationPopup extends AbstractWorkbenchNotificationPopup {
 
     private static final int MAX_LABEL_CHAR_LENGTH = 120;
     private static final int MAX_DESCRIPTION_CHAR_LENGTH = 500;
@@ -34,11 +35,11 @@ public class AbstractNotiifcationPopup
 
     private ShellActivationListener blockPopupListener;
 
-    protected AbstractNotiifcationPopup(Display display) {
+    protected AbstractNotificationPopup(Display display) {
         super(display);
     }
 
-    protected AbstractNotiifcationPopup(Display display, int style) {
+    protected AbstractNotificationPopup(Display display, int style) {
         super(display, style);
     }
 
@@ -98,23 +99,26 @@ public class AbstractNotiifcationPopup
     @Override
     protected Image getPopupShellImage(int maximumHeight) {
         // TODO
-        return super.getPopupShellImage(maximumHeight);
+        return VaadinPlugin.getInstance().getImageRegistry()
+                .get(NotificationsContribution.NOTIFICATION_ICON);
+        // return super.getPopupShellImage(maximumHeight);
     }
 
     @Override
     protected void createContentArea(Composite parent) {
-        Composite contentComposite = new Composite(parent, SWT.NO_FOCUS);
+        Composite pane = new Composite(parent, SWT.NO_FOCUS);
         GridLayout gridLayout = new GridLayout(2, false);
         GridDataFactory.fillDefaults().grab(true, false)
-                .align(SWT.FILL, SWT.TOP).applyTo(contentComposite);
-        contentComposite.setLayout(gridLayout);
+                .align(SWT.FILL, SWT.TOP).applyTo(pane);
+        pane.setLayout(gridLayout);
 
         // icon label:
-        new Label(contentComposite, SWT.NO_FOCUS);
+        new Label(pane, SWT.NO_FOCUS);
 
-        final Label labelText = new Label(contentComposite,
-                SWT.WRAP | SWT.NO_FOCUS);
+        final Label labelText = new Label(pane, SWT.WRAP | SWT.NO_FOCUS);
         labelText.setForeground(CommonColors.TEXT_QUOTED);
+
+        configurePane(pane);
     }
 
     @Override
@@ -135,6 +139,9 @@ public class AbstractNotiifcationPopup
                 screenArea.width + screenArea.x - size.x - PADDING_EDGE,
                 screenArea.height + screenArea.y - size.y - PADDING_EDGE);
         shell.setSize(size);
+    }
+
+    protected void configurePane(Composite pane) {
     }
 
     private Rectangle getPrimaryClientArea() {
@@ -175,28 +182,19 @@ public class AbstractNotiifcationPopup
         private final Label titleLabel;
 
         ShellActivationListener() {
-            title = getPopupShellTitle();
             titleLabel = getTitleLabel(getContents());
-            if (titleLabel != null) {
-                title = titleLabel.getText();
-            }
-            // check existing shells
-            IWorkbench workbench = PlatformUI.getWorkbench();
-            for (Shell shell : workbench.getDisplay().getShells()) {
-                if (isVisibleAndModal(shell) && !isPopupBlocked) {
-                    deactivate();
-                    break;
-                }
-            }
+            title = titleLabel == null ? getPopupShellTitle()
+                    : titleLabel.getText();
+            updateStatus();
         }
 
         public void handleEvent(Event event) {
             if (!isPopupOpen()) {
                 return;
             }
-            Widget w = event.widget;
-            if (w instanceof Shell) {
-                Shell shell = (Shell) w;
+            Widget window = event.widget;
+            if (window instanceof Shell) {
+                Shell shell = (Shell) window;
                 if (isVisibleAndModal(shell)) {
                     if (!isPopupBlocked()) {
                         deactivate();
@@ -204,6 +202,17 @@ public class AbstractNotiifcationPopup
                 } else if (isPopupBlocked()) {
                     isPopupReactivated = true;
                     activate();
+                }
+            }
+        }
+
+        private void updateStatus() {
+            // check existing shells
+            IWorkbench workbench = PlatformUI.getWorkbench();
+            for (Shell shell : workbench.getDisplay().getShells()) {
+                if (isVisibleAndModal(shell) && !isPopupBlocked()) {
+                    deactivate();
+                    break;
                 }
             }
         }
