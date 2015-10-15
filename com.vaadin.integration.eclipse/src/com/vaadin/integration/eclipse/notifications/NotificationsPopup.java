@@ -36,7 +36,7 @@ class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
 
     private static final int TITLE_HEIGHT = 24;
 
-    private static final int MIN_HEIGHT = 100;
+    private static final int MIN_HEIGHT = 300;
     private static final int MAX_WIDTH = 400;
     private static final int PADDING_EDGE = 5;
 
@@ -113,15 +113,15 @@ class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
         // composite below title
         Composite pane = new Composite(parent, SWT.NONE);
         GridLayout gridLayout = new GridLayout(2, false);
-        GridDataFactory.fillDefaults().grab(true, false)
-                .align(SWT.FILL, SWT.TOP).applyTo(pane);
+        GridDataFactory.fillDefaults().grab(true, true)
+                .align(SWT.FILL, SWT.FILL).applyTo(pane);
         pane.setLayout(gridLayout);
         gridLayout.marginWidth = 0;
 
         // main composite whose content is dynamic
         Composite main = new CustomComposite(pane);
-        GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.TOP)
-                .span(2, 1).applyTo(main);
+        GridDataFactory.fillDefaults().grab(true, true)
+                .align(SWT.FILL, SWT.FILL).span(2, 1).applyTo(main);
         mainLayout = new StackLayout();
         main.setLayout(mainLayout);
 
