@@ -11,7 +11,8 @@ class NotificationsListComposite extends Composite {
         super(parent, SWT.NO_FOCUS);
 
         setLayout(new FillLayout());
-        new Label(this, SWT.NONE).setText("content");
+        Label button = new Label(this, SWT.NONE);
+        button.setText("dsfds");
     }
 
 }
