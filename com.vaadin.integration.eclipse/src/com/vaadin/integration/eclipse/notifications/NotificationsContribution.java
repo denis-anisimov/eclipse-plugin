@@ -14,7 +14,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
@@ -29,7 +28,7 @@ public class NotificationsContribution
         scheduleNotificationRequests();
         Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
         button.setImage(getIcon());
-        button.addSelectionListener(new ButtonListener(parent.getDisplay()));
+        button.addSelectionListener(new ButtonListener(button));
         return button;
     }
 
@@ -55,15 +54,15 @@ public class NotificationsContribution
 
     private static class ButtonListener extends SelectionAdapter {
 
-        private final Display display;
+        private final Control control;
 
-        ButtonListener(Display display) {
-            this.display = display;
+        ButtonListener(Control control) {
+            this.control = control;
         }
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            NotificationsPopup popup = new NotificationsPopup(display);
+            NotificationsPopup popup = new NotificationsPopup(control);
             popup.open();
         }
     }

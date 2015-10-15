@@ -16,10 +16,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.PlatformUI;
 
@@ -34,18 +34,25 @@ import com.vaadin.integration.eclipse.VaadinPlugin;
  */
 class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
 
-    private Listener mouseListener = new ClickListener();
-
     private static final int TITLE_HEIGHT = 24;
 
+    private static final int MIN_HEIGHT = 100;
+    private static final int MAX_WIDTH = 400;
+    private static final int PADDING_EDGE = 5;
+
     private Composite notificationsList;
+
+    private Listener mouseListener = new ClickListener();
 
     private StackLayout mainLayout;
 
     private Composite signOutWidget;
 
-    NotificationsPopup(Display display) {
-        super(display);
+    private Control masterControl;
+
+    NotificationsPopup(Control control) {
+        super(control.getDisplay());
+        masterControl = control;
         setDelayClose(-1);
     }
 
@@ -123,6 +130,20 @@ class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
 
         // toolbar bottom composite below content
         createToolBar(pane);
+    }
+
+    @Override
+    protected void initializeBounds() {
+        Shell shell = getShell();
+        Point initialSize = shell.computeSize(MAX_WIDTH, SWT.DEFAULT);
+        int height = Math.max(initialSize.y, MIN_HEIGHT);
+        int width = Math.min(initialSize.x, MAX_WIDTH);
+
+        Point location = masterControl.toDisplay(new Point(0, 0));
+        Point size = new Point(width, height);
+        shell.setLocation(location.x - PADDING_EDGE,
+                location.y - height - PADDING_EDGE);
+        shell.setSize(size);
     }
 
     private void createClearAll(Composite parent) {
