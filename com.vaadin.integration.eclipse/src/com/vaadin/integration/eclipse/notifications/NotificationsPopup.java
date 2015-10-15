@@ -4,13 +4,11 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.PlatformUI;
@@ -25,6 +23,10 @@ import org.eclipse.ui.PlatformUI;
 class NotificationsPopup extends AbstractNotificationPopup {
 
     private Listener mouseListener = new ClickListener();
+
+    private Composite notificationsList;
+
+    private StackLayout mainLayout;
 
     NotificationsPopup(Display display) {
         super(display);
@@ -48,7 +50,15 @@ class NotificationsPopup extends AbstractNotificationPopup {
 
     @Override
     protected void configurePane(Composite pane) {
-        createListArea(pane);
+        Composite main = new Composite(pane, SWT.NO_FOCUS);
+        GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.TOP)
+                .span(2, 1).applyTo(main);
+        mainLayout = new StackLayout();
+        main.setLayout(mainLayout);
+
+        notificationsList = createListArea(main);
+        mainLayout.topControl = notificationsList;
+
         createToolBar(pane);
     }
 
@@ -57,20 +67,15 @@ class NotificationsPopup extends AbstractNotificationPopup {
         createToolbar(parent, SWT.RIGHT, new ClearAll());
     }
 
-    private Control createListArea(Composite pane) {
-        // create a composite with standard margins and spacing
-        Composite composite = new Composite(pane, SWT.NONE);
-
-        GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.TOP)
-                .span(2, 1).applyTo(composite);
-        composite.setLayout(new FillLayout());
-        new Label(composite, SWT.NONE).setText("content");
+    private NotificationsListComposite createListArea(Composite pane) {
+        NotificationsListComposite composite = new NotificationsListComposite(
+                pane);
         return composite;
     }
 
     private void createToolbar(Composite parent, int alignment, Action action) {
         ToolBarManager toolBarManager = new ToolBarManager(
-                SWT.FLAT | SWT.HORIZONTAL);
+                SWT.FLAT | SWT.HORIZONTAL | SWT.NO_FOCUS);
         ToolBar toolBar = toolBarManager.createControl(parent);
         GridDataFactory.fillDefaults().align(alignment, SWT.BOTTOM)
                 .applyTo(toolBar);
@@ -97,6 +102,9 @@ class NotificationsPopup extends AbstractNotificationPopup {
 
         @Override
         public void run() {
+            mainLayout.topControl = new SignInComposite(
+                    notificationsList.getParent());
+            notificationsList.getParent().layout();
         }
 
     }
