@@ -29,41 +29,6 @@ class NotificationsListComposite extends ScrolledComposite {
             SignInItem item = new SignInItem(parent);
             setLayoutData(item);
         }
-        SignInItem item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-        item = new SignInItem(parent);
-        setLayoutData(item);
-
     }
 
     private void setLayoutData(Control control) {

@@ -19,6 +19,9 @@ abstract class AbstractNotificationItem extends Composite {
 
         GridLayout layout = new GridLayout(4, false);
         setLayout(layout);
+
+        setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+
         initComponents(read, type);
     }
 

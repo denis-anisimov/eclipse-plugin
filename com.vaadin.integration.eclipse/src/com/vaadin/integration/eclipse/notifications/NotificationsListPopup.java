@@ -3,7 +3,6 @@ package com.vaadin.integration.eclipse.notifications;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.mylyn.commons.ui.CommonImages;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.mylyn.commons.workbench.AbstractWorkbenchNotificationPopup;
 import org.eclipse.mylyn.commons.workbench.forms.ScalingHyperlink;
@@ -16,6 +15,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -42,7 +42,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private Composite notificationsList;
 
-    private Listener mouseListener = new ClickListener();
+    private Listener mouseListener = new ActiveControlListener();
 
     private StackLayout mainLayout;
 
@@ -59,14 +59,22 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     @Override
     public void create() {
         super.create();
-        mouseListener = new ClickListener();
+        mouseListener = new ActiveControlListener();
         PlatformUI.getWorkbench().getDisplay().addFilter(SWT.MouseDown,
                 mouseListener);
+        PlatformUI.getWorkbench().getDisplay().addFilter(SWT.FocusOut,
+                mouseListener);
+        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
+                .addListener(SWT.Resize, mouseListener);
     }
 
     @Override
     public boolean close() {
         PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.MouseDown,
+                mouseListener);
+        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
+                .removeListener(SWT.Resize, mouseListener);
+        PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.FocusOut,
                 mouseListener);
         return super.close();
     }
@@ -93,8 +101,6 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         titleTextLabel.setForeground(getTitleForeground());
         titleTextLabel
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-        titleTextLabel.setCursor(
-                parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
 
         createClearAll(parent);
     }
@@ -139,9 +145,19 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         int width = Math.min(initialSize.x, MAX_WIDTH);
 
         Point location = masterControl.toDisplay(new Point(0, 0));
+        location.x = location.x - PADDING_EDGE;
+        location.y = location.y - height - PADDING_EDGE;
+
+        Point mainWindowSize = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell().getSize();
+        Point mainWindowLocation = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getShell().getLocation();
+        if (location.x + width > mainWindowLocation.x + mainWindowSize.x) {
+            location.x = mainWindowLocation.x + mainWindowSize.x - width;
+        }
+
         Point size = new Point(width, height);
-        shell.setLocation(location.x - PADDING_EDGE,
-                location.y - height - PADDING_EDGE);
+        shell.setLocation(location);
         shell.setSize(size);
     }
 
@@ -150,7 +166,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         // TODO
         link.setText("Clear All");
         link.registerMouseTrackListener();
-        link.setImage(CommonImages.getImage(CommonImages.NOTIFICATION_CLOSE));
+        link.setImage(VaadinPlugin.getInstance().getImageRegistry()
+                .get(NotificationsContribution.CLEAR_ALL_ICON));
     }
 
     private void adjustMargins(Composite parent) {
@@ -184,11 +201,23 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         return toolBar;
     }
 
-    private class ClickListener implements Listener {
+    private class ActiveControlListener implements Listener, Runnable {
 
         public void handleEvent(Event event) {
+            if (event.type == SWT.FocusOut) {
+                Display.getDefault().asyncExec(this);
+                return;
+            }
             Point location = event.widget.getDisplay().getCursorLocation();
-            if (!getShell().getBounds().contains(location)) {
+            if (!getShell().isDisposed()
+                    && !getShell().getBounds().contains(location)) {
+                close();
+            }
+        }
+
+        public void run() {
+            if (PlatformUI.getWorkbench().getDisplay()
+                    .getFocusControl() == null) {
                 close();
             }
         }
