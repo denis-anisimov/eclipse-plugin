@@ -18,6 +18,7 @@ class SignInItem extends AbstractNotificationItem {
         FillLayout layout = new FillLayout(SWT.VERTICAL);
         composite.setLayout(layout);
 
+        // TODO : I18N
         new Label(composite, SWT.NONE)
                 .setText("Sign in with your vaadin account");
         new Label(composite, SWT.NONE)

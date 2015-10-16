@@ -36,7 +36,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private static final int TITLE_HEIGHT = 24;
 
-    private static final int MIN_HEIGHT = 300;
+    private static final int HEIGHT = 300;
     private static final int MAX_WIDTH = 400;
     private static final int PADDING_EDGE = 5;
 
@@ -134,8 +134,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     @Override
     protected void initializeBounds() {
         Shell shell = getShell();
-        Point initialSize = shell.computeSize(MAX_WIDTH, SWT.DEFAULT);
-        int height = Math.max(initialSize.y, MIN_HEIGHT);
+        Point initialSize = shell.computeSize(MAX_WIDTH, HEIGHT);
+        int height = HEIGHT;
         int width = Math.min(initialSize.x, MAX_WIDTH);
 
         Point location = masterControl.toDisplay(new Point(0, 0));

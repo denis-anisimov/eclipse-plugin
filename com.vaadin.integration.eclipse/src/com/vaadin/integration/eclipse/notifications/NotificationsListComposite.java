@@ -10,8 +10,7 @@ import org.eclipse.swt.widgets.Control;
 class NotificationsListComposite extends ScrolledComposite {
 
     NotificationsListComposite(Composite parent) {
-        super(parent, SWT.NO_FOCUS | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.FILL);
+        super(parent, SWT.NO_FOCUS | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 
         setExpandHorizontal(true);
         setExpandVertical(true);
@@ -22,8 +21,7 @@ class NotificationsListComposite extends ScrolledComposite {
         setContent(composite);
 
         initComponents(composite);
-
-        setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        setMinSize(composite.computeSize(0, SWT.DEFAULT));
     }
 
     private void initComponents(Composite parent) {
@@ -31,6 +29,41 @@ class NotificationsListComposite extends ScrolledComposite {
             SignInItem item = new SignInItem(parent);
             setLayoutData(item);
         }
+        SignInItem item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+        item = new SignInItem(parent);
+        setLayoutData(item);
+
     }
 
     private void setLayoutData(Control control) {
