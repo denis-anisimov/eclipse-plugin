@@ -27,6 +27,9 @@ class NotificationsListComposite extends ScrolledComposite
 
         Composite composite = new Composite(this, SWT.NONE);
         GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.verticalSpacing = 2;
         composite.setLayout(layout);
         setContent(composite);
 
@@ -57,8 +60,7 @@ class NotificationsListComposite extends ScrolledComposite
 
     private void initComponents(Composite parent) {
         if (!isSignedIn()) {
-            SignInItem item = new SignInItem(parent);
-            setLayoutData(item);
+            setLayoutData(new SignInItem(parent));
         }
     }
 

@@ -8,7 +8,6 @@ import org.eclipse.mylyn.commons.workbench.AbstractWorkbenchNotificationPopup;
 import org.eclipse.mylyn.commons.workbench.forms.ScalingHyperlink;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -38,7 +37,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private static final int TITLE_HEIGHT = 24;
 
-    private static final int HEIGHT = 300;
+    private static final int MAX_HEIGHT = 300;
     private static final int MAX_WIDTH = 400;
     private static final int PADDING_EDGE = 5;
 
@@ -135,10 +134,11 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         gridLayout.marginWidth = 0;
 
         // main composite whose content is dynamic
-        CustomComposite main = new CustomComposite(pane);
+        Composite main = new Composite(pane, SWT.NO_FOCUS);
         GridDataFactory.fillDefaults().grab(true, true)
                 .align(SWT.FILL, SWT.FILL).span(2, 1).applyTo(main);
-        mainLayout = main.getLayout();
+        mainLayout = new StackLayout();
+        main.setLayout(mainLayout);
 
         notificationsList = createListArea(main);
         mainLayout.topControl = notificationsList;
@@ -150,8 +150,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     @Override
     protected void initializeBounds() {
         Shell shell = getShell();
-        Point initialSize = shell.computeSize(MAX_WIDTH, HEIGHT);
-        int height = HEIGHT;
+        Point initialSize = shell.computeSize(MAX_WIDTH, MAX_HEIGHT);
+        int height = Math.min(initialSize.y, MAX_HEIGHT);
         int width = Math.min(initialSize.x, MAX_WIDTH);
 
         Point location = masterControl.toDisplay(new Point(0, 0));
@@ -309,37 +309,4 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         }
     }
 
-    private static class CustomComposite extends Composite {
-
-        CustomComposite(Composite parent) {
-            super(parent, SWT.NONE);
-            doSetBackground(
-                    getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
-            setLayout(new StackLayout());
-        }
-
-        @Override
-        public void layout(boolean changed) {
-            super.layout(changed);
-            if (getLayout().topControl instanceof SignInComposite) {
-                doSetBackground(null);
-            } else {
-                doSetBackground(getShell().getDisplay()
-                        .getSystemColor(SWT.COLOR_WHITE));
-            }
-        }
-
-        @Override
-        public void setBackground(Color color) {
-        }
-
-        @Override
-        public StackLayout getLayout() {
-            return (StackLayout) super.getLayout();
-        }
-
-        private void doSetBackground(Color color) {
-            super.setBackground(color);
-        }
-    }
 }

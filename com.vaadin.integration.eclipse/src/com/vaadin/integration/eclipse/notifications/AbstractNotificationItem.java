@@ -2,6 +2,7 @@ package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -21,8 +22,13 @@ abstract class AbstractNotificationItem extends Composite {
         setLayout(layout);
 
         setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+        doSetBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
         initComponents(read, type);
+    }
+
+    @Override
+    public void setBackground(Color color) {
     }
 
     protected abstract Control createInfoSection();
@@ -32,6 +38,10 @@ abstract class AbstractNotificationItem extends Composite {
     }
 
     abstract void runAction(PopupUpdateManager manager);
+
+    private void doSetBackground(Color color) {
+        super.setBackground(color);
+    }
 
     private void initComponents(boolean read, NotificationType type) {
         newNotificationLabel = new Label(this, SWT.NONE);
