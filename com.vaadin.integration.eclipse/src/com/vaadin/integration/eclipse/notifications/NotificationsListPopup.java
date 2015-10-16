@@ -42,6 +42,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private Composite notificationsList;
 
+    private final PopupUpdateManager updateManager = new UpdateManagerImpl();
     private Listener mouseListener = new ActiveControlListener();
 
     private StackLayout mainLayout;
@@ -184,7 +185,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private NotificationsListComposite createListArea(Composite pane) {
         NotificationsListComposite composite = new NotificationsListComposite(
-                pane);
+                pane, updateManager);
         return composite;
     }
 
@@ -199,6 +200,19 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         manager.update(true);
 
         return toolBar;
+    }
+
+    private class UpdateManagerImpl implements PopupUpdateManager {
+
+        public void signIn() {
+            System.out.println("sssssssssssss");
+        }
+
+        public void showNotiifcation() {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 
     private class ActiveControlListener implements Listener, Runnable {

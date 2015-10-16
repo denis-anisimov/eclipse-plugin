@@ -26,4 +26,9 @@ class SignInItem extends AbstractNotificationItem {
 
         return composite;
     }
+
+    @Override
+    void runAction(PopupUpdateManager manager) {
+        manager.signIn();
+    }
 }

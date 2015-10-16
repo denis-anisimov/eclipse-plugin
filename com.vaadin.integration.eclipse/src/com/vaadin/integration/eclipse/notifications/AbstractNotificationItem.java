@@ -31,6 +31,8 @@ abstract class AbstractNotificationItem extends Composite {
         newNotificationLabel.setImage(null);
     }
 
+    abstract void runAction(PopupUpdateManager manager);
+
     private void initComponents(boolean read, NotificationType type) {
         newNotificationLabel = new Label(this, SWT.NONE);
         if (!read) {
