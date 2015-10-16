@@ -22,6 +22,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 
@@ -40,16 +42,23 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     private static final int MAX_WIDTH = 400;
     private static final int PADDING_EDGE = 5;
 
+    private final Composite nullComposite = new Composite(new Shell(),
+            SWT.NONE);
+
     private Composite notificationsList;
 
     private final PopupUpdateManager updateManager = new UpdateManagerImpl();
-    private Listener mouseListener = new ActiveControlListener();
+    private ActiveControlListener mouseListener = new ActiveControlListener();
 
     private StackLayout mainLayout;
 
     private Composite signOutWidget;
 
     private Control masterControl;
+
+    private Label titleImageLabel;
+
+    private Label titleTextLabel;
 
     NotificationsListPopup(Control control) {
         super(control.getDisplay());
@@ -77,6 +86,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
                 .removeListener(SWT.Resize, mouseListener);
         PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.FocusOut,
                 mouseListener);
+        nullComposite.dispose();
         return super.close();
     }
 
@@ -92,10 +102,10 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     protected void createTitleArea(Composite parent) {
         ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
 
-        Label titleImageLabel = new Label(parent, SWT.NONE);
+        titleImageLabel = new Label(parent, SWT.NONE);
         titleImageLabel.setImage(getPopupShellImage(TITLE_HEIGHT));
 
-        Label titleTextLabel = new Label(parent, SWT.NONE);
+        titleTextLabel = new Label(parent, SWT.NONE);
         // TODO
         titleTextLabel.setText("Vaadin Notification");
         titleTextLabel.setFont(CommonFonts.BOLD);
@@ -202,10 +212,15 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         return toolBar;
     }
 
-    private class UpdateManagerImpl implements PopupUpdateManager {
+    private class UpdateManagerImpl extends HyperlinkAdapter
+            implements PopupUpdateManager {
 
         public void signIn() {
-            System.out.println("sssssssssssss");
+            NotificationHyperlink link = setBackLink();
+
+            titleImageLabel.setParent(nullComposite);
+            titleTextLabel.setVisible(false);
+            link.getParent().layout(true);
         }
 
         public void showNotiifcation() {
@@ -213,6 +228,27 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
         }
 
+        @Override
+        public void linkActivated(HyperlinkEvent e) {
+            titleImageLabel.setParent(titleTextLabel.getParent());
+            titleTextLabel.setVisible(true);
+            titleImageLabel.moveAbove(titleImageLabel);
+            e.widget.dispose();
+            titleImageLabel.getParent().layout(true);
+        }
+
+        private NotificationHyperlink setBackLink() {
+            NotificationHyperlink link = new NotificationHyperlink(
+                    titleImageLabel.getParent());
+            // TODO : I18N
+            link.setText("Back to notifications");
+            link.setImage(VaadinPlugin.getInstance().getImageRegistry()
+                    .get(NotificationsContribution.RETURN_ICON));
+            link.moveAbove(titleImageLabel);
+            link.registerMouseTrackListener();
+            link.addHyperlinkListener(this);
+            return link;
+        }
     }
 
     private class ActiveControlListener implements Listener, Runnable {
@@ -235,6 +271,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
                 close();
             }
         }
+
     }
 
     private class Login extends Action {

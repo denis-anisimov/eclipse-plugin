@@ -11,6 +11,10 @@ class NotificationHyperlink extends ScalingHyperlink {
         super(parent, SWT.LEFT | SWT.NO_FOCUS);
     }
 
+    NotificationHyperlink(Composite parent, int style) {
+        super(parent, style | SWT.NO_FOCUS);
+    }
+
     // @Override
     // protected void paint(PaintEvent e) {
     // GC gc = e.gc;
