@@ -1,10 +1,11 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Control;
 
 class NotificationsListComposite extends ScrolledComposite {
 
@@ -20,15 +21,25 @@ class NotificationsListComposite extends ScrolledComposite {
         composite.setLayout(layout);
         setContent(composite);
 
-        initNotifications(composite);
+        initComponents(composite);
+
+        setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
 
-    private void initNotifications(Composite parent) {
-        new Label(parent, SWT.NONE).setText("AAA");
-        new Label(parent, SWT.NONE).setText("BB");
-        new Label(parent, SWT.NONE).setText("CC");
-        new Label(parent, SWT.NONE).setText("DD");
-        new Label(parent, SWT.NONE).setText("EE");
+    private void initComponents(Composite parent) {
+        if (!isSignedIn()) {
+            SignInItem item = new SignInItem(parent);
+            setLayoutData(item);
+        }
     }
 
+    private void setLayoutData(Control control) {
+        GridDataFactory.fillDefaults().grab(true, false)
+                .align(SWT.FILL, SWT.FILL).applyTo(control);
+    }
+
+    private boolean isSignedIn() {
+        // TODO
+        return false;
+    }
 }

@@ -32,7 +32,7 @@ import com.vaadin.integration.eclipse.VaadinPlugin;
  * @author denis
  *
  */
-class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
+class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private static final int TITLE_HEIGHT = 24;
 
@@ -50,7 +50,7 @@ class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
 
     private Control masterControl;
 
-    NotificationsPopup(Control control) {
+    NotificationsListPopup(Control control) {
         super(control.getDisplay());
         masterControl = control;
         setDelayClose(-1);
@@ -101,9 +101,8 @@ class NotificationsPopup extends AbstractWorkbenchNotificationPopup {
 
     @Override
     protected Image getPopupShellImage(int maximumHeight) {
-        // TODO
         return VaadinPlugin.getInstance().getImageRegistry()
-                .get(NotificationsContribution.NOTIFICATION_ICON);
+                .get(NotificationsContribution.REGULAR_NOTIFICATION_ICON);
     }
 
     @Override
