@@ -135,11 +135,10 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         gridLayout.marginWidth = 0;
 
         // main composite whose content is dynamic
-        Composite main = new CustomComposite(pane);
+        CustomComposite main = new CustomComposite(pane);
         GridDataFactory.fillDefaults().grab(true, true)
                 .align(SWT.FILL, SWT.FILL).span(2, 1).applyTo(main);
-        mainLayout = new StackLayout();
-        main.setLayout(mainLayout);
+        mainLayout = main.getLayout();
 
         notificationsList = createListArea(main);
         mainLayout.topControl = notificationsList;
@@ -221,6 +220,10 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             titleImageLabel.setParent(nullComposite);
             titleTextLabel.setVisible(false);
             link.getParent().layout(true);
+
+            Composite main = mainLayout.topControl.getParent();
+            mainLayout.topControl = new SignInComposite(main);
+            main.layout(true);
         }
 
         public void showNotiifcation() {
@@ -235,6 +238,10 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             titleImageLabel.moveAbove(titleImageLabel);
             e.widget.dispose();
             titleImageLabel.getParent().layout(true);
+
+            Composite main = mainLayout.topControl.getParent();
+            mainLayout.topControl = notificationsList;
+            main.layout(true);
         }
 
         private NotificationHyperlink setBackLink() {
@@ -308,14 +315,31 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             super(parent, SWT.NONE);
             doSetBackground(
                     getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
+            setLayout(new StackLayout());
         }
 
-        private void doSetBackground(Color color) {
-            super.setBackground(color);
+        @Override
+        public void layout(boolean changed) {
+            super.layout(changed);
+            if (getLayout().topControl instanceof SignInComposite) {
+                doSetBackground(null);
+            } else {
+                doSetBackground(getShell().getDisplay()
+                        .getSystemColor(SWT.COLOR_WHITE));
+            }
         }
 
         @Override
         public void setBackground(Color color) {
+        }
+
+        @Override
+        public StackLayout getLayout() {
+            return (StackLayout) super.getLayout();
+        }
+
+        private void doSetBackground(Color color) {
+            super.setBackground(color);
         }
     }
 }
