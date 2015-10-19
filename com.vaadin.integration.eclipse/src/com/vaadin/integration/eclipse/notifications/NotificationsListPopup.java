@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -59,6 +60,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private Label titleTextLabel;
 
+    private Control clearAll;
+
     NotificationsListPopup(Control control) {
         super(control.getDisplay());
         masterControl = control;
@@ -79,10 +82,11 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     @Override
     public boolean close() {
-        PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.MouseDown,
+        IWorkbenchWindow window = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow();
+        window.getShell().getDisplay().removeFilter(SWT.MouseDown,
                 mouseListener);
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                .removeListener(SWT.Resize, mouseListener);
+        window.getShell().removeListener(SWT.Resize, mouseListener);
         PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.FocusOut,
                 mouseListener);
         nullComposite.dispose();
@@ -178,6 +182,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         link.registerMouseTrackListener();
         link.setImage(VaadinPlugin.getInstance().getImageRegistry()
                 .get(NotificationsContribution.CLEAR_ALL_ICON));
+
+        clearAll = link;
     }
 
     private void adjustMargins(Composite parent) {
@@ -224,6 +230,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = new SignInComposite(main);
             main.layout(true);
+
+            clearAll.setVisible(false);
         }
 
         public void showNotiifcation() {
@@ -242,6 +250,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = notificationsList;
             main.layout(true);
+
+            clearAll.setVisible(true);
         }
 
         private NotificationHyperlink setBackLink() {
@@ -273,8 +283,12 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         }
 
         public void run() {
-            if (PlatformUI.getWorkbench().getDisplay()
-                    .getFocusControl() == null) {
+            IWorkbenchWindow window = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow();
+            if (window != null && window.getShell() != null
+                    && window.getShell().getDisplay() != null
+                    && PlatformUI.getWorkbench().getDisplay()
+                            .getFocusControl() == null) {
                 close();
             }
         }
