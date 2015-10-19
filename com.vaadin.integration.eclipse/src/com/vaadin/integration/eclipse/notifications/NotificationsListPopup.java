@@ -1,7 +1,5 @@
 package com.vaadin.integration.eclipse.notifications;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.mylyn.commons.workbench.AbstractWorkbenchNotificationPopup;
@@ -18,7 +16,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
@@ -26,6 +23,7 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
 
 /**
  * Shows a list of all notifications and allows to navigate to the specific
@@ -47,12 +45,12 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private Composite notificationsList;
 
-    private final PopupUpdateManager updateManager = new UpdateManagerImpl();
+    private final UpdateManagerImpl updateManager = new UpdateManagerImpl();
     private ActiveControlListener mouseListener = new ActiveControlListener();
 
     private StackLayout mainLayout;
 
-    private Composite signOutWidget;
+    private Control signOutWidget;
 
     private Control masterControl;
 
@@ -184,6 +182,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         link.registerMouseTrackListener();
         link.setImage(VaadinPlugin.getInstance().getImageRegistry()
                 .get(Utils.CLEAR_ALL_ICON));
+        link.addHyperlinkListener(updateManager);
 
         clearAll = link;
     }
@@ -195,9 +194,10 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     }
 
     private void createToolBar(Composite parent) {
-        signOutWidget = createToolbar(parent, SWT.LEFT, new Login());
+        // TODO : I18N
+        signOutWidget = createAction(parent, SWT.LEFT, "Sign Out");
         signOutWidget.setVisible(false);
-        createToolbar(parent, SWT.RIGHT, new ClearAll());
+        createAction(parent, SWT.RIGHT, "Notif. settings");
     }
 
     private NotificationsListComposite createListArea(Composite pane) {
@@ -206,17 +206,14 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         return composite;
     }
 
-    private ToolBar createToolbar(Composite parent, int alignment,
-            Action action) {
-        ToolBarManager manager = new ToolBarManager(
-                SWT.FLAT | SWT.HORIZONTAL | SWT.NO_FOCUS);
-        ToolBar toolBar = manager.createControl(parent);
+    private Control createAction(Composite parent, int alignment, String text) {
+        ScalingHyperlink link = new NotificationHyperlink(parent);
+        link.setText(text);
+        link.registerMouseTrackListener();
         GridDataFactory.fillDefaults().align(alignment, SWT.BOTTOM)
-                .applyTo(toolBar);
-        manager.add(action);
-        manager.update(true);
-
-        return toolBar;
+                .applyTo(link);
+        link.addHyperlinkListener(updateManager);
+        return link;
     }
 
     private class UpdateManagerImpl extends HyperlinkAdapter
@@ -250,7 +247,31 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
         public void showNotificationsList() {
             activateNotificationsList();
+            resetNotificationsList();
+        }
 
+        @Override
+        public void linkActivated(HyperlinkEvent e) {
+            if (e.widget == returnLink) {
+                activateNotificationsList();
+
+                Composite main = mainLayout.topControl.getParent();
+                mainLayout.topControl = notificationsList;
+                main.layout();
+            } else if (e.widget == signOutWidget) {
+                // remove token
+                resetNotificationsList();
+                signOutWidget.setVisible(false);
+            } else {
+                try {
+                    Utils.openUrl(Utils.SETTINGS_URL);
+                } catch (UrlOpenException exception) {
+                    // TODO: open error dialog about open browser failure.
+                }
+            }
+        }
+
+        private void resetNotificationsList() {
             // TODO: this should show the same list (without login sign in
             // item)
             // as previously and schedule fetch notifications with logic
@@ -262,15 +283,15 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             main.layout();
             notificationsList.dispose();
             notificationsList = newList;
+
+            updateSignOut();
         }
 
-        @Override
-        public void linkActivated(HyperlinkEvent e) {
-            activateNotificationsList();
-
-            Composite main = mainLayout.topControl.getParent();
-            mainLayout.topControl = notificationsList;
-            main.layout();
+        private void updateSignOut() {
+            // TODO: check whether there is a token
+            if (true) {
+                signOutWidget.setVisible(true);
+            }
         }
 
         private void activateNotificationsList() {
@@ -343,31 +364,6 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             }
         }
 
-    }
-
-    private class Login extends Action {
-
-        Login() {
-            // TODO: I18N!
-            setText("Sign out");
-        }
-
-        @Override
-        public void run() {
-        }
-
-    }
-
-    private class ClearAll extends Action {
-
-        ClearAll() {
-            // TODO: I18N!
-            setText("Notif. settings");
-        }
-
-        @Override
-        public void run() {
-        }
     }
 
 }
