@@ -1,5 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import org.eclipse.ui.browser.IWebBrowser;
+
 interface PopupUpdateManager {
 
     /**
@@ -14,4 +16,13 @@ interface PopupUpdateManager {
 
     // TODO : notification data as an arg
     void showNotification();
+
+    /**
+     * Show token input view.
+     * 
+     * @param browser
+     *            instance which has been used to open login web page. Can be
+     *            null. The parameter is optional.
+     */
+    void showTokenInput(IWebBrowser browser);
 }

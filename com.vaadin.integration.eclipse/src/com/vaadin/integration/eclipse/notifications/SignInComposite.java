@@ -2,6 +2,8 @@ package com.vaadin.integration.eclipse.notifications;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
@@ -12,12 +14,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 
@@ -37,6 +41,9 @@ class SignInComposite extends Composite {
     private Label loginFailedLabel;
 
     private PopupUpdateManager manager;
+
+    private static final Logger LOG = Logger
+            .getLogger(SignInComposite.class.getName());
 
     SignInComposite(Composite parent, PopupUpdateManager updateManager) {
         super(parent, SWT.NO_FOCUS);
@@ -148,6 +155,7 @@ class SignInComposite extends Composite {
         if (false) {
             // TODO : do not block UI. Do sign in request in background and show
             // info label (in green/blue color) about operation in progress
+            passwd.setText("");
             notifyFailedLogin();
         } else {
             manager.showNotificationsList();
@@ -173,6 +181,10 @@ class SignInComposite extends Composite {
         }
     }
 
+    private void showTokenInput(IWebBrowser browser) {
+        manager.showTokenInput(browser);
+    }
+
     private class Listener extends HyperlinkAdapter
             implements DisposeListener, SelectionListener {
 
@@ -187,15 +199,27 @@ class SignInComposite extends Composite {
 
         @Override
         public void linkActivated(HyperlinkEvent e) {
+            boolean urlOpened = true;
+            IWebBrowser browser = null;
             try {
-                PlatformUI.getWorkbench().getBrowserSupport()
-                        .createBrowser(Utils.BROWSER_ID)
-                        .openURL(new URL(SIGN_IN_URL));
+                browser = PlatformUI.getWorkbench().getBrowserSupport()
+                        .createBrowser(Utils.BROWSER_ID);
+                browser.openURL(new URL(SIGN_IN_URL));
             } catch (PartInitException exception) {
-                // TODO : try open external browser via Program
+                LOG.log(Level.SEVERE, null, exception);
+                if (Program.launch(SIGN_IN_URL)) {
+                    LOG.info("URL is opened via external program");
+                } else {
+                    urlOpened = false;
+                }
             } catch (MalformedURLException exception) {
-                // TODO: this should never happen, log it and report and error
+                urlOpened = false;
+                LOG.log(Level.SEVERE, null, exception);
             }
+            if (!urlOpened) {
+                // TODO: open error dialog.
+            }
+            showTokenInput(browser);
         }
 
         public void widgetDefaultSelected(SelectionEvent e) {

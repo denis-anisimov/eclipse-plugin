@@ -14,7 +14,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -22,6 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 
@@ -241,11 +241,20 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
         }
 
+        public void showTokenInput(IWebBrowser browser) {
+            Composite main = mainLayout.topControl.getParent();
+            mainLayout.topControl = new TokenInputComposite(main, browser,
+                    updateManager);
+            main.layout();
+        }
+
         public void showNotificationsList() {
             activateNotificationsList();
 
-            // TODO: this should show the same list (without login sign in item)
-            // as previously and schedule fetch notifications with logic below
+            // TODO: this should show the same list (without login sign in
+            // item)
+            // as previously and schedule fetch notifications with logic
+            // below
             // applied after notifications are fetched.
             Composite main = mainLayout.topControl.getParent();
             NotificationsListComposite newList = createListArea(main);
@@ -294,9 +303,19 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private class ActiveControlListener implements Listener, Runnable {
 
+        private boolean isClose;
+
+        ActiveControlListener() {
+            this(false);
+        }
+
+        ActiveControlListener(boolean close) {
+            isClose = close;
+        }
+
         public void handleEvent(Event event) {
             if (event.type == SWT.FocusOut) {
-                Display.getDefault().asyncExec(this);
+                getShell().getDisplay().asyncExec(this);
                 return;
             }
             Point location = event.widget.getDisplay().getCursorLocation();
@@ -313,7 +332,14 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
                     && window.getShell().getDisplay() != null
                     && PlatformUI.getWorkbench().getDisplay()
                             .getFocusControl() == null) {
-                close();
+                if (isClose) {
+                    close();
+                } else {
+                    // do not close immediately if there is no focused control,
+                    // schedule one more round to check
+                    getShell().getDisplay()
+                            .asyncExec(new ActiveControlListener(true));
+                }
             }
         }
 
