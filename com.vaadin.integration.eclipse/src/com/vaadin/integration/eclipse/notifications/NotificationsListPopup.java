@@ -229,7 +229,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = new SignInComposite(main);
-            main.layout(true);
+            main.layout();
 
             clearAll.setVisible(false);
         }
@@ -304,9 +304,6 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
         @Override
         public void run() {
-            mainLayout.topControl = new SignInComposite(
-                    notificationsList.getParent());
-            notificationsList.getParent().layout();
         }
 
     }

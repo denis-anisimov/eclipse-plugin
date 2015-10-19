@@ -19,7 +19,7 @@ class NotificationsListComposite extends ScrolledComposite
     private final PopupUpdateManager updateManager;
 
     NotificationsListComposite(Composite parent, PopupUpdateManager manager) {
-        super(parent, SWT.NO_FOCUS | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        super(parent, SWT.NO_FOCUS | SWT.BORDER | SWT.V_SCROLL);
         this.updateManager = manager;
 
         setExpandHorizontal(true);

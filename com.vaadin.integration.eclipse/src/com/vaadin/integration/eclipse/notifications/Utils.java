@@ -17,4 +17,5 @@ final class Utils {
         }
         return styleData;
     }
+
 }
