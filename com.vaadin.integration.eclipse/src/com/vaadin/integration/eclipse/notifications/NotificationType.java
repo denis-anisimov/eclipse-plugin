@@ -6,7 +6,7 @@ import com.vaadin.integration.eclipse.VaadinPlugin;
 
 enum NotificationType {
 
-    SIGN_IN(NotificationsContribution.SIGN_IN_ICON), WEBINAR(null), VAADIN(
+    SIGN_IN(Utils.SIGN_IN_ICON), WEBINAR(null), VAADIN(
             null);
     // TODO : more ?
     private final String iconId;

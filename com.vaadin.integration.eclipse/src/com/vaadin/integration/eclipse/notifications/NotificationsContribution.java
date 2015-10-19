@@ -22,15 +22,6 @@ public class NotificationsContribution
         extends WorkbenchWindowControlContribution {
 
     private static final String PNG = ".png";
-    static final String REGULAR_NOTIFICATION_ICON = "icons.vaadin-icon16";
-    static final String NEW_NOTIFICATION_ICON = "icons.vaadin-icon16-new";
-    static final String GO_ICON = "icons.triangle-icon";
-    static final String RETURN_ICON = "icons.chevron-left-icon";
-    static final String CLEAR_ALL_ICON = "icons.bell-slash-icon";
-    static final String NEW_ICON = "icons.dot";
-    static final String SIGN_IN_BUTTON = "icons.sign-in-btn";
-    static final String SIGN_IN_ICON = "icons.sign-in-icon40";
-
     @Override
     protected Control createControl(Composite parent) {
         scheduleNotificationRequests();
@@ -49,23 +40,23 @@ public class NotificationsContribution
 
     private Image getRegularIcon() {
         return VaadinPlugin.getInstance().getImageRegistry()
-                .get(REGULAR_NOTIFICATION_ICON);
+                .get(Utils.REGULAR_NOTIFICATION_ICON);
     }
 
     private Image getNewIcon() {
         return VaadinPlugin.getInstance().getImageRegistry()
-                .get(REGULAR_NOTIFICATION_ICON);
+                .get(Utils.REGULAR_NOTIFICATION_ICON);
     }
 
     private void loadNotificationIcons() {
-        registerIcon(REGULAR_NOTIFICATION_ICON);
-        registerIcon(NEW_NOTIFICATION_ICON);
-        registerIcon(GO_ICON);
-        registerIcon(RETURN_ICON);
-        registerIcon(CLEAR_ALL_ICON);
-        registerIcon(NEW_ICON);
-        registerIcon(SIGN_IN_BUTTON);
-        registerIcon(SIGN_IN_ICON);
+        registerIcon(Utils.REGULAR_NOTIFICATION_ICON);
+        registerIcon(Utils.NEW_NOTIFICATION_ICON);
+        registerIcon(Utils.GO_ICON);
+        registerIcon(Utils.RETURN_ICON);
+        registerIcon(Utils.CLEAR_ALL_ICON);
+        registerIcon(Utils.NEW_ICON);
+        registerIcon(Utils.SIGN_IN_BUTTON);
+        registerIcon(Utils.SIGN_IN_ICON);
     }
 
     private void registerIcon(String id) {

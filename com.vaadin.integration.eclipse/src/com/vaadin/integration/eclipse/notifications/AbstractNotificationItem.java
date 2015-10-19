@@ -48,7 +48,7 @@ abstract class AbstractNotificationItem extends Composite {
         if (!read) {
             newNotificationLabel
                     .setImage(VaadinPlugin.getInstance().getImageRegistry()
-                            .get(NotificationsContribution.NEW_ICON));
+                            .get(Utils.NEW_ICON));
         }
         GridDataFactory.fillDefaults().grab(false, true)
                 .align(SWT.CENTER, SWT.CENTER).applyTo(newNotificationLabel);
@@ -64,7 +64,7 @@ abstract class AbstractNotificationItem extends Composite {
 
         Label goLabel = new Label(this, SWT.NONE);
         goLabel.setImage(VaadinPlugin.getInstance().getImageRegistry()
-                .get(NotificationsContribution.GO_ICON));
+                .get(Utils.GO_ICON));
         GridDataFactory.fillDefaults().grab(false, true)
                 .align(SWT.RIGHT, SWT.CENTER).applyTo(typeLabel);
     }

@@ -100,7 +100,7 @@ class AbstractNotificationPopup extends AbstractWorkbenchNotificationPopup {
     protected Image getPopupShellImage(int maximumHeight) {
         // TODO
         return VaadinPlugin.getInstance().getImageRegistry()
-                .get(NotificationsContribution.REGULAR_NOTIFICATION_ICON);
+                .get(Utils.REGULAR_NOTIFICATION_ICON);
         // return super.getPopupShellImage(maximumHeight);
     }
 

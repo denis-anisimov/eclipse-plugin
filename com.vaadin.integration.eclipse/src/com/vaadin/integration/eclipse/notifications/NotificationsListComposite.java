@@ -37,7 +37,7 @@ class NotificationsListComposite extends ScrolledComposite
         setMinSize(composite.computeSize(0, SWT.DEFAULT));
 
         parent.getDisplay().addFilter(SWT.MouseDown, this);
-        parent.getShell().addDisposeListener(this);
+        addDisposeListener(this);
     }
 
     public void handleEvent(Event event) {
@@ -54,8 +54,7 @@ class NotificationsListComposite extends ScrolledComposite
     }
 
     public void widgetDisposed(DisposeEvent e) {
-        getParent().getDisplay().removeFilter(SWT.MouseDown,
-                NotificationsListComposite.this);
+        getParent().getDisplay().removeFilter(SWT.MouseDown, this);
     }
 
     private void initComponents(Composite parent) {

@@ -62,6 +62,8 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
 
     private Control clearAll;
 
+    private NotificationHyperlink returnLink;
+
     NotificationsListPopup(Control control) {
         super(control.getDisplay());
         masterControl = control;
@@ -122,7 +124,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     @Override
     protected Image getPopupShellImage(int maximumHeight) {
         return VaadinPlugin.getInstance().getImageRegistry()
-                .get(NotificationsContribution.REGULAR_NOTIFICATION_ICON);
+                .get(Utils.REGULAR_NOTIFICATION_ICON);
     }
 
     @Override
@@ -181,7 +183,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         link.setText("Clear All");
         link.registerMouseTrackListener();
         link.setImage(VaadinPlugin.getInstance().getImageRegistry()
-                .get(NotificationsContribution.CLEAR_ALL_ICON));
+                .get(Utils.CLEAR_ALL_ICON));
 
         clearAll = link;
     }
@@ -220,7 +222,7 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     private class UpdateManagerImpl extends HyperlinkAdapter
             implements PopupUpdateManager {
 
-        public void signIn() {
+        public void showSignIn() {
             NotificationHyperlink link = setBackLink();
 
             titleImageLabel.setParent(nullComposite);
@@ -228,43 +230,65 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
             link.getParent().layout(true);
 
             Composite main = mainLayout.topControl.getParent();
-            mainLayout.topControl = new SignInComposite(main);
+            mainLayout.topControl = new SignInComposite(main, updateManager);
             main.layout();
 
             clearAll.setVisible(false);
         }
 
-        public void showNotiifcation() {
+        public void showNotification() {
             // TODO Auto-generated method stub
 
         }
 
+        public void showNotificationsList() {
+            activateNotificationsList();
+
+            // TODO: this should show the same list (without login sign in item)
+            // as previously and schedule fetch notifications with logic below
+            // applied after notifications are fetched.
+            Composite main = mainLayout.topControl.getParent();
+            NotificationsListComposite newList = createListArea(main);
+            mainLayout.topControl = newList;
+            main.layout();
+            notificationsList.dispose();
+            notificationsList = newList;
+        }
+
         @Override
         public void linkActivated(HyperlinkEvent e) {
-            titleImageLabel.setParent(titleTextLabel.getParent());
-            titleTextLabel.setVisible(true);
-            titleImageLabel.moveAbove(titleImageLabel);
-            e.widget.dispose();
-            titleImageLabel.getParent().layout(true);
+            activateNotificationsList();
 
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = notificationsList;
-            main.layout(true);
+            main.layout();
+        }
+
+        private void activateNotificationsList() {
+            returnLink.dispose();
+            returnLink = null;
+
+            titleImageLabel.setParent(titleTextLabel.getParent());
+            titleTextLabel.setVisible(true);
+            titleImageLabel.moveAbove(titleImageLabel);
+            titleImageLabel.getParent().layout(true);
 
             clearAll.setVisible(true);
         }
 
         private NotificationHyperlink setBackLink() {
-            NotificationHyperlink link = new NotificationHyperlink(
-                    titleImageLabel.getParent());
-            // TODO : I18N
-            link.setText("Back to notifications");
-            link.setImage(VaadinPlugin.getInstance().getImageRegistry()
-                    .get(NotificationsContribution.RETURN_ICON));
-            link.moveAbove(titleImageLabel);
-            link.registerMouseTrackListener();
-            link.addHyperlinkListener(this);
-            return link;
+            if (returnLink == null || returnLink.isDisposed()) {
+                returnLink = new NotificationHyperlink(
+                        titleImageLabel.getParent());
+                // TODO : I18N
+                returnLink.setText("Back to notifications");
+                returnLink.setImage(VaadinPlugin.getInstance()
+                        .getImageRegistry().get(Utils.RETURN_ICON));
+                returnLink.moveAbove(titleImageLabel);
+                returnLink.registerMouseTrackListener();
+                returnLink.addHyperlinkListener(this);
+            }
+            return returnLink;
         }
     }
 
