@@ -108,7 +108,7 @@ class NotificationsListPopup extends AbstractPopup {
 
     @Override
     protected void createContentArea(Composite parent) {
-        adjustMargins(parent);
+        super.createContentArea(parent);
 
         // composite below title
         Composite pane = new Composite(parent, SWT.NONE);
@@ -311,48 +311,15 @@ class NotificationsListPopup extends AbstractPopup {
         }
     }
 
-    private class ActiveControlListener implements Listener, Runnable {
-
-        private boolean isClose;
-
-        ActiveControlListener() {
-            this(false);
-        }
-
-        ActiveControlListener(boolean close) {
-            isClose = close;
-        }
+    private class ActiveControlListener implements Listener {
 
         public void handleEvent(Event event) {
-            if (event.type == SWT.FocusOut) {
-                getShell().getDisplay().asyncExec(this);
-                return;
-            }
             Point location = event.widget.getDisplay().getCursorLocation();
             if (!getShell().isDisposed()
                     && !getShell().getBounds().contains(location)) {
                 close();
             }
         }
-
-        public void run() {
-            IWorkbenchWindow window = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow();
-            if (window != null && window.getShell() != null
-                    && window.getShell().getDisplay() != null
-                    && PlatformUI.getWorkbench().getDisplay()
-                            .getFocusControl() == null) {
-                if (isClose) {
-                    close();
-                } else {
-                    // do not close immediately if there is no focused control,
-                    // schedule one more round to check
-                    getShell().getDisplay()
-                            .asyncExec(new ActiveControlListener(true));
-                }
-            }
-        }
-
     }
 
 }

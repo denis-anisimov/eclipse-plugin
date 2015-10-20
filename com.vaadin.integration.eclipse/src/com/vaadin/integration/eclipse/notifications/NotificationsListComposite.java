@@ -5,8 +5,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -43,11 +41,11 @@ class NotificationsListComposite extends ScrolledComposite
     public void handleEvent(Event event) {
         if (isVisible()) {
             Composite root = (Composite) getChildren()[0];
-            if (isControlClicked(this)) {
+            if (Utils.isControlClicked(this)) {
                 for (Control child : root.getChildren()) {
                     AbstractNotificationItem item = (AbstractNotificationItem) child;
-                    if (isControlClicked(item)) {
-                        item.runAction(updateManager);
+                    if (Utils.isControlClicked(item)) {
+                        ((ItemAction) item).runAction(updateManager);
                         break;
                     }
                 }
@@ -63,15 +61,6 @@ class NotificationsListComposite extends ScrolledComposite
         if (!isSignedIn()) {
             setLayoutData(new SignInItem(parent));
         }
-    }
-
-    private boolean isControlClicked(Control control) {
-        Point location = control.getDisplay().getCursorLocation();
-        Point listLocation = control.toDisplay(0, 0);
-        Point size = control.getSize();
-        Rectangle bounds = new Rectangle(listLocation.x, listLocation.y, size.x,
-                size.y);
-        return bounds.contains(location);
     }
 
     private void setLayoutData(Control control) {

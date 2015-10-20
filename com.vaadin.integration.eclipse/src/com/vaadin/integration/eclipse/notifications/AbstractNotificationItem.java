@@ -29,15 +29,14 @@ abstract class AbstractNotificationItem extends Composite {
 
     @Override
     public void setBackground(Color color) {
+        // Disables ability to set background outside of this class.
     }
 
     protected abstract Control createInfoSection();
 
-    void setRead() {
+    protected void setRead() {
         newNotificationLabel.setImage(null);
     }
-
-    abstract void runAction(PopupUpdateManager manager);
 
     private void doSetBackground(Color color) {
         super.setBackground(color);
@@ -46,9 +45,8 @@ abstract class AbstractNotificationItem extends Composite {
     private void initComponents(boolean read, NotificationType type) {
         newNotificationLabel = new Label(this, SWT.NONE);
         if (!read) {
-            newNotificationLabel
-                    .setImage(VaadinPlugin.getInstance().getImageRegistry()
-                            .get(Utils.NEW_ICON));
+            newNotificationLabel.setImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.NEW_ICON));
         }
         GridDataFactory.fillDefaults().grab(false, true)
                 .align(SWT.CENTER, SWT.CENTER).applyTo(newNotificationLabel);

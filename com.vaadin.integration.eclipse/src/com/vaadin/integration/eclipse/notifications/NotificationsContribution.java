@@ -48,7 +48,7 @@ public class NotificationsContribution
             public void run() {
                 if (tempPopup == null || !tempPopup.getShell().isVisible()) {
                     NewNotificationPopup popup = new NewNotificationPopup(
-                            display);
+                            display, NotificationType.SIGN_IN);
                     popup.open();
                 }
             }

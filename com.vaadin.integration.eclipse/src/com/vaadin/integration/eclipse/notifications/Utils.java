@@ -7,7 +7,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
@@ -68,6 +71,15 @@ final class Utils {
         } else {
             throw new UrlOpenException();
         }
+    }
+
+    public static boolean isControlClicked(Control control) {
+        Point location = control.getDisplay().getCursorLocation();
+        Point listLocation = control.toDisplay(0, 0);
+        Point size = control.getSize();
+        Rectangle bounds = new Rectangle(listLocation.x, listLocation.y, size.x,
+                size.y);
+        return bounds.contains(location);
     }
 
     static class UrlOpenException extends Exception {

@@ -1,13 +1,10 @@
 package com.vaadin.integration.eclipse.notifications;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.mylyn.commons.ui.compatibility.CommonColors;
 import org.eclipse.mylyn.commons.workbench.forms.CommonFormUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -21,7 +18,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IFormColors;
 
-class AbstractNotificationPopup extends AbstractPopup {
+abstract class AbstractNotificationPopup extends AbstractPopup {
 
     private ShellActivationListener blockPopupListener;
 
@@ -81,23 +78,6 @@ class AbstractNotificationPopup extends AbstractPopup {
     }
 
     @Override
-    protected void createContentArea(Composite parent) {
-        Composite pane = new Composite(parent, SWT.NO_FOCUS);
-        GridLayout gridLayout = new GridLayout(2, false);
-        GridDataFactory.fillDefaults().grab(true, false)
-                .align(SWT.FILL, SWT.TOP).applyTo(pane);
-        pane.setLayout(gridLayout);
-
-        // icon label:
-        new Label(pane, SWT.NO_FOCUS);
-
-        final Label labelText = new Label(pane, SWT.WRAP | SWT.NO_FOCUS);
-        labelText.setForeground(CommonColors.TEXT_QUOTED);
-
-        configurePane(pane);
-    }
-
-    @Override
     protected void initializeBounds() {
         Rectangle screenArea = getPrimaryClientArea();
         Shell shell = getShell();
@@ -115,9 +95,6 @@ class AbstractNotificationPopup extends AbstractPopup {
                 screenArea.width + screenArea.x - size.x - Utils.PADDING_EDGE,
                 screenArea.height + screenArea.y - size.y - Utils.PADDING_EDGE);
         shell.setSize(size);
-    }
-
-    protected void configurePane(Composite pane) {
     }
 
     private Rectangle getPrimaryClientArea() {

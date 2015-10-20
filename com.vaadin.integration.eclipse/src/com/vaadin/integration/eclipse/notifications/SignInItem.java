@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-class SignInItem extends AbstractNotificationItem {
+class SignInItem extends AbstractNotificationItem implements ItemAction {
 
     SignInItem(Composite parent) {
         super(parent, false, NotificationType.SIGN_IN);
@@ -27,8 +27,8 @@ class SignInItem extends AbstractNotificationItem {
         return composite;
     }
 
-    @Override
-    void runAction(PopupUpdateManager manager) {
+    public void runAction(PopupUpdateManager manager) {
+        setRead();
         manager.showSignIn();
     }
 }
