@@ -15,9 +15,15 @@ import org.eclipse.swt.widgets.Listener;
 class SingleNotificationComposite extends AbstractNotificationItem
         implements Listener, DisposeListener {
 
-    SingleNotificationComposite(Composite parent, boolean read,
-            NotificationType type) {
-        super(parent, read, type);
+    private final PopupManager manager;
+
+    private final Notification notification;
+
+    SingleNotificationComposite(Composite parent, Notification notification,
+            PopupManager manager) {
+        super(parent, false, notification.getType());
+        this.manager = manager;
+        this.notification = notification;
 
         parent.getDisplay().addFilter(SWT.MouseDown, this);
         addDisposeListener(this);
@@ -32,7 +38,7 @@ class SingleNotificationComposite extends AbstractNotificationItem
 
     public void handleEvent(Event event) {
         if (Utils.isControlClicked(this)) {
-            System.out.println("aaaaaaaaaaaaaa");
+            manager.openNotification(notification);
         }
     }
 

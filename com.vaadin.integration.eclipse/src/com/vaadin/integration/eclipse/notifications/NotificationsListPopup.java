@@ -79,11 +79,16 @@ class NotificationsListPopup extends AbstractPopup {
     public boolean close() {
         IWorkbenchWindow window = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow();
+        if (window == null || window.getShell() == null
+                || window.getShell().getDisplay() == null) {
+            return true;
+        }
         window.getShell().getDisplay().removeFilter(SWT.MouseDown,
                 mouseListener);
         window.getShell().removeListener(SWT.Resize, mouseListener);
         PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.FocusOut,
                 mouseListener);
+        nullComposite.getShell().dispose();
         nullComposite.dispose();
         return super.close();
     }
@@ -156,6 +161,11 @@ class NotificationsListPopup extends AbstractPopup {
         shell.setSize(size);
     }
 
+    void open(Notification notification) {
+        open();
+        updateManager.showNotification(notification);
+    }
+
     private void createClearAll(Composite parent) {
         ScalingHyperlink link = new NotificationHyperlink(parent);
         // TODO
@@ -208,7 +218,7 @@ class NotificationsListPopup extends AbstractPopup {
             clearAll.setVisible(false);
         }
 
-        public void showNotification() {
+        public void showNotification(Notification notification) {
             // TODO Auto-generated method stub
 
         }
@@ -232,9 +242,15 @@ class NotificationsListPopup extends AbstractPopup {
             } else if (e.widget == signOutWidget) {
                 handleSignOut();
             } else if (e.widget == clearAll) {
-
+                clearAll();
             } else {
                 handleSettings();
+            }
+        }
+
+        private void clearAll() {
+            if (mainLayout.topControl instanceof NotificationsListComposite) {
+                ((NotificationsListComposite) mainLayout.topControl).refresh();
             }
         }
 
@@ -314,6 +330,9 @@ class NotificationsListPopup extends AbstractPopup {
     private class ActiveControlListener implements Listener {
 
         public void handleEvent(Event event) {
+            if (event.widget.isDisposed()) {
+                return;
+            }
             Point location = event.widget.getDisplay().getCursorLocation();
             if (!getShell().isDisposed()
                     && !getShell().getBounds().contains(location)) {

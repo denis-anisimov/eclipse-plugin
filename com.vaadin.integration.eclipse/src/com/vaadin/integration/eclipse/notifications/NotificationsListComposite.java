@@ -57,6 +57,14 @@ class NotificationsListComposite extends ScrolledComposite
         getParent().getDisplay().removeFilter(SWT.MouseDown, this);
     }
 
+    void refresh() {
+        Composite composite = (Composite) getContent();
+        for (Control child : composite.getChildren()) {
+            child.dispose();
+        }
+        // initComponents(composite);
+    }
+
     private void initComponents(Composite parent) {
         if (!isSignedIn()) {
             setLayoutData(new SignInItem(parent));
@@ -72,4 +80,5 @@ class NotificationsListComposite extends ScrolledComposite
         // TODO
         return false;
     }
+
 }

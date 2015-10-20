@@ -9,9 +9,11 @@ import org.eclipse.swt.widgets.Control;
  */
 class NotificationIem extends AbstractNotificationItem implements ItemAction {
 
-    // TODO: notification info ?
-    NotificationIem(Composite parent, boolean read, NotificationType type) {
-        super(parent, read, type);
+    private final Notification notification;
+
+    NotificationIem(Composite parent, boolean read, Notification notification) {
+        super(parent, read, notification.getType());
+        this.notification = notification;
     }
 
     @Override
@@ -22,7 +24,7 @@ class NotificationIem extends AbstractNotificationItem implements ItemAction {
 
     public void runAction(PopupUpdateManager manager) {
         setRead();
-        manager.showNotification();
+        manager.showNotification(notification);
     }
 
 }

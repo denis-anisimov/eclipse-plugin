@@ -1,6 +1,6 @@
 package com.vaadin.integration.eclipse.notifications;
 
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Control;
 
 /**
  * Shows new notifications informational popup (without exact notification
@@ -11,8 +11,8 @@ import org.eclipse.swt.widgets.Display;
  */
 class NewNotificationsPopup extends AbstractNotificationPopup {
 
-    NewNotificationsPopup(Display display) {
-        super(display);
+    NewNotificationsPopup(Control control) {
+        super(control);
     }
 
 }

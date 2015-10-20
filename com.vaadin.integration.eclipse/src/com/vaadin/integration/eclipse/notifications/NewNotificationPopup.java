@@ -4,7 +4,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Control;
 
 /**
  * Shows new single notification with its details.
@@ -14,11 +14,11 @@ import org.eclipse.swt.widgets.Display;
  */
 class NewNotificationPopup extends AbstractNotificationPopup {
 
-    private final NotificationType type;
+    private final Notification notification;
 
-    NewNotificationPopup(Display display, NotificationType type) {
-        super(display);
-        this.type = type;
+    NewNotificationPopup(Control control, Notification notification) {
+        super(control);
+        this.notification = notification;
     }
 
     @Override
@@ -39,6 +39,6 @@ class NewNotificationPopup extends AbstractNotificationPopup {
     private void buildNotificationItem(Composite pane) {
         // TODO : make notification based on type and notification info
         SingleNotificationComposite control = new SingleNotificationComposite(
-                pane, false, type);
+                pane, notification, getManager());
     }
 }

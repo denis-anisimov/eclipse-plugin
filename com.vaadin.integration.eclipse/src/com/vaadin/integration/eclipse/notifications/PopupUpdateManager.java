@@ -2,6 +2,10 @@ package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.ui.browser.IWebBrowser;
 
+/**
+ * Manages update changes in the notifications list popup.
+ *
+ */
 interface PopupUpdateManager {
 
     /**
@@ -14,8 +18,10 @@ interface PopupUpdateManager {
      */
     void showNotificationsList();
 
-    // TODO : notification data as an arg
-    void showNotification();
+    /**
+     * Show provided {@code notification} (navigate to notification info view).
+     */
+    void showNotification(Notification notification);
 
     /**
      * Show token input view.

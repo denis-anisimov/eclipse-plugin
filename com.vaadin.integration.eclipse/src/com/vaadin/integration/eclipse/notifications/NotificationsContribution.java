@@ -31,24 +31,27 @@ public class NotificationsContribution
     @Override
     protected Control createControl(Composite parent) {
         display = parent.getDisplay();
-        scheduleNotificationRequests();
         Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
 
         loadNotificationIcons();
         button.setImage(getRegularIcon());
 
         button.addSelectionListener(new ButtonListener(button));
+
+        scheduleNotificationRequests(button);
         return button;
     }
 
-    private void scheduleNotificationRequests() {
+    private void scheduleNotificationRequests(final Control control) {
         // TODO
         display.timerExec(5000, new Runnable() {
 
             public void run() {
-                if (tempPopup == null || !tempPopup.getShell().isVisible()) {
+                if (tempPopup == null || tempPopup.getShell() == null
+                        || !tempPopup.getShell().isVisible()) {
                     NewNotificationPopup popup = new NewNotificationPopup(
-                            display, NotificationType.SIGN_IN);
+                            control, new Notification(null, null, null, null,
+                                    NotificationType.SIGN_IN, false));
                     popup.open();
                 }
             }

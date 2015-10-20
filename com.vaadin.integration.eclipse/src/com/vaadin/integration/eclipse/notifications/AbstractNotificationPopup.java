@@ -7,7 +7,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -22,12 +21,18 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
 
     private ShellActivationListener blockPopupListener;
 
-    protected AbstractNotificationPopup(Display display) {
-        super(display);
+    private final PopupManager manager = new PopupManagerImpl();
+
+    private final Control toolBarControl;
+
+    protected AbstractNotificationPopup(Control control) {
+        super(control.getDisplay());
+        toolBarControl = control;
     }
 
-    protected AbstractNotificationPopup(Display display, int style) {
-        super(display, style);
+    protected AbstractNotificationPopup(Control control, int style) {
+        super(control.getDisplay(), style);
+        toolBarControl = control;
     }
 
     @Override
@@ -97,6 +102,10 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
         shell.setSize(size);
     }
 
+    protected PopupManager getManager() {
+        return manager;
+    }
+
     private Rectangle getPrimaryClientArea() {
         Monitor primaryMonitor = getShell().getDisplay().getPrimaryMonitor();
         return primaryMonitor != null ? primaryMonitor.getClientArea()
@@ -125,6 +134,17 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
             }
         }
         return null;
+    }
+
+    private final class PopupManagerImpl implements PopupManager {
+
+        public void openNotification(Notification notification) {
+            close();
+
+            NotificationsListPopup popup = new NotificationsListPopup(
+                    toolBarControl);
+            popup.open(notification);
+        }
     }
 
     private final class ShellActivationListener implements Listener {
