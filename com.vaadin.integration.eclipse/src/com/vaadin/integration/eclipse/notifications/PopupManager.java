@@ -12,4 +12,9 @@ interface PopupManager {
      * notification list popup navigated to notification).
      */
     void openNotification(Notification notification);
+
+    /**
+     * Opens notifications list popup and shows a list of all notificaions.
+     */
+    void showNotificationsList();
 }

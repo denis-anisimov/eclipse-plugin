@@ -6,8 +6,9 @@ import com.vaadin.integration.eclipse.VaadinPlugin;
 
 enum NotificationType {
 
-    SIGN_IN(Utils.SIGN_IN_ICON, null), WEBINAR(null, null), VAADIN(null, null);
-    // TODO : more ?
+    // TODO: icon for several notifications type!!!!
+    SIGN_IN(Utils.SIGN_IN_ICON, null), FEW_NOTIFICATIONS(Utils.SIGN_IN_ICON,
+            null), WEBINAR(null, null), VAADIN(null, null);
     private final String iconId;
     private final String backgroundId;
 

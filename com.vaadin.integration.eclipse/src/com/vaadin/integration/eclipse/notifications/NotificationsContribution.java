@@ -49,10 +49,14 @@ public class NotificationsContribution
             public void run() {
                 if (tempPopup == null || tempPopup.getShell() == null
                         || !tempPopup.getShell().isVisible()) {
-                    NewNotificationPopup popup = new NewNotificationPopup(
-                            control, new Notification(null, null, null, null,
-                                    NotificationType.SIGN_IN, false));
-                    popup.open();
+                    if (false) {
+                        new NewNotificationPopup(control,
+                                new Notification(null, null, null, null,
+                                        NotificationType.SIGN_IN, false))
+                                                .open();
+                    } else {
+                        new NewNotificationsPopup(control).open();
+                    }
                 }
             }
         });

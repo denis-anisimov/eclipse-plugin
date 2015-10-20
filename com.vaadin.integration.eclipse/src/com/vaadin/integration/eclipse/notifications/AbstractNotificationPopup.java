@@ -145,6 +145,15 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
                     toolBarControl, false);
             popup.open(notification);
         }
+
+        public void showNotificationsList() {
+            close();
+
+            NotificationsListPopup popup = new NotificationsListPopup(
+                    toolBarControl);
+            popup.open();
+        }
+
     }
 
     private final class ShellActivationListener implements Listener {
