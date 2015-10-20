@@ -142,7 +142,7 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
             close();
 
             NotificationsListPopup popup = new NotificationsListPopup(
-                    toolBarControl);
+                    toolBarControl, false);
             popup.open(notification);
         }
     }

@@ -57,10 +57,17 @@ class NotificationsListPopup extends AbstractPopup {
 
     private NotificationHyperlink returnLink;
 
+    private boolean showContent;
+
     NotificationsListPopup(Control control) {
+        this(control, true);
+    }
+
+    NotificationsListPopup(Control control, boolean showContentInitially) {
         super(control.getDisplay());
         masterControl = control;
         setDelayClose(-1);
+        showContent = showContentInitially;
     }
 
     @Override
@@ -94,11 +101,19 @@ class NotificationsListPopup extends AbstractPopup {
     }
 
     @Override
+    public int open() {
+        int result = super.open();
+        activateTitle();
+        return result;
+    }
+
+    @Override
     protected void createTitleArea(Composite parent) {
         ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
 
         titleImageLabel = new Label(parent, SWT.NONE);
         titleImageLabel.setImage(getPopupShellImage(TITLE_HEIGHT));
+        titleImageLabel.setVisible(showContent);
 
         titleTextLabel = new Label(parent, SWT.NONE);
         // TODO
@@ -107,8 +122,10 @@ class NotificationsListPopup extends AbstractPopup {
         titleTextLabel.setForeground(getTitleForeground());
         titleTextLabel
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+        titleTextLabel.setVisible(showContent);
 
-        createClearAll(parent);
+        clearAll = createClearAll(parent);
+        clearAll.setVisible(showContent);
     }
 
     @Override
@@ -131,7 +148,11 @@ class NotificationsListPopup extends AbstractPopup {
         main.setLayout(mainLayout);
 
         notificationsList = createListArea(main);
-        mainLayout.topControl = notificationsList;
+        if (showContent) {
+            mainLayout.topControl = notificationsList;
+        } else {
+            mainLayout.topControl = new Label(main, SWT.NONE);
+        }
 
         // toolbar bottom composite below content
         createToolBar(pane);
@@ -166,7 +187,13 @@ class NotificationsListPopup extends AbstractPopup {
         updateManager.showNotification(notification);
     }
 
-    private void createClearAll(Composite parent) {
+    private void activateTitle() {
+        titleImageLabel.setVisible(true);
+        titleTextLabel.setVisible(true);
+        clearAll.setVisible(true);
+    }
+
+    private Control createClearAll(Composite parent) {
         ScalingHyperlink link = new NotificationHyperlink(parent);
         // TODO
         link.setText("Clear All");
@@ -175,7 +202,7 @@ class NotificationsListPopup extends AbstractPopup {
                 .get(Utils.CLEAR_ALL_ICON));
         link.addHyperlinkListener(updateManager);
 
-        clearAll = link;
+        return link;
     }
 
     private void createToolBar(Composite parent) {
@@ -205,11 +232,7 @@ class NotificationsListPopup extends AbstractPopup {
             implements PopupUpdateManager {
 
         public void showSignIn() {
-            NotificationHyperlink link = setBackLink();
-
-            titleImageLabel.setParent(nullComposite);
-            titleTextLabel.setVisible(false);
-            link.getParent().layout(true);
+            updateTitle();
 
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = new SignInComposite(main, updateManager);
@@ -219,8 +242,12 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
         public void showNotification(Notification notification) {
-            // TODO Auto-generated method stub
+            updateTitle();
 
+            Composite main = mainLayout.topControl.getParent();
+            mainLayout.topControl = new NotificationInfoComposite(main,
+                    notification);
+            main.layout();
         }
 
         public void showTokenInput(IWebBrowser browser) {
@@ -246,6 +273,14 @@ class NotificationsListPopup extends AbstractPopup {
             } else {
                 handleSettings();
             }
+        }
+
+        private void updateTitle() {
+            NotificationHyperlink link = setBackLink();
+
+            titleImageLabel.setParent(nullComposite);
+            titleTextLabel.setVisible(false);
+            link.getParent().layout(true);
         }
 
         private void clearAll() {
