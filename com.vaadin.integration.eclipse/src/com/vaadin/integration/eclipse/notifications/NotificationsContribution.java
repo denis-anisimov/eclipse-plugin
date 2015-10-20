@@ -1,6 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
 import java.net.URL;
+import java.util.Date;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -51,8 +52,8 @@ public class NotificationsContribution
                         || !tempPopup.getShell().isVisible()) {
                     if (false) {
                         new NewNotificationPopup(control,
-                                new Notification(null, null, null, null,
-                                        NotificationType.SIGN_IN, false))
+                                new Notification("Title", new Date(), null,
+                                        null, NotificationType.SIGN_IN, false))
                                                 .open();
                     } else {
                         new NewNotificationsPopup(control).open();
