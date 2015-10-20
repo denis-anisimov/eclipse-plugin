@@ -2,11 +2,9 @@ package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
-import org.eclipse.mylyn.commons.workbench.AbstractWorkbenchNotificationPopup;
 import org.eclipse.mylyn.commons.workbench.forms.ScalingHyperlink;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -32,13 +30,10 @@ import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
  * @author denis
  *
  */
-class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
+class NotificationsListPopup extends AbstractPopup {
 
     private static final int TITLE_HEIGHT = 24;
-
     private static final int MAX_HEIGHT = 300;
-    private static final int MAX_WIDTH = 400;
-    private static final int PADDING_EDGE = 5;
 
     private final Composite nullComposite = new Composite(new Shell(),
             SWT.NONE);
@@ -94,14 +89,6 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     }
 
     @Override
-    protected Control createContents(Composite parent) {
-        Control content = super.createContents(parent);
-        // reset gradient background image
-        ((Composite) content).setBackgroundMode(SWT.INHERIT_NONE);
-        return content;
-    }
-
-    @Override
     protected void createTitleArea(Composite parent) {
         ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
 
@@ -117,12 +104,6 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
         createClearAll(parent);
-    }
-
-    @Override
-    protected Image getPopupShellImage(int maximumHeight) {
-        return VaadinPlugin.getInstance().getImageRegistry()
-                .get(Utils.REGULAR_NOTIFICATION_ICON);
     }
 
     @Override
@@ -154,13 +135,13 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
     @Override
     protected void initializeBounds() {
         Shell shell = getShell();
-        Point initialSize = shell.computeSize(MAX_WIDTH, MAX_HEIGHT);
+        Point initialSize = shell.computeSize(Utils.MAX_WIDTH, MAX_HEIGHT);
         int height = Math.min(initialSize.y, MAX_HEIGHT);
-        int width = Math.min(initialSize.x, MAX_WIDTH);
+        int width = Math.min(initialSize.x, Utils.MAX_WIDTH);
 
         Point location = masterControl.toDisplay(new Point(0, 0));
-        location.x = location.x - PADDING_EDGE;
-        location.y = location.y - height - PADDING_EDGE;
+        location.x = location.x - Utils.PADDING_EDGE;
+        location.y = location.y - height - Utils.PADDING_EDGE;
 
         Point mainWindowSize = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getShell().getSize();
@@ -185,12 +166,6 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         link.addHyperlinkListener(updateManager);
 
         clearAll = link;
-    }
-
-    private void adjustMargins(Composite parent) {
-        GridLayout layout = (GridLayout) parent.getLayout();
-        layout.marginLeft = 0;
-        layout.marginRight = 0;
     }
 
     private void createToolBar(Composite parent) {
@@ -253,22 +228,36 @@ class NotificationsListPopup extends AbstractWorkbenchNotificationPopup {
         @Override
         public void linkActivated(HyperlinkEvent e) {
             if (e.widget == returnLink) {
-                activateNotificationsList();
-
-                Composite main = mainLayout.topControl.getParent();
-                mainLayout.topControl = notificationsList;
-                main.layout();
+                handleReturnLink();
             } else if (e.widget == signOutWidget) {
-                // remove token
-                resetNotificationsList();
-                signOutWidget.setVisible(false);
+                handleSignOut();
+            } else if (e.widget == clearAll) {
+
             } else {
-                try {
-                    Utils.openUrl(Utils.SETTINGS_URL);
-                } catch (UrlOpenException exception) {
-                    // TODO: open error dialog about open browser failure.
-                }
+                handleSettings();
             }
+        }
+
+        private void handleSettings() {
+            try {
+                Utils.openUrl(Utils.SETTINGS_URL);
+            } catch (UrlOpenException exception) {
+                // TODO: open error dialog about open browser failure.
+            }
+        }
+
+        private void handleSignOut() {
+            // remove token
+            resetNotificationsList();
+            signOutWidget.setVisible(false);
+        }
+
+        private void handleReturnLink() {
+            activateNotificationsList();
+
+            Composite main = mainLayout.topControl.getParent();
+            mainLayout.topControl = notificationsList;
+            main.layout();
         }
 
         private void resetNotificationsList() {

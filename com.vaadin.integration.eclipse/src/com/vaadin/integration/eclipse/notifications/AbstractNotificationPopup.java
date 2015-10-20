@@ -2,11 +2,9 @@ package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonColors;
-import org.eclipse.mylyn.commons.workbench.AbstractWorkbenchNotificationPopup;
 import org.eclipse.mylyn.commons.workbench.forms.CommonFormUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
@@ -23,15 +21,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IFormColors;
 
-import com.vaadin.integration.eclipse.VaadinPlugin;
-
-class AbstractNotificationPopup extends AbstractWorkbenchNotificationPopup {
-
-    private static final int MAX_LABEL_CHAR_LENGTH = 120;
-    private static final int MAX_DESCRIPTION_CHAR_LENGTH = 500;
-    private static final int MIN_HEIGHT = 100;
-    private static final int MAX_WIDTH = 400;
-    private static final int PADDING_EDGE = 5;
+class AbstractNotificationPopup extends AbstractPopup {
 
     private ShellActivationListener blockPopupListener;
 
@@ -86,22 +76,8 @@ class AbstractNotificationPopup extends AbstractWorkbenchNotificationPopup {
     }
 
     @Override
-    protected String getPopupShellTitle() {
-        // TODO
-        return "Vaadin Notification";
-    }
-
-    @Override
     protected Color getTitleForeground() {
         return CommonFormUtil.getSharedColors().getColor(IFormColors.TITLE);
-    }
-
-    @Override
-    protected Image getPopupShellImage(int maximumHeight) {
-        // TODO
-        return VaadinPlugin.getInstance().getImageRegistry()
-                .get(Utils.REGULAR_NOTIFICATION_ICON);
-        // return super.getPopupShellImage(maximumHeight);
     }
 
     @Override
@@ -130,14 +106,14 @@ class AbstractNotificationPopup extends AbstractWorkbenchNotificationPopup {
         // and a small height. Afterwards the height gets maxed to the
         // MIN_HEIGHT value and the width gets trimmed
         // which results in text floating out of the window
-        Point initialSize = shell.computeSize(MAX_WIDTH, SWT.DEFAULT);
-        int height = Math.max(initialSize.y, MIN_HEIGHT);
-        int width = Math.min(initialSize.x, MAX_WIDTH);
+        Point initialSize = shell.computeSize(Utils.MAX_WIDTH, SWT.DEFAULT);
+        int height = Math.max(initialSize.y, Utils.MIN_HEIGHT);
+        int width = Math.min(initialSize.x, Utils.MAX_WIDTH);
 
         Point size = new Point(width, height);
         shell.setLocation(
-                screenArea.width + screenArea.x - size.x - PADDING_EDGE,
-                screenArea.height + screenArea.y - size.y - PADDING_EDGE);
+                screenArea.width + screenArea.x - size.x - Utils.PADDING_EDGE,
+                screenArea.height + screenArea.y - size.y - Utils.PADDING_EDGE);
         shell.setSize(size);
     }
 

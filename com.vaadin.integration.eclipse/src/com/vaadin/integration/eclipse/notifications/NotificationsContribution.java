@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
@@ -22,8 +23,14 @@ public class NotificationsContribution
         extends WorkbenchWindowControlContribution {
 
     private static final String PNG = ".png";
+
+    private Display display;
+
+    private static NotificationsListPopup tempPopup;
+
     @Override
     protected Control createControl(Composite parent) {
+        display = parent.getDisplay();
         scheduleNotificationRequests();
         Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
 
@@ -36,6 +43,17 @@ public class NotificationsContribution
 
     private void scheduleNotificationRequests() {
         // TODO
+        display.timerExec(5000, new Runnable() {
+
+            public void run() {
+                if (tempPopup == null || !tempPopup.getShell().isVisible()) {
+                    NewNotificationPopup popup = new NewNotificationPopup(
+                            display);
+                    popup.open();
+                }
+            }
+        });
+
     }
 
     private Image getRegularIcon() {
@@ -79,6 +97,7 @@ public class NotificationsContribution
         public void widgetSelected(SelectionEvent e) {
             NotificationsListPopup popup = new NotificationsListPopup(control);
             popup.open();
+            NotificationsContribution.tempPopup = popup;
         }
     }
 }

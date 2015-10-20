@@ -27,6 +27,9 @@ final class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());
     static final String SIGN_IN_URL = "https://vaadin.com/home?p_p_id=58&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&saveLastPath=false&_58_struts_action=%2Flogin%2Flogin";
     static final String SETTINGS_URL = "https://vaadin.com";
+    static final int MIN_HEIGHT = 100;
+    static final int MAX_WIDTH = 400;
+    static final int PADDING_EDGE = 5;
 
     private Utils() {
     }
