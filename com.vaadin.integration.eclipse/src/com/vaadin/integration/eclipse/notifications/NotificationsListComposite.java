@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 class NotificationsListComposite extends ScrolledComposite
@@ -25,7 +26,7 @@ class NotificationsListComposite extends ScrolledComposite
         setExpandHorizontal(true);
         setExpandVertical(true);
 
-        Composite composite = new Composite(this, SWT.NONE);
+        Composite composite = new CustomComposite(this);
         GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
@@ -34,7 +35,6 @@ class NotificationsListComposite extends ScrolledComposite
         setContent(composite);
 
         initComponents(composite);
-        setMinSize(composite.computeSize(0, SWT.DEFAULT));
 
         parent.getDisplay().addFilter(SWT.MouseDown, this);
         addDisposeListener(this);
@@ -77,6 +77,9 @@ class NotificationsListComposite extends ScrolledComposite
         if (!isSignedIn()) {
             setLayoutData(new SignInItem(parent, new SignInNotification()));
         }
+        for (Notification notification : updateManager.getNotifications()) {
+            setLayoutData(new NotificationIem(parent, notification));
+        }
     }
 
     private void setLayoutData(Control control) {
@@ -87,6 +90,24 @@ class NotificationsListComposite extends ScrolledComposite
     private boolean isSignedIn() {
         // TODO
         return false;
+    }
+
+    private static class CustomComposite extends Composite {
+
+        CustomComposite(ScrolledComposite parent) {
+            super(parent, SWT.NONE);
+        }
+
+        @Override
+        public void layout() {
+            super.layout();
+            getParent().setMinSize(computeSize(0, SWT.DEFAULT));
+        }
+
+        @Override
+        public ScrolledComposite getParent() {
+            return (ScrolledComposite) super.getParent();
+        }
     }
 
 }

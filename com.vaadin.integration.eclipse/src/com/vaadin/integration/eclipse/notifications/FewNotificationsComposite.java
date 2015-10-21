@@ -22,13 +22,14 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
     }
 
     @Override
-    protected String getSummary() {
+    protected String getSummary(Notification notification) {
         // TODO
         return "TODO: Several notifications summary";
     }
 
     @Override
-    protected Control buildPrefix(Composite composite) {
+    protected Control buildPrefix(Composite composite,
+            Notification notification) {
         Label label = new Label(composite, SWT.NONE);
         label.setText("TODO: Several notifications details");
         return label;

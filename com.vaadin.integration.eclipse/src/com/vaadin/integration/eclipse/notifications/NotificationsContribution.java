@@ -1,8 +1,12 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.lang.ref.WeakReference;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -21,6 +25,7 @@ import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
+import com.vaadin.integration.eclipse.notifications.model.NotificationsProvider;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 public class NotificationsContribution
@@ -32,6 +37,8 @@ public class NotificationsContribution
 
     private static NotificationsListPopup tempPopup;
 
+    private final ContributionManagerImpl manager = new ContributionManagerImpl();
+
     @Override
     protected Control createControl(Composite parent) {
         display = parent.getDisplay();
@@ -40,7 +47,7 @@ public class NotificationsContribution
         loadNotificationIcons();
         button.setImage(getRegularIcon());
 
-        button.addSelectionListener(new ButtonListener(button));
+        button.addSelectionListener(new ButtonListener(button, manager));
 
         scheduleNotificationRequests(button);
         return button;
@@ -48,6 +55,8 @@ public class NotificationsContribution
 
     private void scheduleNotificationRequests(final Control control) {
         // TODO
+        manager.setNotifications(
+                NotificationsProvider.getInstance().getAllNotifications());
         display.timerExec(5000, new Runnable() {
 
             public void run() {
@@ -67,10 +76,11 @@ public class NotificationsContribution
                                 return new Date();
                             }
 
-                        }).open();
+                        }, manager).open();
                     } else {
                         new NewNotificationsPopup(control,
-                                Collections.<Notification> emptyList()).open();
+                                Collections.<Notification> emptyList(), manager)
+                                        .open();
                     }
                 }
             }
@@ -107,17 +117,33 @@ public class NotificationsContribution
         VaadinPlugin.getInstance().getImageRegistry().put(id, descriptor);
     }
 
+    private class ContributionManagerImpl implements ContributionManager {
+
+        private List<Notification> notifications;
+
+        public Collection<Notification> getNotifications() {
+            return notifications;
+        }
+
+        private void setNotifications(Collection<Notification> notifications) {
+            this.notifications = new ArrayList<Notification>(notifications);
+        }
+    }
+
     private static class ButtonListener extends SelectionAdapter {
 
-        private final Control control;
+        private final WeakReference<Control> control;
+        private final WeakReference<ContributionManager> manager;
 
-        ButtonListener(Control control) {
-            this.control = control;
+        ButtonListener(Control control, ContributionManager manager) {
+            this.control = new WeakReference<Control>(control);
+            this.manager = new WeakReference<ContributionManager>(manager);
         }
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            NotificationsListPopup popup = new NotificationsListPopup(control);
+            NotificationsListPopup popup = new NotificationsListPopup(
+                    control.get(), manager.get());
             popup.open();
             NotificationsContribution.tempPopup = popup;
         }

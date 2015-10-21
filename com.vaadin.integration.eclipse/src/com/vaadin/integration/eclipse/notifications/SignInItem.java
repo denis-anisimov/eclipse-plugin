@@ -21,11 +21,8 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
         FillLayout layout = new FillLayout(SWT.VERTICAL);
         composite.setLayout(layout);
 
-        // TODO : I18N
-        new Label(composite, SWT.NONE)
-                .setText("Sign in with your vaadin account");
-        new Label(composite, SWT.NONE)
-                .setText("See all your own notifications");
+        new Label(composite, SWT.NONE).setText(getSummary(notification));
+        buildPrefix(composite, notification);
 
         return composite;
     }
@@ -33,5 +30,20 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
     public void runAction(PopupUpdateManager manager) {
         setRead();
         manager.showSignIn();
+    }
+
+    @Override
+    protected String getSummary(Notification notification) {
+        // TODO : I18N
+        return "Sign in with your vaadin account";
+    }
+
+    @Override
+    protected Control buildPrefix(Composite composite,
+            Notification notification) {
+        Label label = new Label(composite, SWT.NONE);
+        // TODO : I18N
+        label.setText("See all your own notifications");
+        return label;
     }
 }

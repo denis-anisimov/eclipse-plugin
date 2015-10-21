@@ -1,5 +1,8 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -13,7 +16,12 @@ import org.eclipse.swt.widgets.Listener;
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
-abstract class AbstractNotificationItem extends Composite implements Listener {
+abstract class AbstractNotificationItem extends Composite {
+
+    private static final String DASH = " -";
+
+    private static final DateFormat FORMAT = new SimpleDateFormat(
+            "MMMMM d, yyyy");
 
     private Label newNotificationLabel;
 
@@ -30,6 +38,7 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
         getShell().addListener(SWT.Show, new Listener() {
 
             public void handleEvent(Event event) {
+                getShell().removeListener(SWT.Show, this);
                 buildContent(notification);
             }
 
@@ -41,15 +50,46 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
         // Disables ability to set background outside of this class.
     }
 
-    public void handleEvent(Event event) {
-        // TODO Auto-generated method stub
+    protected Control createInfoSection(Notification notification) {
+        Composite composite = new Composite(this, SWT.NONE);
 
+        GridLayout layout = new GridLayout(2, false);
+        layout.horizontalSpacing = 0;
+        composite.setLayout(layout);
+
+        Label title = new Label(composite, SWT.NONE);
+        title.setText(getSummary(notification));
+        GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
+                .align(SWT.FILL, SWT.FILL).applyTo(title);
+
+        buildPrefix(composite, notification);
+
+        Label label = new Label(composite, SWT.NONE);
+        // TODO : color
+        label.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        // TODO : I18N
+        label.setText("Read more");
+
+        return composite;
     }
 
-    protected abstract Control createInfoSection(Notification notification);
+    protected String getSummary(Notification notification) {
+        return notification.getTitle();
+    }
+
+    protected Control buildPrefix(Composite parent, Notification notification) {
+        Label label = new Label(parent, SWT.NONE);
+        label.setText(getDate(notification) + DASH);
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
+        return label;
+    }
 
     protected void setRead() {
         newNotificationLabel.setImage(null);
+    }
+
+    private String getDate(Notification notification) {
+        return FORMAT.format(notification.getDate());
     }
 
     private void doSetBackground(Color color) {
@@ -57,8 +97,6 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
     }
 
     private void buildContent(Notification notification) {
-        getShell().removeListener(SWT.Show, this);
-
         initComponents(notification);
 
         pack();

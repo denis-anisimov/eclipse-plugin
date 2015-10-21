@@ -21,8 +21,9 @@ class NewNotificationsPopup extends AbstractNotificationPopup {
     private final Collection<Notification> notifications;
 
     NewNotificationsPopup(Control control,
-            Collection<Notification> notificaions) {
-        super(control);
+            Collection<Notification> notificaions,
+            ContributionManager manager) {
+        super(control, manager);
         this.notifications = notificaions;
     }
 
