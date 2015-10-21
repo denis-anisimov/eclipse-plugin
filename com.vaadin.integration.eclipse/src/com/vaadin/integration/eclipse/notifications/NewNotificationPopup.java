@@ -17,9 +17,8 @@ class NewNotificationPopup extends AbstractNotificationPopup {
 
     private final Notification notification;
 
-    NewNotificationPopup(Control control, Notification notification,
-            ContributionManager manager) {
-        super(control, manager);
+    NewNotificationPopup(Control control, Notification notification) {
+        super(control);
         this.notification = notification;
     }
 

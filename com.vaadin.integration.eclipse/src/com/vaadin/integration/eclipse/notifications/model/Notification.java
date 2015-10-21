@@ -62,7 +62,7 @@ public class Notification {
         return null;
     }
 
-    public void setRed() {
+    public void setRead() {
         read = true;
     }
 

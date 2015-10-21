@@ -1,7 +1,5 @@
 package com.vaadin.integration.eclipse.notifications;
 
-import java.util.Collection;
-
 import org.eclipse.ui.browser.IWebBrowser;
 
 import com.vaadin.integration.eclipse.notifications.model.Notification;
@@ -36,5 +34,4 @@ interface PopupUpdateManager {
      */
     void showTokenInput(IWebBrowser browser);
 
-    Collection<Notification> getNotifications();
 }

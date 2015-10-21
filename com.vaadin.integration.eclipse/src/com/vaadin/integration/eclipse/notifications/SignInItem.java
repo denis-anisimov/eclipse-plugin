@@ -11,8 +11,11 @@ import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 class SignInItem extends AbstractNotificationItem implements ItemAction {
 
+    private final Notification notification;
+
     SignInItem(Composite parent, SignInNotification notification) {
         super(parent, notification);
+        this.notification = notification;
     }
 
     @Override
@@ -30,6 +33,12 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
     public void runAction(PopupUpdateManager manager) {
         setRead();
         manager.showSignIn();
+    }
+
+    @Override
+    protected void setRead() {
+        super.setRead();
+        notification.setRead();
     }
 
     @Override

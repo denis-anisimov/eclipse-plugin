@@ -74,22 +74,20 @@ class NotificationsListComposite extends ScrolledComposite
     }
 
     private void initComponents(Composite parent) {
-        if (!isSignedIn()) {
-            setLayoutData(new SignInItem(parent, new SignInNotification()));
+        SignInNotification signIn = ContributionManager.getInstance()
+                .getSignInNotification();
+        if (signIn != null) {
+            setControlLayoutData(new SignInItem(parent, signIn));
         }
-        for (Notification notification : updateManager.getNotifications()) {
-            setLayoutData(new NotificationIem(parent, notification));
+        for (Notification notification : ContributionManager.getInstance()
+                .getNotifications()) {
+            setControlLayoutData(new NotificationIem(parent, notification));
         }
     }
 
-    private void setLayoutData(Control control) {
+    private void setControlLayoutData(Control control) {
         GridDataFactory.fillDefaults().grab(true, false)
                 .align(SWT.FILL, SWT.FILL).applyTo(control);
-    }
-
-    private boolean isSignedIn() {
-        // TODO
-        return false;
     }
 
     private static class CustomComposite extends Composite {

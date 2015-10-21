@@ -16,4 +16,5 @@ public class SignInNotification extends Notification {
         return VaadinPlugin.getInstance().getImageRegistry()
                 .get(Utils.SIGN_IN_ICON);
     }
+
 }

@@ -1,7 +1,5 @@
 package com.vaadin.integration.eclipse.notifications;
 
-import java.util.Collection;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.mylyn.commons.workbench.forms.ScalingHyperlink;
@@ -62,20 +60,15 @@ class NotificationsListPopup extends AbstractPopup {
 
     private boolean showContent;
 
-    private final ContributionManager contributionManager;
-
-    NotificationsListPopup(Control control,
-            ContributionManager contributionManager) {
-        this(control, true, contributionManager);
+    NotificationsListPopup(Control control) {
+        this(control, true);
     }
 
-    NotificationsListPopup(Control control, boolean showContentInitially,
-            ContributionManager manager) {
+    NotificationsListPopup(Control control, boolean showContentInitially) {
         super(control.getDisplay());
         masterControl = control;
         setDelayClose(-1);
         showContent = showContentInitially;
-        contributionManager = manager;
     }
 
     @Override
@@ -247,10 +240,6 @@ class NotificationsListPopup extends AbstractPopup {
             main.layout();
 
             clearAll.setVisible(false);
-        }
-
-        public Collection<Notification> getNotifications() {
-            return contributionManager.getNotifications();
         }
 
         public void showNotification(Notification notification) {

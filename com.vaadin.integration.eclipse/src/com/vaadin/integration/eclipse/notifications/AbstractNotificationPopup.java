@@ -25,22 +25,16 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
 
     private final PopupManager manager = new PopupManagerImpl();
 
-    private final ContributionManager contributionManager;
-
     private final Control toolBarControl;
 
-    protected AbstractNotificationPopup(Control control,
-            ContributionManager manager) {
+    protected AbstractNotificationPopup(Control control) {
         super(control.getDisplay());
         toolBarControl = control;
-        contributionManager = manager;
     }
 
-    protected AbstractNotificationPopup(Control control, int style,
-            ContributionManager manager) {
+    protected AbstractNotificationPopup(Control control, int style) {
         super(control.getDisplay(), style);
         toolBarControl = control;
-        contributionManager = manager;
     }
 
     @Override
@@ -150,7 +144,7 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
             close();
 
             NotificationsListPopup popup = new NotificationsListPopup(
-                    toolBarControl, false, contributionManager);
+                    toolBarControl, false);
             popup.open(notification);
         }
 
@@ -158,7 +152,7 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
             close();
 
             NotificationsListPopup popup = new NotificationsListPopup(
-                    toolBarControl, contributionManager);
+                    toolBarControl);
             popup.open();
         }
 
