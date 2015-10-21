@@ -22,6 +22,7 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
+import com.vaadin.integration.eclipse.notifications.model.Notification;
 
 /**
  * Shows a list of all notifications and allows to navigate to the specific

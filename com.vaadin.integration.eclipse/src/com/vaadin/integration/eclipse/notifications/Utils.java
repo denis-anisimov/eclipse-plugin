@@ -15,7 +15,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 
-final class Utils {
+public final class Utils {
+
+    public static final String SIGN_IN_ICON = "icons.sign-in-icon40";
 
     static final String REGULAR_NOTIFICATION_ICON = "icons.vaadin-icon16";
     static final String NEW_NOTIFICATION_ICON = "icons.vaadin-icon16-new";
@@ -24,7 +26,6 @@ final class Utils {
     static final String CLEAR_ALL_ICON = "icons.bell-slash-icon";
     static final String NEW_ICON = "icons.dot";
     static final String SIGN_IN_BUTTON = "icons.sign-in-btn";
-    static final String SIGN_IN_ICON = "icons.sign-in-icon40";
     static final String BROWSER_ID = UUID.randomUUID().toString();
 
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());

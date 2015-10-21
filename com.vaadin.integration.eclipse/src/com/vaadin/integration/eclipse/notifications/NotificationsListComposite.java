@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
+
 class NotificationsListComposite extends ScrolledComposite
         implements Listener, DisposeListener {
 
@@ -73,7 +75,7 @@ class NotificationsListComposite extends ScrolledComposite
 
     private void initComponents(Composite parent) {
         if (!isSignedIn()) {
-            setLayoutData(new SignInItem(parent));
+            setLayoutData(new SignInItem(parent, new SignInNotification()));
         }
     }
 

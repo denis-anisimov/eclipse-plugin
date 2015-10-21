@@ -1,9 +1,13 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.util.Collection;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+
+import com.vaadin.integration.eclipse.notifications.model.Notification;
 
 /**
  * Shows new notifications informational popup (without exact notification
@@ -14,8 +18,12 @@ import org.eclipse.swt.widgets.Control;
  */
 class NewNotificationsPopup extends AbstractNotificationPopup {
 
-    NewNotificationsPopup(Control control) {
+    private final Collection<Notification> notifications;
+
+    NewNotificationsPopup(Control control,
+            Collection<Notification> notificaions) {
         super(control);
+        this.notifications = notificaions;
     }
 
     @Override
@@ -23,7 +31,7 @@ class NewNotificationsPopup extends AbstractNotificationPopup {
         super.createContentArea(parent);
 
         FewNotificationsComposite control = new FewNotificationsComposite(
-                parent, getManager());
+                parent, getManager(), notifications);
         GridDataFactory.fillDefaults().grab(true, true).span(2, 1)
                 .align(SWT.FILL, SWT.FILL).applyTo(control);
     }

@@ -1,5 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+
 /**
  * Manages popups : transitions between single notification popup and list of
  * notifications.

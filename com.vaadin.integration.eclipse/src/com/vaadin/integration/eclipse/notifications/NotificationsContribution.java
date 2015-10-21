@@ -1,6 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.Date;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -19,6 +20,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 public class NotificationsContribution
         extends WorkbenchWindowControlContribution {
@@ -52,11 +55,22 @@ public class NotificationsContribution
                         || !tempPopup.getShell().isVisible()) {
                     if (false) {
                         new NewNotificationPopup(control,
-                                new Notification("Title", new Date(), null,
-                                        null, NotificationType.SIGN_IN, false))
-                                                .open();
+                                new SignInNotification() {
+
+                            @Override
+                            public String getTitle() {
+                                return "Title";
+                            }
+
+                            @Override
+                            public Date getDate() {
+                                return new Date();
+                            }
+
+                        }).open();
                     } else {
-                        new NewNotificationsPopup(control).open();
+                        new NewNotificationsPopup(control,
+                                Collections.<Notification> emptyList()).open();
                     }
                 }
             }

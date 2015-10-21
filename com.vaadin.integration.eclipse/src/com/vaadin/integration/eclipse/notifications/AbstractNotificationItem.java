@@ -11,13 +11,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.notifications.model.Notification;
 
 abstract class AbstractNotificationItem extends Composite implements Listener {
 
     private Label newNotificationLabel;
 
-    AbstractNotificationItem(Composite parent, final boolean read,
-            final NotificationType type) {
+    AbstractNotificationItem(Composite parent,
+            final Notification notification) {
         super(parent, SWT.NONE);
 
         GridLayout layout = new GridLayout(4, false);
@@ -29,7 +30,7 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
         getShell().addListener(SWT.Show, new Listener() {
 
             public void handleEvent(Event event) {
-                buildContent(read, type);
+                buildContent(notification);
             }
 
         });
@@ -45,7 +46,7 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
 
     }
 
-    protected abstract Control createInfoSection();
+    protected abstract Control createInfoSection(Notification notification);
 
     protected void setRead() {
         newNotificationLabel.setImage(null);
@@ -55,10 +56,10 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
         super.setBackground(color);
     }
 
-    private void buildContent(final boolean read, final NotificationType type) {
+    private void buildContent(Notification notification) {
         getShell().removeListener(SWT.Show, this);
 
-        initComponents(read, type);
+        initComponents(notification);
 
         pack();
         layout();
@@ -70,9 +71,9 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
         }
     }
 
-    private void initComponents(boolean read, NotificationType type) {
+    private void initComponents(Notification notification) {
         newNotificationLabel = new Label(this, SWT.NONE);
-        if (!read) {
+        if (!notification.isRead()) {
             newNotificationLabel.setImage(VaadinPlugin.getInstance()
                     .getImageRegistry().get(Utils.NEW_ICON));
         }
@@ -80,11 +81,11 @@ abstract class AbstractNotificationItem extends Composite implements Listener {
                 .align(SWT.CENTER, SWT.CENTER).applyTo(newNotificationLabel);
 
         Label typeLabel = new Label(this, SWT.NONE);
-        typeLabel.setImage(type.getIcon());
+        typeLabel.setImage(notification.getIcon());
         GridDataFactory.fillDefaults().grab(false, true)
                 .align(SWT.CENTER, SWT.CENTER).applyTo(typeLabel);
 
-        Control infoSection = createInfoSection();
+        Control infoSection = createInfoSection(notification);
         GridDataFactory.fillDefaults().grab(true, true)
                 .align(SWT.FILL, SWT.FILL).applyTo(infoSection);
 

@@ -11,14 +11,16 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+
 abstract class AbstractNotificationComposite extends AbstractNotificationItem
         implements Listener, DisposeListener {
 
     private final PopupManager manager;
 
-    AbstractNotificationComposite(Composite parent, NotificationType type,
+    AbstractNotificationComposite(Composite parent, Notification notification,
             PopupManager manager) {
-        super(parent, false, type);
+        super(parent, notification);
         this.manager = manager;
 
         parent.getDisplay().addFilter(SWT.MouseDown, this);
@@ -37,7 +39,7 @@ abstract class AbstractNotificationComposite extends AbstractNotificationItem
     }
 
     @Override
-    protected Control createInfoSection() {
+    protected Control createInfoSection(Notification notification) {
         Composite composite = new Composite(this, SWT.NONE);
 
         GridLayout layout = new GridLayout(2, false);

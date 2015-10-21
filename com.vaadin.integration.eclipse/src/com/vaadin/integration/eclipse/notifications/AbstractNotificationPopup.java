@@ -17,6 +17,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.IFormColors;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+
 abstract class AbstractNotificationPopup extends AbstractPopup {
 
     private ShellActivationListener blockPopupListener;

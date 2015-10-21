@@ -9,6 +9,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+
 /**
  * Standalone notification which is shown on new notification.
  *
@@ -24,7 +26,7 @@ class SingleNotificationComposite extends AbstractNotificationComposite {
 
     SingleNotificationComposite(Composite parent, Notification notification,
             PopupManager manager) {
-        super(parent, notification.getType(), manager);
+        super(parent, notification, manager);
         this.notification = notification;
     }
 

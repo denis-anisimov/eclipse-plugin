@@ -5,6 +5,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+
 /**
  * Shows new single notification with its details.
  * 

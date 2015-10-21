@@ -6,14 +6,17 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
+
 class SignInItem extends AbstractNotificationItem implements ItemAction {
 
-    SignInItem(Composite parent) {
-        super(parent, false, NotificationType.SIGN_IN);
+    SignInItem(Composite parent, SignInNotification notification) {
+        super(parent, notification);
     }
 
     @Override
-    protected Control createInfoSection() {
+    protected Control createInfoSection(Notification notification) {
         Composite composite = new Composite(this, SWT.NONE);
         FillLayout layout = new FillLayout(SWT.VERTICAL);
         composite.setLayout(layout);

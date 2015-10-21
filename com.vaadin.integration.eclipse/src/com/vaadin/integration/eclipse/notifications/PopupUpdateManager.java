@@ -2,6 +2,8 @@ package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.ui.browser.IWebBrowser;
 
+import com.vaadin.integration.eclipse.notifications.model.Notification;
+
 /**
  * Manages update changes in the notifications list popup.
  *

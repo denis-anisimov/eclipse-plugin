@@ -1,12 +1,14 @@
-package com.vaadin.integration.eclipse.notifications;
+package com.vaadin.integration.eclipse.notifications.model;
 
 import java.util.Date;
+
+import org.eclipse.swt.graphics.Image;
 
 /**
  * Data model for notification info
  *
  */
-class Notification {
+public class Notification {
 
     private final String title;
     private final Date date;
@@ -14,18 +16,16 @@ class Notification {
     private final String description;
     private final String link;
 
-    private final NotificationType type;
-
     private boolean read;
 
-    Notification(String title, Date date, String description, String link,
-            NotificationType type, boolean read) {
+    protected Notification(String title, Date date, String description,
+            String link, boolean read) {
         this.title = title;
         this.date = date;
         this.description = description;
         this.link = link;
         this.read = read;
-        this.type = type;
+        // this.type = type;
     }
 
     public String getTitle() {
@@ -48,11 +48,21 @@ class Notification {
         return read;
     }
 
-    public NotificationType getType() {
-        return type;
+    // public NotificationType getType() {
+    // return type;
+    // }
+
+    public Image getIcon() {
+        // TODO:
+        return null;
     }
 
-    void setRed() {
+    public Image getHeaderImage() {
+        // TODO
+        return null;
+    }
+
+    public void setRed() {
         read = true;
     }
 
