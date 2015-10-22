@@ -9,9 +9,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
@@ -25,24 +23,17 @@ abstract class AbstractNotificationItem extends Composite {
 
     private Label newNotificationLabel;
 
-    AbstractNotificationItem(Composite parent,
-            final Notification notification) {
+    private final Notification notification;
+
+    AbstractNotificationItem(Composite parent, Notification notification) {
         super(parent, SWT.NONE);
+        this.notification = notification;
 
         GridLayout layout = new GridLayout(4, false);
         setLayout(layout);
 
         setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
         doSetBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-
-        getShell().addListener(SWT.Show, new Listener() {
-
-            public void handleEvent(Event event) {
-                getShell().removeListener(SWT.Show, this);
-                buildContent(notification);
-            }
-
-        });
     }
 
     @Override
@@ -50,7 +41,19 @@ abstract class AbstractNotificationItem extends Composite {
         // Disables ability to set background outside of this class.
     }
 
-    protected Control createInfoSection(Notification notification) {
+    @Override
+    public void setLayoutData(Object layoutData) {
+        if (newNotificationLabel == null) {
+            initComponents();
+        }
+        super.setLayoutData(layoutData);
+    }
+
+    protected Notification getNotification() {
+        return notification;
+    }
+
+    protected Control createInfoSection() {
         Composite composite = new Composite(this, SWT.NONE);
 
         GridLayout layout = new GridLayout(2, false);
@@ -58,11 +61,11 @@ abstract class AbstractNotificationItem extends Composite {
         composite.setLayout(layout);
 
         Label title = new Label(composite, SWT.NONE);
-        title.setText(getSummary(notification));
+        title.setText(getSummary());
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
                 .align(SWT.FILL, SWT.FILL).applyTo(title);
 
-        buildPrefix(composite, notification);
+        buildPrefix(composite);
 
         Label label = new Label(composite, SWT.NONE);
         // TODO : color
@@ -73,13 +76,13 @@ abstract class AbstractNotificationItem extends Composite {
         return composite;
     }
 
-    protected String getSummary(Notification notification) {
-        return notification.getTitle();
+    protected String getSummary() {
+        return getNotification().getTitle();
     }
 
-    protected Control buildPrefix(Composite parent, Notification notification) {
+    protected Control buildPrefix(Composite parent) {
         Label label = new Label(parent, SWT.NONE);
-        label.setText(getDate(notification) + DASH);
+        label.setText(getDate(getNotification()) + DASH);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
         return label;
     }
@@ -96,22 +99,9 @@ abstract class AbstractNotificationItem extends Composite {
         super.setBackground(color);
     }
 
-    private void buildContent(Notification notification) {
-        initComponents(notification);
-
-        pack();
-        layout();
-
-        Control[] children = getParent().getChildren();
-        if (children.length > 0 && children[children.length
-                - 1] == AbstractNotificationItem.this) {
-            getParent().layout();
-        }
-    }
-
-    private void initComponents(Notification notification) {
+    private void initComponents() {
         newNotificationLabel = new Label(this, SWT.NONE);
-        if (!notification.isRead()) {
+        if (!getNotification().isRead()) {
             newNotificationLabel.setImage(VaadinPlugin.getInstance()
                     .getImageRegistry().get(Utils.NEW_ICON));
         }
@@ -123,7 +113,7 @@ abstract class AbstractNotificationItem extends Composite {
         GridDataFactory.fillDefaults().grab(false, true)
                 .align(SWT.CENTER, SWT.CENTER).applyTo(typeLabel);
 
-        Control infoSection = createInfoSection(notification);
+        Control infoSection = createInfoSection();
         GridDataFactory.fillDefaults().grab(true, true)
                 .align(SWT.FILL, SWT.FILL).applyTo(infoSection);
 

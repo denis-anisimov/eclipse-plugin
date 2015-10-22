@@ -26,7 +26,7 @@ class NotificationsListComposite extends ScrolledComposite
         setExpandHorizontal(true);
         setExpandVertical(true);
 
-        Composite composite = new CustomComposite(this);
+        Composite composite = new Composite(this, SWT.NONE);
         GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
@@ -38,6 +38,7 @@ class NotificationsListComposite extends ScrolledComposite
 
         parent.getDisplay().addFilter(SWT.MouseDown, this);
         addDisposeListener(this);
+        setMinSize(computeSize(0, SWT.DEFAULT));
     }
 
     public void handleEvent(Event event) {
@@ -85,27 +86,9 @@ class NotificationsListComposite extends ScrolledComposite
         }
     }
 
-    private void setControlLayoutData(Control control) {
+    private void setControlLayoutData(Control item) {
         GridDataFactory.fillDefaults().grab(true, false)
-                .align(SWT.FILL, SWT.FILL).applyTo(control);
-    }
-
-    private static class CustomComposite extends Composite {
-
-        CustomComposite(ScrolledComposite parent) {
-            super(parent, SWT.NONE);
-        }
-
-        @Override
-        public void layout() {
-            super.layout();
-            getParent().setMinSize(computeSize(0, SWT.DEFAULT));
-        }
-
-        @Override
-        public ScrolledComposite getParent() {
-            return (ScrolledComposite) super.getParent();
-        }
+                .align(SWT.FILL, SWT.FILL).applyTo(item);
     }
 
 }
