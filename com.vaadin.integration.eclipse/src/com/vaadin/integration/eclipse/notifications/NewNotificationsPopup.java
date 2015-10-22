@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
@@ -20,9 +19,7 @@ class NewNotificationsPopup extends AbstractNotificationPopup {
 
     private final Collection<Notification> notifications;
 
-    NewNotificationsPopup(Control control,
-            Collection<Notification> notificaions) {
-        super(control);
+    NewNotificationsPopup(Collection<Notification> notificaions) {
         this.notifications = notificaions;
     }
 

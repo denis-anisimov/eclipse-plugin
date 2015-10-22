@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.eclipse.swt.graphics.Image;
 
+import com.vaadin.integration.eclipse.VaadinPlugin;
+
 /**
  * Data model for notification info
  *
@@ -48,13 +50,11 @@ public class Notification implements Cloneable {
     }
 
     public Image getIcon() {
-        // TODO:
-        return null;
+        return getImage(getIconUrl());
     }
 
     public Image getHeaderImage() {
-        // TODO
-        return null;
+        return getImage(getImageUrl());
     }
 
     public String getId() {
@@ -90,6 +90,11 @@ public class Notification implements Cloneable {
             throw new RuntimeException("Implementation error. "
                     + "Class should implement Cloneable interface");
         }
+    }
+
+    private Image getImage(String url) {
+        return url == null ? null
+                : VaadinPlugin.getInstance().getImageRegistry().get(url);
     }
 
     public static class Builder {

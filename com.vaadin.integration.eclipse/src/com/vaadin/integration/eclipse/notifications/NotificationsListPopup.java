@@ -48,8 +48,6 @@ class NotificationsListPopup extends AbstractPopup {
 
     private Control signOutWidget;
 
-    private Control masterControl;
-
     private Label titleImageLabel;
 
     private Label titleTextLabel;
@@ -60,13 +58,13 @@ class NotificationsListPopup extends AbstractPopup {
 
     private boolean showContent;
 
-    NotificationsListPopup(Control control) {
-        this(control, true);
+    NotificationsListPopup() {
+        this(true);
     }
 
-    NotificationsListPopup(Control control, boolean showContentInitially) {
-        super(control.getDisplay());
-        masterControl = control;
+    NotificationsListPopup(boolean showContentInitially) {
+        super(ContributionService.getInstance().getContributionControl()
+                .getDisplay());
         setDelayClose(-1);
         showContent = showContentInitially;
     }
@@ -166,7 +164,8 @@ class NotificationsListPopup extends AbstractPopup {
         int height = Math.min(initialSize.y, MAX_HEIGHT);
         int width = Math.min(initialSize.x, Utils.MAX_WIDTH);
 
-        Point location = masterControl.toDisplay(new Point(0, 0));
+        Point location = ContributionService.getInstance()
+                .getContributionControl().toDisplay(new Point(0, 0));
         location.x = location.x - Utils.PADDING_EDGE;
         location.y = location.y - height - Utils.PADDING_EDGE;
 

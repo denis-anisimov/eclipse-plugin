@@ -22,7 +22,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public final class NotificationsProvider {
+/**
+ * Provides all backend services for notifications.
+ *
+ */
+public final class NotificationsService {
 
     private static final String ICON_URL = "iconUrl";
 
@@ -48,7 +52,7 @@ public final class NotificationsProvider {
 
     private static final String ALL_NOTIFICATIONS_URL = "https://vaadin.com/delegate/notifications/personal";
 
-    private static final NotificationsProvider INSTANCE = new NotificationsProvider();
+    private static final NotificationsService INSTANCE = new NotificationsService();
 
     private static final String UTF8 = "UTF-8";
 
@@ -56,13 +60,29 @@ public final class NotificationsProvider {
             "yyyy-MM-dd'T'HH:mm:ssX");
 
     private static final Logger LOG = Logger
-            .getLogger(NotificationsProvider.class.getName());
+            .getLogger(NotificationsService.class.getName());
 
-    private NotificationsProvider() {
+    private NotificationsService() {
     }
 
     public Collection<Notification> getAllNotifications() {
-        return getNotifications(ALL_NOTIFICATIONS_URL);
+        return getNotifications(ALL_NOTIFICATIONS_URL, true, false);
+    }
+
+    public void downloadImages(Collection<Notification> notifications) {
+
+    }
+
+    private Collection<Notification> getNotifications(String url,
+            boolean downloadIcons, boolean downloadImagess) {
+        Collection<Notification> notifications = getNotifications(url);
+        if (downloadIcons) {
+            downloadIcons(notifications);
+        }
+        if (downloadImagess) {
+            downloadImages(notifications);
+        }
+        return notifications;
     }
 
     private Collection<Notification> getNotifications(String url) {
@@ -106,6 +126,11 @@ public final class NotificationsProvider {
         return Collections.emptyList();
     }
 
+    private void downloadIcons(Collection<Notification> notifications) {
+        // TODO Auto-generated method stub
+
+    }
+
     private Notification buildNotification(JSONObject info) {
         Notification.Builder builder = new Notification.Builder();
         builder.setId(getString(info, ID));
@@ -146,7 +171,7 @@ public final class NotificationsProvider {
         LOG.log(level, null, exception);
     }
 
-    public static NotificationsProvider getInstance() {
+    public static NotificationsService getInstance() {
         return INSTANCE;
     }
 

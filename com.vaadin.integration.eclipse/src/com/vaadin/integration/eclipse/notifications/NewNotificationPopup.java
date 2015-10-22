@@ -3,7 +3,6 @@ package com.vaadin.integration.eclipse.notifications;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
@@ -17,8 +16,7 @@ class NewNotificationPopup extends AbstractNotificationPopup {
 
     private final Notification notification;
 
-    NewNotificationPopup(Control control, Notification notification) {
-        super(control);
+    NewNotificationPopup(Notification notification) {
         this.notification = notification;
     }
 

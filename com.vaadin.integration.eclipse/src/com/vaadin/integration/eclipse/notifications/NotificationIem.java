@@ -22,4 +22,10 @@ class NotificationIem extends AbstractNotificationItem implements ItemAction {
         manager.showNotification(notification);
     }
 
+    @Override
+    protected void setRead() {
+        notification.setRead();
+        super.setRead();
+    }
+
 }

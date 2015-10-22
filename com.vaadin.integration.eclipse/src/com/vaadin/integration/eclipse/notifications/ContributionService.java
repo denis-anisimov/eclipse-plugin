@@ -12,17 +12,22 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.notifications.NotificationsContribution.ContributionControlAccess;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
-import com.vaadin.integration.eclipse.notifications.model.NotificationsProvider;
+import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
-public final class ContributionManager {
+/**
+ * Provides an entry point to manage notifications plugged functionality.
+ *
+ */
+public final class ContributionService extends ContributionControlAccess {
 
-    private static final ContributionManager INSTANCE = new ContributionManager();
+    private static final ContributionService INSTANCE = new ContributionService();
 
     private static final String PNG = ".png";
 
-    private ContributionManager() {
+    private ContributionService() {
     }
 
     private List<Notification> notifications;
@@ -33,7 +38,7 @@ public final class ContributionManager {
         loadNotificationIcons();
     }
 
-    public static ContributionManager getInstance() {
+    public static ContributionService getInstance() {
         return INSTANCE;
     }
 
@@ -58,7 +63,7 @@ public final class ContributionManager {
 
     public void refreshNotifications() {
         setNotifications(
-                NotificationsProvider.getInstance().getAllNotifications());
+                NotificationsService.getInstance().getAllNotifications());
     }
 
     public void initializeContribution() {

@@ -30,13 +30,20 @@ public class NotificationsContribution
         display = parent.getDisplay();
         Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
 
-        ContributionManager.getInstance().initializeContribution();
-        button.setImage(getRegularIcon());
+        init(button);
 
-        button.addSelectionListener(new ButtonListener(button));
+        button.setImage(getRegularIcon());
+        button.addSelectionListener(new ButtonListener());
 
         scheduleNotificationRequests(button);
+
         return button;
+    }
+
+    private void init(Control control) {
+        ContributionService.getInstance().initializeContribution();
+        ContributionControlAccess access = ContributionService.getInstance();
+        access.setControl(control);
     }
 
     private void scheduleNotificationRequests(final Control control) {
@@ -50,8 +57,7 @@ public class NotificationsContribution
                 if (tempPopup == null || tempPopup.getShell() == null
                         || !tempPopup.getShell().isVisible()) {
                     if (false) {
-                        new NewNotificationPopup(control,
-                                new SignInNotification() {
+                        new NewNotificationPopup(new SignInNotification() {
 
                             @Override
                             public String getTitle() {
@@ -65,7 +71,7 @@ public class NotificationsContribution
 
                         }).open();
                     } else {
-                        new NewNotificationsPopup(control,
+                        new NewNotificationsPopup(
                                 Collections.<Notification> emptyList()).open();
                     }
                 }
@@ -84,18 +90,24 @@ public class NotificationsContribution
                 .get(Utils.REGULAR_NOTIFICATION_ICON);
     }
 
-    private static class ButtonListener extends SelectionAdapter {
+    static class ContributionControlAccess {
 
-        private final WeakReference<Control> control;
+        private WeakReference<Control> control;
 
-        ButtonListener(Control control) {
+        Control getContributionControl() {
+            return control.get();
+        }
+
+        private void setControl(Control control) {
             this.control = new WeakReference<Control>(control);
         }
+    }
+
+    private static class ButtonListener extends SelectionAdapter {
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            NotificationsListPopup popup = new NotificationsListPopup(
-                    control.get());
+            NotificationsListPopup popup = new NotificationsListPopup();
             popup.open();
             NotificationsContribution.tempPopup = popup;
         }

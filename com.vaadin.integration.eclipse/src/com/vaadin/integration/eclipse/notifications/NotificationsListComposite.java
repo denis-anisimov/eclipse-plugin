@@ -74,12 +74,12 @@ class NotificationsListComposite extends ScrolledComposite
     }
 
     private void initComponents(Composite parent) {
-        SignInNotification signIn = ContributionManager.getInstance()
+        SignInNotification signIn = ContributionService.getInstance()
                 .getSignInNotification();
         if (signIn != null) {
             setControlLayoutData(new SignInItem(parent, signIn));
         }
-        for (Notification notification : ContributionManager.getInstance()
+        for (Notification notification : ContributionService.getInstance()
                 .getNotifications()) {
             setControlLayoutData(new NotificationIem(parent, notification));
         }
