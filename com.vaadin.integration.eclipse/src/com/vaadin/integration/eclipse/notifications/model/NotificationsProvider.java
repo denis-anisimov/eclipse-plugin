@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,47 +36,69 @@ public final class NotificationsProvider {
 
     private static final String BODY = "body";
 
+    private static final Logger LOG = Logger
+            .getLogger(NotificationsProvider.class.getName());
+
     private NotificationsProvider() {
     }
 
     public Collection<Notification> getAllNotifications() {
+        return getNotifications(ALL_NOTIFICATIONS_URL);
+    }
+
+    private Collection<Notification> getNotifications(String url) {
         HttpClientBuilder builder = HttpClientBuilder.create();
         HttpClient client = builder.build();
 
-        HttpGet request = new HttpGet(ALL_NOTIFICATIONS_URL);
+        HttpGet request = new HttpGet(url);
+        InputStreamReader reader = null;
         try {
             HttpResponse response = client.execute(request);
             JSONParser parser = new JSONParser();
-            JSONObject object = (JSONObject) parser.parse(new InputStreamReader(
-                    response.getEntity().getContent(), UTF8));
+
+            reader = new InputStreamReader(response.getEntity().getContent(),
+                    UTF8);
+            JSONObject object = (JSONObject) parser.parse(reader);
 
             JSONArray array = (JSONArray) object.get(NOTIFICATIONS);
             List<Notification> list = new ArrayList<Notification>(array.size());
             for (int i = 0; i < array.size(); i++) {
-                JSONObject info = (JSONObject) array.get(i);
-
-                Notification notification = new Notification(
-                        info.get(TITLE).toString(), new Date(),
-                        info.get(BODY).toString(), LINK_URL, false);
-                list.add(notification);
+                list.add(buildNotification((JSONObject) array.get(i)));
             }
 
             return list;
         } catch (ClientProtocolException e) {
-            // TODO
+            handleException(Level.WARNING, e);
         } catch (IOException e) {
-            // TODO
+            handleException(Level.WARNING, e);
         } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            handleException(Level.WARNING, e);
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            handleException(Level.WARNING, e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    handleException(Level.INFO, e);
+                }
+            }
         }
         return Collections.emptyList();
+    }
+
+    private Notification buildNotification(JSONObject info) {
+        Notification notification = new Notification(info.get(TITLE).toString(),
+                new Date(), info.get(BODY).toString(), LINK_URL, false);
+        return notification;
+    }
+
+    private void handleException(Level level, Exception exception) {
+        LOG.log(level, null, exception);
     }
 
     public static NotificationsProvider getInstance() {
         return INSTANCE;
     }
+
 }
