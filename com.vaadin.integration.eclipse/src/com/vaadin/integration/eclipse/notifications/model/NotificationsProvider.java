@@ -2,6 +2,8 @@ package com.vaadin.integration.eclipse.notifications.model;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,11 +24,27 @@ import org.json.simple.parser.ParseException;
 
 public final class NotificationsProvider {
 
+    private static final String ICON_URL = "iconUrl";
+
+    private static final String LINK_TEXT = "linkText";
+
+    private static final String IMAGE_URL = "imageUrl";
+
+    private static final String VALID_FROM = "validFrom";
+
+    private static final String READ = "read";
+
+    private static final String CATEGORY = "category";
+
+    private static final String ID = "id";
+
     private static final String NOTIFICATIONS = "notifications";
 
     private static final String LINK_URL = "linkUrl";
 
     private static final String TITLE = "title";
+
+    private static final String BODY = "body";
 
     private static final String ALL_NOTIFICATIONS_URL = "https://vaadin.com/delegate/notifications/personal";
 
@@ -34,7 +52,8 @@ public final class NotificationsProvider {
 
     private static final String UTF8 = "UTF-8";
 
-    private static final String BODY = "body";
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ssX");
 
     private static final Logger LOG = Logger
             .getLogger(NotificationsProvider.class.getName());
@@ -88,9 +107,39 @@ public final class NotificationsProvider {
     }
 
     private Notification buildNotification(JSONObject info) {
-        Notification notification = new Notification(info.get(TITLE).toString(),
-                new Date(), info.get(BODY).toString(), LINK_URL, false);
-        return notification;
+        Notification.Builder builder = new Notification.Builder();
+        builder.setId(getString(info, ID));
+        builder.setCategory(getString(info, CATEGORY));
+        builder.setTitle(getString(info, TITLE));
+        builder.setDescription(getString(info, BODY));
+        builder.setLink(getString(info, LINK_URL));
+        builder.setTitle(getString(info, TITLE));
+        builder.setRead(getBoolean(info, READ));
+
+        builder.setDate(getDate(info, VALID_FROM));
+        builder.setImageUrl(getString(info, IMAGE_URL));
+        builder.setLinkText(getString(info, LINK_TEXT));
+        builder.setIcon(getString(info, ICON_URL));
+        return builder.build();
+    }
+
+    private String getString(JSONObject object, String property) {
+        Object value = object.get(property);
+        return value == null ? null : value.toString();
+    }
+
+    private boolean getBoolean(JSONObject object, String property) {
+        return Boolean.TRUE.toString().equals(getString(object, property));
+    }
+
+    private Date getDate(JSONObject object, String property) {
+        String value = getString(object, property);
+        try {
+            return value == null ? null : DATE_FORMAT.parse(value);
+        } catch (java.text.ParseException e) {
+            handleException(Level.WARNING, e);
+            return null;
+        }
     }
 
     private void handleException(Level level, Exception exception) {

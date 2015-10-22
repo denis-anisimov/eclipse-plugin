@@ -38,7 +38,7 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
     private static class FewNotifications extends Notification {
 
         FewNotifications() {
-            super(null, null, null, null, false);
+            super();
         }
 
     }

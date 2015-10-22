@@ -8,7 +8,7 @@ import com.vaadin.integration.eclipse.notifications.Utils;
 public class SignInNotification extends Notification {
 
     public SignInNotification() {
-        super(null, null, null, null, false);
+        super();
     }
 
     @Override
