@@ -34,4 +34,9 @@ interface PopupUpdateManager {
      */
     void showTokenInput(IWebBrowser browser);
 
+    /**
+     * Close the popup.
+     */
+    void close();
+
 }

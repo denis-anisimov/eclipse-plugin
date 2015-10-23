@@ -246,8 +246,12 @@ class NotificationsListPopup extends AbstractPopup {
 
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = new NotificationInfoComposite(main,
-                    notification);
+                    notification, this);
             main.layout();
+        }
+
+        public void close() {
+            NotificationsListPopup.this.close();
         }
 
         public void showTokenInput(IWebBrowser browser) {

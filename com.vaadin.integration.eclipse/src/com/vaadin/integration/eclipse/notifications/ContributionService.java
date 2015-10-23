@@ -10,6 +10,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.NotificationsContribution.ContributionControlAccess;
@@ -33,6 +38,8 @@ public final class ContributionService extends ContributionControlAccess {
     private List<Notification> notifications;
 
     private SignInNotification signIn = new SignInNotification();
+
+    private boolean isEmbeddedBrowserAvaialble = checkBrowserSupport();
 
     static {
         loadNotificationIcons();
@@ -75,6 +82,10 @@ public final class ContributionService extends ContributionControlAccess {
         refreshNotifications();
     }
 
+    public boolean isEmbeddedBrowserAvailable() {
+        return isEmbeddedBrowserAvaialble;
+    }
+
     private void setNotifications(Collection<Notification> notifications) {
         this.notifications = new ArrayList<Notification>(notifications);
     }
@@ -82,6 +93,23 @@ public final class ContributionService extends ContributionControlAccess {
     private boolean isSignedIn() {
         // TODO
         return false;
+    }
+
+    private boolean checkBrowserSupport() {
+        if (PlatformUI.getWorkbench().getBrowserSupport()
+                .isInternalWebBrowserAvailable()) {
+            Shell shell = new Shell();
+            try {
+                Browser browser = new Browser(shell, SWT.NONE);
+                browser.dispose();
+                shell.dispose();
+                return true;
+            } catch (SWTError e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private static void loadNotificationIcons() {
@@ -102,4 +130,5 @@ public final class ContributionService extends ContributionControlAccess {
         ImageDescriptor descriptor = ImageDescriptor.createFromURL(url);
         VaadinPlugin.getInstance().getImageRegistry().put(id, descriptor);
     }
+
 }

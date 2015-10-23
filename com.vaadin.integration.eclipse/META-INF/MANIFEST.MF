@@ -46,4 +46,5 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: com.vaadin.integration.eclipse.VaadinPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
- lib/json-simple-1.1.1.jar
+ lib/json-simple-1.1.1.jar,
+ lib/tagsoup-1.2.1.jar
