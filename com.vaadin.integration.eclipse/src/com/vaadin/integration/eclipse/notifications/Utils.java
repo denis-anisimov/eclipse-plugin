@@ -85,6 +85,8 @@ public final class Utils {
 
     static class UrlOpenException extends Exception {
 
+        private static final long serialVersionUID = 3105958916452406886L;
+
     }
 
 }

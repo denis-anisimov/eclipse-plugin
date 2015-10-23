@@ -62,7 +62,7 @@ class TokenInputComposite extends Composite implements SelectionListener {
     private boolean validate() {
         String hash = token.getText().trim();
         // TODO : validate the hash
-        return true;
+        return false;
     }
 
     private void initComponents() {

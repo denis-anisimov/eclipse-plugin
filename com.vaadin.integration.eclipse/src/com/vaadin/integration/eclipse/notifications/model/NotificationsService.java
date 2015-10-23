@@ -1,8 +1,18 @@
 package com.vaadin.integration.eclipse.notifications.model;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,17 +26,29 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.graphics.Point;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.vaadin.integration.eclipse.VaadinPlugin;
 
 /**
  * Provides all backend services for notifications.
  *
  */
 public final class NotificationsService {
+
+    private static final String IMAGES_CACHE = "notification-images-cache";
 
     private static final String ICON_URL = "iconUrl";
 
@@ -56,6 +78,8 @@ public final class NotificationsService {
 
     private static final String UTF8 = "UTF-8";
 
+    private static final int ICON_SIZE = 40;
+
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ssX");
 
@@ -70,25 +94,31 @@ public final class NotificationsService {
     }
 
     public void downloadImages(Collection<Notification> notifications) {
+        HttpClient client = createHttpClient();
+        downloadImages(client, notifications);
+        HttpClientUtils.closeQuietly(client);
+    }
 
+    public void downloadImages(HttpClient client,
+            Collection<Notification> notifications) {
+        // TODO
     }
 
     private Collection<Notification> getNotifications(String url,
             boolean downloadIcons, boolean downloadImagess) {
-        Collection<Notification> notifications = getNotifications(url);
+        HttpClient client = createHttpClient();
+        Collection<Notification> notifications = getNotifications(client, url);
         if (downloadIcons) {
-            downloadIcons(notifications);
+            downloadIcons(client, notifications);
         }
         if (downloadImagess) {
-            downloadImages(notifications);
+            downloadImages(client, notifications);
         }
         return notifications;
     }
 
-    private Collection<Notification> getNotifications(String url) {
-        HttpClientBuilder builder = HttpClientBuilder.create();
-        HttpClient client = builder.build();
-
+    private Collection<Notification> getNotifications(HttpClient client,
+            String url) {
         HttpGet request = new HttpGet(url);
         InputStreamReader reader = null;
         try {
@@ -99,6 +129,7 @@ public final class NotificationsService {
                     UTF8);
             JSONObject object = (JSONObject) parser.parse(reader);
 
+            HttpClientUtils.closeQuietly(response);
             JSONArray array = (JSONArray) object.get(NOTIFICATIONS);
             List<Notification> list = new ArrayList<Notification>(array.size());
             for (int i = 0; i < array.size(); i++) {
@@ -123,12 +154,170 @@ public final class NotificationsService {
                 }
             }
         }
+        HttpClientUtils.closeQuietly(client);
         return Collections.emptyList();
     }
 
-    private void downloadIcons(Collection<Notification> notifications) {
-        // TODO Auto-generated method stub
+    private HttpClient createHttpClient() {
+        HttpClientBuilder builder = HttpClientBuilder.create();
+        return builder.build();
+    }
 
+    private void downloadIcons(HttpClient client,
+            Collection<Notification> notifications) {
+        File folder = getCacheFolder();
+        for (Notification notification : notifications) {
+            String url = notification.getIconUrl();
+
+            Image image = VaadinPlugin.getInstance().getImageRegistry()
+                    .get(url);
+            if (image == null) {
+                registerIcon(client, folder, url);
+            }
+        }
+    }
+
+    private void registerIcon(HttpClient client, File folder, String url) {
+        try {
+            ImageData data = getImage(client, url, folder);
+            if (data != null) {
+                VaadinPlugin.getInstance().getImageRegistry().put(url,
+                        ImageDescriptor.createFromImageData(data));
+            }
+        } catch (SWTException e) {
+            handleException(Level.WARNING, e);
+        }
+    }
+
+    /**
+     * Image infrastructure has bad design: it doesn't declare thrown exception
+     * in method signatures but it throws unchecked exceptions. So SWTException
+     * is explicitly declared to be able to catch it.
+     */
+    private ImageData getImage(HttpClient client, String url, File cacheFolder)
+            throws SWTException {
+        String id = getUniqueId(url);
+        if (cacheFolder == null || id == null) {
+            return downloadIcon(client, url);
+        }
+        File file = new File(cacheFolder, id);
+        try {
+            if (file.exists()) {
+                try {
+                    // this can throw unchecked exception. Consider this as
+                    // broken cache file and reset it via downloading.
+                    return new ImageData(new FileInputStream(file));
+                } catch (SWTException e) {
+                    handleException(Level.WARNING, e);
+                }
+            }
+            ImageData data = downloadIcon(client, url);
+            cacheImage(file, data);
+            return data;
+        } catch (FileNotFoundException e) {
+            handleException(Level.WARNING, e);
+        }
+        return null;
+    }
+
+    private void cacheImage(File file, ImageData data)
+            throws FileNotFoundException {
+        FileOutputStream stream = new FileOutputStream(file);
+        ImageLoader loader = new ImageLoader();
+        loader.data = new ImageData[] { data };
+        loader.save(stream, data.type);
+        try {
+            stream.close();
+        } catch (IOException e) {
+            handleException(Level.INFO, e);
+        }
+    }
+
+    private String getUniqueId(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            String file = url.getFile();
+            if (file.charAt(0) == '/') {
+                file = file.substring(1);
+            }
+            return URLEncoder.encode(file, UTF8);
+        } catch (MalformedURLException e) {
+            handleException(Level.WARNING, e);
+        } catch (UnsupportedEncodingException e) {
+            handleException(Level.WARNING, e);
+        }
+
+        return null;
+
+    }
+
+    private ImageData downloadIcon(HttpClient client, String url) {
+        HttpGet request = new HttpGet(url);
+        HttpResponse response = null;
+        InputStream stream = null;
+        try {
+            response = client.execute(request);
+
+            stream = response.getEntity().getContent();
+            ImageData data = new ImageData(stream);
+            Point size = scaleSize(new Point(data.width, data.height),
+                    ICON_SIZE);
+
+            if (size == null) {
+                log(Level.INFO, "Icon {0} has zero size and is not downloaded",
+                        url);
+                return null;
+            } else {
+                log(Level.INFO, "Icon {0} is downloaded", url);
+                return data.scaledTo(size.x, size.y);
+            }
+        } catch (ClientProtocolException e) {
+            handleException(Level.WARNING, e);
+        } catch (IOException e) {
+            handleException(Level.WARNING, e);
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    handleException(Level.INFO, e);
+                }
+            }
+            if (response != null) {
+                HttpClientUtils.closeQuietly(response);
+            }
+        }
+        return null;
+    }
+
+    private void log(Level level, String pattern, Object... params) {
+        LOG.log(level, MessageFormat.format(pattern, params));
+    }
+
+    private Point scaleSize(Point original, int maxSize) {
+        int max = Math.max(original.x, original.y);
+        if (max == 0) {
+            return null;
+        }
+        return new Point((maxSize * original.x) / max,
+                (maxSize * original.x) / max);
+    }
+
+    private File getCacheFolder() {
+        IPath location = VaadinPlugin.getInstance().getStateLocation();
+        location = location.append(IMAGES_CACHE);
+        File file = location.makeAbsolute().toFile();
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        if (file.exists()) {
+            return file;
+        } else {
+            log(Level.WARNING,
+                    "Cache directory {} has not been created. Proceed without cache.",
+                    file.getPath());
+            return null;
+        }
     }
 
     private Notification buildNotification(JSONObject info) {

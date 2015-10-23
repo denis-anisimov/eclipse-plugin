@@ -140,7 +140,7 @@ class SignInComposite extends Composite {
         String mail = email.getText().trim();
         String pwd = passwd.getText();
         // TODO: request login via REST/Web and retrieve hash and store it
-        if (false) {
+        if (true) {
             // TODO : do not block UI. Do sign in request in background and show
             // info label (in green/blue color) about operation in progress
             passwd.setText("");
