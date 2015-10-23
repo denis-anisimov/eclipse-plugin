@@ -62,8 +62,13 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     public void refreshNotifications() {
-        setNotifications(
-                NotificationsService.getInstance().getAllNotifications());
+        Collection<Notification> notifications = NotificationsService
+                .getInstance().getAllNotifications();
+        // TODO : it has no sense here but this has to be invoked in separate
+        // thread/job which should set notifications using UI thread, next
+        // method should be executed outside of UI.
+        setNotifications(notifications);
+        NotificationsService.getInstance().downloadImages(notifications);
     }
 
     public void initializeContribution() {

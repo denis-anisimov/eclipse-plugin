@@ -41,6 +41,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.notifications.Utils;
 
 /**
  * Provides all backend services for notifications.
@@ -83,10 +84,13 @@ public final class NotificationsService {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ssX");
 
+    private final Object lock;
+
     private static final Logger LOG = Logger
             .getLogger(NotificationsService.class.getName());
 
     private NotificationsService() {
+        lock = new Object();
     }
 
     public Collection<Notification> getAllNotifications() {
@@ -99,9 +103,15 @@ public final class NotificationsService {
         HttpClientUtils.closeQuietly(client);
     }
 
-    public void downloadImages(HttpClient client,
+    private void downloadImages(HttpClient client,
             Collection<Notification> notifications) {
-        // TODO
+        File folder = getCacheFolder();
+        synchronized (lock) {
+            for (Notification notification : notifications) {
+                ensureImageRegistered(client, folder,
+                        notification.getImageUrl(), false);
+            }
+        }
     }
 
     private Collection<Notification> getNotifications(String url,
@@ -166,20 +176,26 @@ public final class NotificationsService {
     private void downloadIcons(HttpClient client,
             Collection<Notification> notifications) {
         File folder = getCacheFolder();
-        for (Notification notification : notifications) {
-            String url = notification.getIconUrl();
-
-            Image image = VaadinPlugin.getInstance().getImageRegistry()
-                    .get(url);
-            if (image == null) {
-                registerIcon(client, folder, url);
+        synchronized (lock) {
+            for (Notification notification : notifications) {
+                ensureImageRegistered(client, folder, notification.getIconUrl(),
+                        true);
             }
         }
     }
 
-    private void registerIcon(HttpClient client, File folder, String url) {
+    private void ensureImageRegistered(HttpClient client, File folder,
+            String url, boolean icon) {
+        Image image = VaadinPlugin.getInstance().getImageRegistry().get(url);
+        if (image == null) {
+            registerImage(client, folder, url, icon);
+        }
+    }
+
+    private void registerImage(HttpClient client, File folder, String url,
+            boolean icon) {
         try {
-            ImageData data = getImage(client, url, folder);
+            ImageData data = getImage(client, url, folder, icon);
             if (data != null) {
                 VaadinPlugin.getInstance().getImageRegistry().put(url,
                         ImageDescriptor.createFromImageData(data));
@@ -194,11 +210,11 @@ public final class NotificationsService {
      * in method signatures but it throws unchecked exceptions. So SWTException
      * is explicitly declared to be able to catch it.
      */
-    private ImageData getImage(HttpClient client, String url, File cacheFolder)
-            throws SWTException {
+    private ImageData getImage(HttpClient client, String url, File cacheFolder,
+            boolean icon) throws SWTException {
         String id = getUniqueId(url);
         if (cacheFolder == null || id == null) {
-            return downloadIcon(client, url);
+            return downloadImage(client, url, icon);
         }
         File file = new File(cacheFolder, id);
         try {
@@ -211,7 +227,7 @@ public final class NotificationsService {
                     handleException(Level.WARNING, e);
                 }
             }
-            ImageData data = downloadIcon(client, url);
+            ImageData data = downloadImage(client, url, icon);
             cacheImage(file, data);
             return data;
         } catch (FileNotFoundException e) {
@@ -251,7 +267,8 @@ public final class NotificationsService {
 
     }
 
-    private ImageData downloadIcon(HttpClient client, String url) {
+    private ImageData downloadImage(HttpClient client, String url,
+            boolean icon) {
         HttpGet request = new HttpGet(url);
         HttpResponse response = null;
         InputStream stream = null;
@@ -260,15 +277,20 @@ public final class NotificationsService {
 
             stream = response.getEntity().getContent();
             ImageData data = new ImageData(stream);
-            Point size = scaleSize(new Point(data.width, data.height),
-                    ICON_SIZE);
+            Point size;
+            if (icon) {
+                size = scaleIconSize(new Point(data.width, data.height));
+            } else {
+                size = scaleImageSize(new Point(data.width, data.height));
+            }
 
             if (size == null) {
-                log(Level.INFO, "Icon {0} has zero size and is not downloaded",
-                        url);
+                log(Level.INFO, "{0} {1} has zero size and is not downloaded",
+                        icon ? "Icon" : "Image", url);
                 return null;
             } else {
-                log(Level.INFO, "Icon {0} is downloaded", url);
+                log(Level.INFO, "{0} {1} is downloaded",
+                        icon ? "Icon" : "Image", url);
                 return data.scaledTo(size.x, size.y);
             }
         } catch (ClientProtocolException e) {
@@ -294,13 +316,18 @@ public final class NotificationsService {
         LOG.log(level, MessageFormat.format(pattern, params));
     }
 
-    private Point scaleSize(Point original, int maxSize) {
+    private Point scaleIconSize(Point original) {
         int max = Math.max(original.x, original.y);
         if (max == 0) {
             return null;
         }
-        return new Point((maxSize * original.x) / max,
-                (maxSize * original.x) / max);
+        return new Point((ICON_SIZE * original.x) / max,
+                (ICON_SIZE * original.y) / max);
+    }
+
+    private Point scaleImageSize(Point original) {
+        return new Point(Utils.MAX_WIDTH,
+                (Utils.MAX_WIDTH * original.y) / original.x);
     }
 
     private File getCacheFolder() {
