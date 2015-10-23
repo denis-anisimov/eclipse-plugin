@@ -248,6 +248,8 @@ class NotificationsListPopup extends AbstractPopup {
             mainLayout.topControl = new NotificationInfoComposite(main,
                     notification, this);
             main.layout();
+
+            clearAll.setVisible(false);
         }
 
         public void close() {

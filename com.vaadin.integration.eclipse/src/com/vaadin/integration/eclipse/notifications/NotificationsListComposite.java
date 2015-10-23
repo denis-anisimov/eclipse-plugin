@@ -61,17 +61,12 @@ class NotificationsListComposite extends ScrolledComposite
     }
 
     void refresh() {
-        markNotificationsRead();
         Composite composite = (Composite) getContent();
         for (Control child : composite.getChildren()) {
-            child.dispose();
+            if (child instanceof AbstractNotificationItem) {
+                ((AbstractNotificationItem) child).setRead();
+            }
         }
-        initComponents(composite);
-    }
-
-    private void markNotificationsRead() {
-        // TODO Auto-generated method stub
-
     }
 
     private void initComponents(Composite parent) {

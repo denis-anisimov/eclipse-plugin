@@ -10,22 +10,19 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
  */
 class NotificationIem extends AbstractNotificationItem implements ItemAction {
 
-    private final Notification notification;
-
     NotificationIem(Composite parent, Notification notification) {
         super(parent, notification);
-        this.notification = notification;
     }
 
     public void runAction(PopupUpdateManager manager) {
         setRead();
-        manager.showNotification(notification);
+        manager.showNotification(getNotification());
     }
 
     @Override
     protected void setRead() {
-        notification.setRead();
         super.setRead();
+        ContributionService.getInstance().markRead(getNotification());
     }
 
 }

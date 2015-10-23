@@ -32,12 +32,6 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
     }
 
     @Override
-    protected void setRead() {
-        super.setRead();
-        getNotification().setRead();
-    }
-
-    @Override
     protected String getSummary() {
         // TODO : I18N
         return "Sign in with your vaadin account";

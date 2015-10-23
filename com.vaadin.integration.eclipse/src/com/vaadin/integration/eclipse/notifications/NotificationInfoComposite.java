@@ -148,7 +148,7 @@ class NotificationInfoComposite extends Composite {
      * 
      * This method uses SWT browser component if it's available and uses
      * non-editable Text with striped HTML tags from the text as a fallback (the
-     * result looses styling of course, so it can look ugly).
+     * result looses styling of course, so it may look ugly).
      */
     private Control createDescription() {
         if (ContributionService.getInstance().isEmbeddedBrowserAvailable()) {

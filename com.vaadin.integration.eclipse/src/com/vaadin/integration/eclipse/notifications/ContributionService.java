@@ -32,9 +32,6 @@ public final class ContributionService extends ContributionControlAccess {
 
     private static final String PNG = ".png";
 
-    private ContributionService() {
-    }
-
     private List<Notification> notifications;
 
     private SignInNotification signIn = new SignInNotification();
@@ -45,26 +42,34 @@ public final class ContributionService extends ContributionControlAccess {
         loadNotificationIcons();
     }
 
-    public static ContributionService getInstance() {
+    private ContributionService() {
+    }
+
+    static ContributionService getInstance() {
         return INSTANCE;
     }
 
-    public Collection<Notification> getNotifications() {
+    Collection<Notification> getNotifications() {
         return notifications;
     }
 
-    public SignInNotification getSignInNotification() {
+    SignInNotification getSignInNotification() {
         if (isSignedIn()) {
             return null;
         }
         return signIn;
     }
 
-    public void signIn() {
+    void signIn() {
         // TODO
     }
 
-    public void signOut() {
+    void signOut() {
+
+    }
+
+    void markRead(Notification notification) {
+        // TODO Auto-generated method stub
 
     }
 
@@ -78,11 +83,11 @@ public final class ContributionService extends ContributionControlAccess {
         NotificationsService.getInstance().downloadImages(notifications);
     }
 
-    public void initializeContribution() {
+    void initializeContribution() {
         refreshNotifications();
     }
 
-    public boolean isEmbeddedBrowserAvailable() {
+    boolean isEmbeddedBrowserAvailable() {
         return isEmbeddedBrowserAvaialble;
     }
 

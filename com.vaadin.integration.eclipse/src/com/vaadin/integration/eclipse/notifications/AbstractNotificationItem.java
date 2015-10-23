@@ -88,6 +88,7 @@ abstract class AbstractNotificationItem extends Composite {
     }
 
     protected void setRead() {
+        getNotification().setRead();
         newNotificationLabel.setImage(null);
     }
 
