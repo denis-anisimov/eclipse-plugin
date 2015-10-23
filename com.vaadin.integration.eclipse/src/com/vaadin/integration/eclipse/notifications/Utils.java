@@ -20,6 +20,8 @@ public final class Utils {
     public static final String SIGN_IN_ICON = "icons.sign-in-icon40";
     public static final int MAX_WIDTH = 400;
 
+    public static final String FORWARD_SUFFIX = " \u00BB";
+
     static final String REGULAR_NOTIFICATION_ICON = "icons.vaadin-icon16";
     static final String NEW_NOTIFICATION_ICON = "icons.vaadin-icon16-new";
     static final String GO_ICON = "icons.triangle-icon";
@@ -45,6 +47,17 @@ public final class Utils {
             FontData base = baseData[i];
             styleData[i] = new FontData(base.getName(), height,
                     base.getStyle());
+        }
+        return styleData;
+    }
+
+    public static FontData[] getModifiedFontData(FontData[] baseData,
+            int height, int style) {
+        FontData[] styleData = new FontData[baseData.length];
+        for (int i = 0; i < styleData.length; i++) {
+            FontData base = baseData[i];
+            styleData[i] = new FontData(base.getName(), height,
+                    base.getStyle() | style);
         }
         return styleData;
     }

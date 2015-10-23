@@ -34,7 +34,7 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
 class NotificationsListPopup extends AbstractPopup {
 
     private static final int TITLE_HEIGHT = 24;
-    private static final int MAX_HEIGHT = 300;
+    private static final int MAX_HEIGHT = 400;
 
     private final Composite nullComposite = new Composite(new Shell(),
             SWT.NONE);

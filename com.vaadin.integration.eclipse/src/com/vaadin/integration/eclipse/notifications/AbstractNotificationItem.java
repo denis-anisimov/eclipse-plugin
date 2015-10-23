@@ -71,7 +71,7 @@ abstract class AbstractNotificationItem extends Composite {
         // TODO : color
         label.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
         // TODO : I18N
-        label.setText("Read more");
+        label.setText("Read more" + Utils.FORWARD_SUFFIX);
 
         return composite;
     }
