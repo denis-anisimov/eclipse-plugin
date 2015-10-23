@@ -221,7 +221,7 @@ public final class NotificationsService {
             if (file.exists()) {
                 try {
                     // this can throw unchecked exception. Consider this as
-                    // broken cache file and reset it via downloading.
+                    // a broken cache file and reset it via downloading.
                     return new ImageData(new FileInputStream(file));
                 } catch (SWTException e) {
                     handleException(Level.WARNING, e);
