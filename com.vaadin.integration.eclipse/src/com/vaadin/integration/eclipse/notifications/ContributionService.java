@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -13,13 +14,13 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.NotificationsContribution.ContributionControlAccess;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
-import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 /**
@@ -73,14 +74,11 @@ public final class ContributionService extends ContributionControlAccess {
 
     }
 
-    public void refreshNotifications() {
-        Collection<Notification> notifications = NotificationsService
-                .getInstance().getAllNotifications();
-        // TODO : it has no sense here but this has to be invoked in separate
-        // thread/job which should set notifications using UI thread, next
-        // method should be executed outside of UI.
-        setNotifications(notifications);
-        NotificationsService.getInstance().downloadImages(notifications);
+    void refreshNotifications() {
+        FetchNotificationsJob job = new FetchNotificationsJob(
+                new AllNotificationsConsumer(
+                        PlatformUI.getWorkbench().getDisplay()));
+        job.schedule();
     }
 
     void initializeContribution() {
@@ -136,4 +134,25 @@ public final class ContributionService extends ContributionControlAccess {
         VaadinPlugin.getInstance().getImageRegistry().put(id, descriptor);
     }
 
+    private class AllNotificationsConsumer
+            implements Consumer<Collection<Notification>>, Runnable {
+
+        private final AtomicReference<Collection<Notification>> collection;
+        private final Display display;
+
+        AllNotificationsConsumer(Display display) {
+            this.display = display;
+            collection = new AtomicReference<Collection<Notification>>();
+        }
+
+        public void run() {
+            setNotifications(collection.get());
+        }
+
+        public void accept(Collection<Notification> notifications) {
+            collection.set(notifications);
+            display.asyncExec(this);
+        }
+
+    }
 }

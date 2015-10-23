@@ -90,8 +90,11 @@ public class VaadinPlugin extends AbstractUIPlugin {
 
     private NightlyBuildUpdater nightlyBuildUpdater;
 
+    private final ImageRegistry imageRegistry;
+
     public VaadinPlugin() {
         instance = this;
+        imageRegistry = super.getImageRegistry();
     }
 
     public static VaadinPlugin getInstance() {
@@ -110,6 +113,11 @@ public class VaadinPlugin extends AbstractUIPlugin {
         nightlyBuildUpdater.stopUpdateJob();
         nightlyBuildUpdater = null;
         super.stop(context);
+    }
+
+    @Override
+    public ImageRegistry getImageRegistry() {
+        return imageRegistry;
     }
 
     @Override

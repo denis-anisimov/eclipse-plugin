@@ -94,37 +94,24 @@ public final class NotificationsService {
     }
 
     public Collection<Notification> getAllNotifications() {
-        return getNotifications(ALL_NOTIFICATIONS_URL, true, false);
+        return getNotifications(ALL_NOTIFICATIONS_URL);
     }
 
     public void downloadImages(Collection<Notification> notifications) {
         HttpClient client = createHttpClient();
-        downloadImages(client, notifications);
+        downloadImages(client, notifications, false);
         HttpClientUtils.closeQuietly(client);
     }
 
-    private void downloadImages(HttpClient client,
-            Collection<Notification> notifications) {
-        File folder = getCacheFolder();
-        synchronized (lock) {
-            for (Notification notification : notifications) {
-                ensureImageRegistered(client, folder,
-                        notification.getImageUrl(), false);
-            }
-        }
+    public void downloadIcons(Collection<Notification> notifications) {
+        HttpClient client = createHttpClient();
+        downloadImages(client, notifications, true);
+        HttpClientUtils.closeQuietly(client);
     }
 
-    private Collection<Notification> getNotifications(String url,
-            boolean downloadIcons, boolean downloadImagess) {
+    private Collection<Notification> getNotifications(String url) {
         HttpClient client = createHttpClient();
-        Collection<Notification> notifications = getNotifications(client, url);
-        if (downloadIcons) {
-            downloadIcons(client, notifications);
-        }
-        if (downloadImagess) {
-            downloadImages(client, notifications);
-        }
-        return notifications;
+        return getNotifications(client, url);
     }
 
     private Collection<Notification> getNotifications(HttpClient client,
@@ -173,13 +160,14 @@ public final class NotificationsService {
         return builder.build();
     }
 
-    private void downloadIcons(HttpClient client,
-            Collection<Notification> notifications) {
+    private void downloadImages(HttpClient client,
+            Collection<Notification> notifications, boolean icons) {
         File folder = getCacheFolder();
         synchronized (lock) {
             for (Notification notification : notifications) {
-                ensureImageRegistered(client, folder, notification.getIconUrl(),
-                        true);
+                String url = icons ? notification.getIconUrl()
+                        : notification.getImageUrl();
+                ensureImageRegistered(client, folder, url, icons);
             }
         }
     }
