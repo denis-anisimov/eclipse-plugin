@@ -173,8 +173,8 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private int getPollingInterval() {
-        // TODO : use preferences
-        return 10000;
+        return VaadinPlugin.getInstance().getPreferenceStore().getInt(
+                PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL) * 1000;
     }
 
     private void setNotifications(Collection<Notification> notifications) {

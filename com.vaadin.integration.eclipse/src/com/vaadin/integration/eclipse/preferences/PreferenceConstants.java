@@ -20,7 +20,9 @@ public class PreferenceConstants {
      * Notifications settings
      */
 
-    public static final String NOTIFICATIONS_USER_TOKEN = "signedInUserToken";
+    public static final String NOTIFICATIONS_USER_TOKEN = "notificationsSignedInUserTokenPreference";
 
-    public static final String NOTIFICATIONS_ANONYMOUS_TOKEN = "anonymousToken";
+    public static final String NOTIFICATIONS_ANONYMOUS_TOKEN = "notificationsAnonymousTokenPreference";
+
+    public static final String NOTIFICATIONS_POLLING_INTERVAL = "notificationsPollingIntervalPreference";
 }

@@ -6,6 +6,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -91,10 +92,12 @@ public class VaadinPlugin extends AbstractUIPlugin {
     private NightlyBuildUpdater nightlyBuildUpdater;
 
     private final ImageRegistry imageRegistry;
+    private final IPreferenceStore prefs;
 
     public VaadinPlugin() {
         instance = this;
         imageRegistry = super.getImageRegistry();
+        prefs = super.getPreferenceStore();
     }
 
     public static VaadinPlugin getInstance() {
@@ -118,6 +121,11 @@ public class VaadinPlugin extends AbstractUIPlugin {
     @Override
     public ImageRegistry getImageRegistry() {
         return imageRegistry;
+    }
+
+    @Override
+    public IPreferenceStore getPreferenceStore() {
+        return prefs;
     }
 
     @Override
