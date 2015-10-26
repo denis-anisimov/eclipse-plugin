@@ -97,6 +97,16 @@ public final class NotificationsService {
         return getNotifications(ALL_NOTIFICATIONS_URL);
     }
 
+    /**
+     * Fetches "session" anonymous token which is used to identify
+     * non-registered user (to be able to track its session/ read
+     * notifications).
+     */
+    public String acquireAnonymousToken() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public void downloadImages(Collection<Notification> notifications) {
         HttpClient client = createHttpClient();
         downloadImages(client, notifications, false);

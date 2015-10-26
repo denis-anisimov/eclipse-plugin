@@ -14,4 +14,13 @@ public class PreferenceConstants {
      * versions even if they are enabled in the project settings.
      */
     public static final String DISABLE_ALL_UPDATE_NOTIFICATIONS = "disableAllNotificationsPreference";
+
+    /*
+     * =========================================================================
+     * Notifications settings
+     */
+
+    public static final String NOTIFICATIONS_USER_TOKEN = "signedInUserToken";
+
+    public static final String NOTIFICATIONS_ANONYMOUS_TOKEN = "anonymousToken";
 }

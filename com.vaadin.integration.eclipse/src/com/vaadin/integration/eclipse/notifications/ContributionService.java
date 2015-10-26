@@ -28,6 +28,7 @@ import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.NotificationsContribution.ContributionControlAccess;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
+import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 
 /**
  * Provides an entry point to manage notifications plugged functionality.
@@ -83,18 +84,22 @@ public final class ContributionService extends ContributionControlAccess {
         return signIn;
     }
 
-    void signIn() {
+    void signIn(String token) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
-        // TODO
+
+        VaadinPlugin.getInstance().getPreferenceStore()
+                .setValue(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, token);
+        refreshNotifications();
     }
 
     void signOut() {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
-        // TODO : remove auth token and refresh notifications anonymously (but
-        // perhaps using anonymous token to be able to track read
-        // notifications).
+
+        VaadinPlugin.getInstance().getPreferenceStore()
+                .setValue(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, null);
+        refreshNotifications();
     }
 
     void markRead(Notification notification) {
@@ -112,6 +117,7 @@ public final class ContributionService extends ContributionControlAccess {
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
                         PlatformUI.getWorkbench().getDisplay()),
+                new TokenConsumer(PlatformUI.getWorkbench().getDisplay()),
                 getToken());
         job.addJobChangeListener(
                 new JobListener(PlatformUI.getWorkbench().getDisplay()));
@@ -130,9 +136,22 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private String getToken() {
-        // TODO: return token from preferences (either real user token or
-        // anonymous).
-        return null;
+        return getUserToken() == null ? getAnonymousToken() : getUserToken();
+    }
+
+    private String getUserToken() {
+        return VaadinPlugin.getInstance().getPreferenceStore()
+                .getString(PreferenceConstants.NOTIFICATIONS_USER_TOKEN);
+    }
+
+    private String getAnonymousToken() {
+        return VaadinPlugin.getInstance().getPreferenceStore()
+                .getString(PreferenceConstants.NOTIFICATIONS_ANONYMOUS_TOKEN);
+    }
+
+    private void setAnonymousToken(String token) {
+        VaadinPlugin.getInstance().getPreferenceStore().setValue(
+                PreferenceConstants.NOTIFICATIONS_ANONYMOUS_TOKEN, token);
     }
 
     private void schedulePollingJob(Display display) {
@@ -203,57 +222,68 @@ public final class ContributionService extends ContributionControlAccess {
         VaadinPlugin.getInstance().getImageRegistry().put(id, descriptor);
     }
 
-    private abstract static class AbstractNotificationsConsumer
-            implements Consumer<Collection<Notification>>, Runnable {
+    private abstract static class AbstractConsumer<T>
+            implements Consumer<T>, Runnable {
 
-        private final AtomicReference<Collection<Notification>> collection;
+        private final AtomicReference<T> ref;
         private final Display display;
 
-        AbstractNotificationsConsumer(Display display) {
+        AbstractConsumer(Display display) {
             this.display = display;
-            collection = new AtomicReference<Collection<Notification>>();
+            ref = new AtomicReference<T>();
         }
 
         public void run() {
-            handleNotifications(collection.get());
-            collection.set(null);
+            handleData(ref.get());
+            ref.set(null);
         }
 
-        public void accept(Collection<Notification> notifications) {
-            collection.set(notifications);
+        public void accept(T notifications) {
+            ref.set(notifications);
             display.asyncExec(this);
         }
 
-        protected abstract void handleNotifications(
-                Collection<Notification> notifications);
+        protected abstract void handleData(T data);
+
+    }
+
+    private class TokenConsumer extends AbstractConsumer<String> {
+
+        TokenConsumer(Display display) {
+            super(display);
+        }
+
+        @Override
+        protected void handleData(String token) {
+            setAnonymousToken(token);
+        }
 
     }
 
     private class AllNotificationsConsumer
-            extends AbstractNotificationsConsumer {
+            extends AbstractConsumer<Collection<Notification>> {
 
         AllNotificationsConsumer(Display display) {
             super(display);
         }
 
         @Override
-        protected void handleNotifications(
-                Collection<Notification> notifications) {
+        protected void handleData(Collection<Notification> notifications) {
             setNotifications(notifications);
             updateContributionControl();
         }
 
     }
 
-    private class NewNotificationsConsumer extends AllNotificationsConsumer {
+    private class NewNotificationsConsumer
+            extends AbstractConsumer<Collection<Notification>> {
 
         NewNotificationsConsumer(Display display) {
             super(display);
         }
 
         @Override
-        protected void handleNotifications(
-                Collection<Notification> collection) {
+        protected void handleData(Collection<Notification> collection) {
             if (collection.size() == 1) {
                 NewNotificationPopup popup = new NewNotificationPopup(
                         collection.iterator().next());
