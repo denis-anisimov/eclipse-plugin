@@ -115,8 +115,10 @@ abstract class AbstractNotificationItem extends Composite {
                 .align(SWT.CENTER, SWT.CENTER).applyTo(typeLabel);
 
         Control infoSection = createInfoSection();
-        GridDataFactory.fillDefaults().grab(true, true)
-                .align(SWT.FILL, SWT.FILL).applyTo(infoSection);
+        if (infoSection.getLayoutData() == null) {
+            GridDataFactory.fillDefaults().grab(true, true)
+                    .align(SWT.FILL, SWT.FILL).applyTo(infoSection);
+        }
 
         Label goLabel = new Label(this, SWT.NONE);
         goLabel.setImage(VaadinPlugin.getInstance().getImageRegistry()

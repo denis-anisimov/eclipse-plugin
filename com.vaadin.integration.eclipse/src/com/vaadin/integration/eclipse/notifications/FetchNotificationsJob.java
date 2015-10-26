@@ -60,6 +60,7 @@ class FetchNotificationsJob extends Job {
             List<Notification> temp = new ArrayList<Notification>(
                     notifications);
             temp.remove(temp.get(temp.size() - 1));
+            temp.remove(temp.get(temp.size() - 1));
             notifications = temp;
             // ============================================================
 

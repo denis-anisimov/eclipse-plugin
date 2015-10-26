@@ -173,8 +173,8 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private int getPollingInterval() {
-        return VaadinPlugin.getInstance().getPreferenceStore().getInt(
-                PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL) * 1000;
+        return 7000;// VaadinPlugin.getInstance().getPreferenceStore().getInt(
+        // PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL) * 1000;
     }
 
     private void setNotifications(Collection<Notification> notifications) {
@@ -212,6 +212,7 @@ public final class ContributionService extends ContributionControlAccess {
         registerIcon(Utils.NEW_ICON);
         registerIcon(Utils.SIGN_IN_BUTTON);
         registerIcon(Utils.SIGN_IN_ICON);
+        registerIcon(Utils.NEW_NOTIFICATIONS_ICON);
     }
 
     private static void registerIcon(String id) {

@@ -29,6 +29,8 @@ public final class Utils {
     static final String CLEAR_ALL_ICON = "icons.bell-slash-icon";
     static final String NEW_ICON = "icons.dot";
     static final String SIGN_IN_BUTTON = "icons.sign-in-btn";
+    static final String NEW_NOTIFICATIONS_ICON = "icons.red-bell";
+
     static final String BROWSER_ID = UUID.randomUUID().toString();
 
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());
