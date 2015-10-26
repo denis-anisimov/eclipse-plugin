@@ -3,6 +3,8 @@ package com.vaadin.integration.eclipse.notifications;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,10 +53,15 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     Collection<Notification> getNotifications() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
         return notifications;
     }
 
     SignInNotification getSignInNotification() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+
         if (isSignedIn()) {
             return null;
         }
@@ -62,19 +69,27 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     void signIn() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
         // TODO
     }
 
     void signOut() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
 
     }
 
     void markRead(Notification notification) {
-        // TODO Auto-generated method stub
-
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+        updateContributionControl();
+        // TODO : call REST API
     }
 
     void refreshNotifications() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
                         PlatformUI.getWorkbench().getDisplay()));
@@ -83,9 +98,40 @@ public final class ContributionService extends ContributionControlAccess {
 
     void initializeContribution() {
         refreshNotifications();
+
+        // TODO : remove this . Temporary code
+        PlatformUI.getWorkbench().getDisplay().timerExec(5000, new Runnable() {
+
+            public void run() {
+                if (getContributionControl().isDisposed()) {
+                    return;
+                }
+                if (false) {
+                    new NewNotificationPopup(new SignInNotification() {
+
+                        @Override
+                        public String getTitle() {
+                            return "Title";
+                        }
+
+                        @Override
+                        public Date getDate() {
+                            return new Date();
+                        }
+
+                    }).open();
+                } else {
+                    new NewNotificationsPopup(
+                            Collections.<Notification> emptyList()).open();
+                }
+            }
+        });
     }
 
     boolean isEmbeddedBrowserAvailable() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+
         return isEmbeddedBrowserAvaialble;
     }
 
@@ -147,6 +193,8 @@ public final class ContributionService extends ContributionControlAccess {
 
         public void run() {
             setNotifications(collection.get());
+            updateContributionControl();
+            collection.set(null);
         }
 
         public void accept(Collection<Notification> notifications) {
