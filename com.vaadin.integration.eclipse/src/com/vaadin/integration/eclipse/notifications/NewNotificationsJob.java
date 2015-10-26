@@ -11,13 +11,20 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 
-class FetchNotificationsJob extends Job {
+/**
+ * This class has exactly the same impl as FetchNotificationsJob. So it should
+ * be reviewed: if API allows to fetch ONLY new notifications then it should be
+ * implemented utilizing this REST API. Otherwise this class has no sense and
+ * should be removed via replacing it with FetchNotificationsJob.
+ *
+ */
+class NewNotificationsJob extends Job {
 
     private final Consumer<Collection<Notification>> consumer;
 
-    FetchNotificationsJob(Consumer<Collection<Notification>> consumer) {
+    NewNotificationsJob(Consumer<Collection<Notification>> consumer) {
         // TODO: I18N
-        super("Fetch all notifications");
+        super("Fetch new notifications");
         setUser(false);
         setSystem(true);
 
@@ -27,7 +34,7 @@ class FetchNotificationsJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         // TODO :I18N
-        monitor.beginTask("Retrieve all notiifcations data", 3);
+        monitor.beginTask("Retrieve new notiifcations data", 3);
 
         try {
             Collection<Notification> notifications = Collections

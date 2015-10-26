@@ -7,11 +7,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
@@ -27,6 +30,13 @@ import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 /**
  * Provides an entry point to manage notifications plugged functionality.
+ * 
+ * This class is not thread safe. All methods have to be called inside SWT UI
+ * thread. This is done intentionally: all backend jobs which can and should use
+ * not UI threads are created and managed by this class only.
+ * 
+ * Any other Notification class (except backend) is intended to be used only in
+ * SWT UI and most not produce any jobs/threads by itself.
  *
  */
 public final class ContributionService extends ContributionControlAccess {
@@ -40,6 +50,9 @@ public final class ContributionService extends ContributionControlAccess {
     private SignInNotification signIn = new SignInNotification();
 
     private boolean isEmbeddedBrowserAvaialble = checkBrowserSupport();
+
+    private static final Logger LOG = Logger
+            .getLogger(ContributionService.class.getName());
 
     static {
         loadNotificationIcons();
@@ -90,9 +103,13 @@ public final class ContributionService extends ContributionControlAccess {
     void refreshNotifications() {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
+
+        LOG.info("Schedule fetching all notifications");
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
                         PlatformUI.getWorkbench().getDisplay()));
+        job.addJobChangeListener(
+                new JobListener(PlatformUI.getWorkbench().getDisplay()));
         job.schedule();
     }
 
@@ -133,6 +150,21 @@ public final class ContributionService extends ContributionControlAccess {
         assert Display.getCurrent() != null;
 
         return isEmbeddedBrowserAvaialble;
+    }
+
+    private void schedulePollingJob(Display display) {
+        LOG.info("Schedule fetching new notifications");
+
+        NewNotificationsJob job = new NewNotificationsJob(
+                new AllNotificationsConsumer(display));
+        job.addJobChangeListener(
+                new JobListener(PlatformUI.getWorkbench().getDisplay()));
+        job.schedule(getPollingInterval());
+    }
+
+    private int getPollingInterval() {
+        // TODO : use preferences
+        return 60000;
     }
 
     private void setNotifications(Collection<Notification> notifications) {
@@ -200,6 +232,21 @@ public final class ContributionService extends ContributionControlAccess {
         public void accept(Collection<Notification> notifications) {
             collection.set(notifications);
             display.asyncExec(this);
+        }
+
+    }
+
+    private class JobListener extends JobChangeAdapter {
+        private final Display display;
+
+        JobListener(Display display) {
+            this.display = display;
+        }
+
+        @Override
+        public void done(IJobChangeEvent event) {
+            schedulePollingJob(display);
+            event.getJob().removeJobChangeListener(this);
         }
 
     }
