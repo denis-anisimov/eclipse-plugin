@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -93,7 +92,9 @@ public final class ContributionService extends ContributionControlAccess {
     void signOut() {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
-
+        // TODO : remove auth token and refresh notifications anonymously (but
+        // perhaps using anonymous token to be able to track read
+        // notifications).
     }
 
     void markRead(Notification notification) {
@@ -110,7 +111,8 @@ public final class ContributionService extends ContributionControlAccess {
         LOG.info("Schedule fetching all notifications");
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
-                        PlatformUI.getWorkbench().getDisplay()));
+                        PlatformUI.getWorkbench().getDisplay()),
+                getToken());
         job.addJobChangeListener(
                 new JobListener(PlatformUI.getWorkbench().getDisplay()));
         job.schedule();
@@ -118,34 +120,6 @@ public final class ContributionService extends ContributionControlAccess {
 
     void initializeContribution() {
         refreshNotifications();
-
-        // TODO : remove this . Temporary code
-        PlatformUI.getWorkbench().getDisplay().timerExec(5000, new Runnable() {
-
-            public void run() {
-                if (getContributionControl().isDisposed()) {
-                    return;
-                }
-                if (false) {
-                    new NewNotificationPopup(new SignInNotification() {
-
-                        @Override
-                        public String getTitle() {
-                            return "Title";
-                        }
-
-                        @Override
-                        public Date getDate() {
-                            return new Date();
-                        }
-
-                    }).open();
-                } else {
-                    new NewNotificationsPopup(
-                            Collections.<Notification> emptyList()).open();
-                }
-            }
-        });
     }
 
     boolean isEmbeddedBrowserAvailable() {
@@ -153,6 +127,12 @@ public final class ContributionService extends ContributionControlAccess {
         assert Display.getCurrent() != null;
 
         return isEmbeddedBrowserAvaialble;
+    }
+
+    private String getToken() {
+        // TODO: return token from preferences (either real user token or
+        // anonymous).
+        return null;
     }
 
     private void schedulePollingJob(Display display) {
@@ -167,7 +147,7 @@ public final class ContributionService extends ContributionControlAccess {
 
         NewNotificationsJob job = new NewNotificationsJob(
                 new AllNotificationsConsumer(display),
-                new NewNotificationsConsumer(display), existingIds);
+                new NewNotificationsConsumer(display), existingIds, getToken());
         job.addJobChangeListener(
                 new JobListener(PlatformUI.getWorkbench().getDisplay()));
         job.schedule(getPollingInterval());

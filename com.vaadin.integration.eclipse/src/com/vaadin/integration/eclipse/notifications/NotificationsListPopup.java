@@ -304,7 +304,7 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
         private void handleSignOut() {
-            // remove token
+            ContributionService.getInstance().signOut();
             resetNotificationsList();
             signOutWidget.setVisible(false);
         }

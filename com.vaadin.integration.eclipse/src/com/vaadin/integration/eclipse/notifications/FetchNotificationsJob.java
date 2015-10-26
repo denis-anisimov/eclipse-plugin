@@ -16,14 +16,17 @@ import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 class FetchNotificationsJob extends Job {
 
     private final Consumer<Collection<Notification>> consumer;
+    private final String token;
 
-    FetchNotificationsJob(Consumer<Collection<Notification>> consumer) {
+    FetchNotificationsJob(Consumer<Collection<Notification>> consumer,
+            String token) {
         // TODO: I18N
         super("Fetch all notifications");
         setUser(false);
         setSystem(true);
 
         this.consumer = consumer;
+        this.token = token;
     }
 
     @Override
@@ -34,14 +37,16 @@ class FetchNotificationsJob extends Job {
         try {
             Collection<Notification> notifications = Collections
                     .unmodifiableCollection(NotificationsService.getInstance()
-                            .getAllNotifications());
+                            .getAllNotifications(token));
 
             // TODO: remove this. Only for testing (artificially remove the
             // last notification).
+            // ============================================================
             List<Notification> temp = new ArrayList<Notification>(
                     notifications);
             temp.remove(temp.get(temp.size() - 1));
             notifications = temp;
+            // ============================================================
 
             monitor.worked(1);
             if (monitor.isCanceled()) {

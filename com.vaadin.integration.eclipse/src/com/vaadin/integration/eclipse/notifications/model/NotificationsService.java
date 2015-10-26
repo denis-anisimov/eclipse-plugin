@@ -93,7 +93,7 @@ public final class NotificationsService {
         lock = new Object();
     }
 
-    public Collection<Notification> getAllNotifications() {
+    public Collection<Notification> getAllNotifications(String token) {
         return getNotifications(ALL_NOTIFICATIONS_URL);
     }
 

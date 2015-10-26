@@ -21,9 +21,11 @@ class NewNotificationsJob extends Job {
 
     private final Set<String> notificationIds;
 
+    private final String token;
+
     NewNotificationsJob(Consumer<Collection<Notification>> consumer,
             Consumer<Collection<Notification>> newNotiifcationsConsumer,
-            Set<String> existingIds) {
+            Set<String> existingIds, String token) {
         // TODO: I18N
         super("Fetch new notifications");
         setUser(false);
@@ -31,6 +33,7 @@ class NewNotificationsJob extends Job {
 
         this.consumer = consumer;
         this.newNotiifcationsConsumer = newNotiifcationsConsumer;
+        this.token = token;
         notificationIds = existingIds;
     }
 
@@ -42,7 +45,7 @@ class NewNotificationsJob extends Job {
         try {
             Collection<Notification> notifications = Collections
                     .unmodifiableCollection(NotificationsService.getInstance()
-                            .getAllNotifications());
+                            .getAllNotifications(token));
             monitor.worked(1);
             if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
