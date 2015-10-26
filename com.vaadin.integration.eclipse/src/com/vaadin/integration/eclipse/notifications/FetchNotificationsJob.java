@@ -1,7 +1,9 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -33,6 +35,14 @@ class FetchNotificationsJob extends Job {
             Collection<Notification> notifications = Collections
                     .unmodifiableCollection(NotificationsService.getInstance()
                             .getAllNotifications());
+
+            // TODO: remove this. Only for testing (artificially remove the
+            // last notification).
+            List<Notification> temp = new ArrayList<Notification>(
+                    notifications);
+            temp.remove(temp.get(temp.size() - 1));
+            notifications = temp;
+
             monitor.worked(1);
             if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
@@ -40,7 +50,7 @@ class FetchNotificationsJob extends Job {
 
             NotificationsService.getInstance().downloadIcons(notifications);
             monitor.worked(2);
-            consumer.accept(notifications);
+            consumer.accept(Collections.unmodifiableCollection(notifications));
             if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
             }

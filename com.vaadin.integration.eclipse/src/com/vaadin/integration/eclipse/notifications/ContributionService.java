@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -59,6 +61,7 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private ContributionService() {
+        notifications = Collections.emptyList();
     }
 
     static ContributionService getInstance() {
@@ -153,10 +156,18 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private void schedulePollingJob(Display display) {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
         LOG.info("Schedule fetching new notifications");
 
+        Set<String> existingIds = new HashSet<String>();
+        for (Notification notification : getNotifications()) {
+            existingIds.add(notification.getId());
+        }
+
         NewNotificationsJob job = new NewNotificationsJob(
-                new AllNotificationsConsumer(display));
+                new AllNotificationsConsumer(display),
+                new NewNotificationsConsumer(display), existingIds);
         job.addJobChangeListener(
                 new JobListener(PlatformUI.getWorkbench().getDisplay()));
         job.schedule(getPollingInterval());
@@ -164,7 +175,7 @@ public final class ContributionService extends ContributionControlAccess {
 
     private int getPollingInterval() {
         // TODO : use preferences
-        return 60000;
+        return 10000;
     }
 
     private void setNotifications(Collection<Notification> notifications) {
@@ -212,20 +223,19 @@ public final class ContributionService extends ContributionControlAccess {
         VaadinPlugin.getInstance().getImageRegistry().put(id, descriptor);
     }
 
-    private class AllNotificationsConsumer
+    private abstract static class AbstractNotificationsConsumer
             implements Consumer<Collection<Notification>>, Runnable {
 
         private final AtomicReference<Collection<Notification>> collection;
         private final Display display;
 
-        AllNotificationsConsumer(Display display) {
+        AbstractNotificationsConsumer(Display display) {
             this.display = display;
             collection = new AtomicReference<Collection<Notification>>();
         }
 
         public void run() {
-            setNotifications(collection.get());
-            updateContributionControl();
+            handleNotifications(collection.get());
             collection.set(null);
         }
 
@@ -234,9 +244,50 @@ public final class ContributionService extends ContributionControlAccess {
             display.asyncExec(this);
         }
 
+        protected abstract void handleNotifications(
+                Collection<Notification> notifications);
+
     }
 
-    private class JobListener extends JobChangeAdapter {
+    private class AllNotificationsConsumer
+            extends AbstractNotificationsConsumer {
+
+        AllNotificationsConsumer(Display display) {
+            super(display);
+        }
+
+        @Override
+        protected void handleNotifications(
+                Collection<Notification> notifications) {
+            setNotifications(notifications);
+            updateContributionControl();
+        }
+
+    }
+
+    private class NewNotificationsConsumer extends AllNotificationsConsumer {
+
+        NewNotificationsConsumer(Display display) {
+            super(display);
+        }
+
+        @Override
+        protected void handleNotifications(
+                Collection<Notification> collection) {
+            if (collection.size() == 1) {
+                NewNotificationPopup popup = new NewNotificationPopup(
+                        collection.iterator().next());
+                popup.open();
+            } else if (!collection.isEmpty()) {
+                NewNotificationsPopup popup = new NewNotificationsPopup(
+                        collection);
+                popup.open();
+            }
+        }
+    }
+
+    private class JobListener extends JobChangeAdapter implements Runnable {
+
         private final Display display;
 
         JobListener(Display display) {
@@ -245,8 +296,12 @@ public final class ContributionService extends ContributionControlAccess {
 
         @Override
         public void done(IJobChangeEvent event) {
-            schedulePollingJob(display);
+            display.asyncExec(this);
             event.getJob().removeJobChangeListener(this);
+        }
+
+        public void run() {
+            schedulePollingJob(display);
         }
 
     }
