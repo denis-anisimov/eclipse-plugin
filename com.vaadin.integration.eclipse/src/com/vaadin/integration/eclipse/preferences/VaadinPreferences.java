@@ -14,6 +14,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
@@ -84,16 +86,27 @@ public class VaadinPreferences extends PreferencePage
     }
 
     private void createNotificationsSecton(Composite composite) {
-        ExpandableComposite notificationsPanel = new ExpandableComposite(
+        final ExpandableComposite expandable = new ExpandableComposite(
                 composite, SWT.NONE, ExpandableComposite.TWISTIE
                         | ExpandableComposite.CLIENT_INDENT);
+        // expandable.setExpanded(true);
+
+        expandable.addExpansionListener(new ExpansionListener());
+
+        Composite panel = new Composite(expandable, SWT.NONE);
+        expandable.setClient(panel);
+        panel.setLayout(new GridLayout(1, false));
         // TODO : I18N
-        notificationsPanel.setText("Vaadin notifications");
-        notificationsPanel.setFont(CommonFonts.BOLD);
+        expandable.setText("Vaadin notifications");
+        expandable.setFont(CommonFonts.BOLD);
 
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_ENABLED,
-                "Enable Vaadin notifictions", composite));
+                "Enable Vaadin notifictions", panel));
+
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED,
+                "Inform me about new notifications using popup", panel));
     }
 
     private interface VaadinFieldEditor {
@@ -113,6 +126,13 @@ public class VaadinPreferences extends PreferencePage
         @Override
         public void setPresentsDefaultValue(boolean booleanValue) {
             super.setPresentsDefaultValue(booleanValue);
+        }
+    }
+
+    private static final class ExpansionListener extends ExpansionAdapter {
+        @Override
+        public void expansionStateChanged(ExpansionEvent e) {
+            ((Control) e.getSource()).getParent().layout();
         }
     }
 

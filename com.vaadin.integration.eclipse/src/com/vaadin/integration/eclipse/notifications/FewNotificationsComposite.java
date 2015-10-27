@@ -7,6 +7,8 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -15,16 +17,26 @@ import org.eclipse.swt.widgets.Control;
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
-class FewNotificationsComposite extends AbstractNotificationComposite {
+class FewNotificationsComposite extends AbstractNotificationComposite
+        implements DisposeListener {
 
     private static final String SECOND_PARAM = "{1}";
     private static final String FIRST_PARAM = "{0}";
     private final int notificationsSize;
 
+    private Color red;
+    private Color blue;
+
     FewNotificationsComposite(Composite parent, PopupManager manager,
             Collection<Notification> notifications) {
         super(parent, new FewNotifications(), manager);
         notificationsSize = notifications.size();
+    }
+
+    @Override
+    public void widgetDisposed(DisposeEvent e) {
+        red.dispose();
+        blue.dispose();
     }
 
     @Override
@@ -37,9 +49,8 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
         StyledText text = new StyledText(this, SWT.NO_FOCUS);
         text.setEditable(false);
 
-        // TODO : color and dispose.
-        Color red = new Color(getDisplay(), 255, 0, 0);
-        Color blue = new Color(getDisplay(), 0, 180, 240);
+        red = new Color(getDisplay(), 255, 0, 0);
+        blue = new Color(getDisplay(), 0, 180, 240);
 
         // TODO: I18N
         String msg = "You have {0} new {1}";
