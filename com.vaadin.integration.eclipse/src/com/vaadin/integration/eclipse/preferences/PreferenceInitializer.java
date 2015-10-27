@@ -20,5 +20,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
                 false);
         store.setDefault(PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL,
                 120);
+
+        store.setDefault(PreferenceConstants.NOTIFICATIONS_ENABLED, false);
+
     }
 }

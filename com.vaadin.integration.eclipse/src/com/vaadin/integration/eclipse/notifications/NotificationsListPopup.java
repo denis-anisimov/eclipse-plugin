@@ -374,12 +374,17 @@ class NotificationsListPopup extends AbstractPopup {
             if (event.widget.isDisposed()) {
                 return;
             }
+            if (event.widget == ContributionService.getInstance()
+                    .getContributionControl()) {
+                event.doit = false;
+            }
             Point location = event.widget.getDisplay().getCursorLocation();
             if (!getShell().isDisposed()
                     && !getShell().getBounds().contains(location)) {
                 close();
             }
         }
+
     }
 
 }

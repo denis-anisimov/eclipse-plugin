@@ -17,6 +17,8 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
 
 class FewNotificationsComposite extends AbstractNotificationComposite {
 
+    private static final String SECOND_PARAM = "{1}";
+    private static final String FIRST_PARAM = "{0}";
     private final int notificationsSize;
 
     FewNotificationsComposite(Composite parent, PopupManager manager,
@@ -35,35 +37,55 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
         StyledText text = new StyledText(this, SWT.NO_FOCUS);
         text.setEditable(false);
 
-        // TODO
+        // TODO : color and dispose.
         Color red = new Color(getDisplay(), 255, 0, 0);
         Color blue = new Color(getDisplay(), 0, 180, 240);
 
         // TODO: I18N
         String msg = "You have {0} new {1}";
 
+        String notificationMsg = "notifications";
+
         text.setText(
-                MessageFormat.format(msg, notificationsSize, "notifications"));
+                MessageFormat.format(msg, notificationsSize, notificationMsg));
 
-        int numberIndex = msg.indexOf("{0}");
-        int notificationsIndex = msg.indexOf("{1}");
+        int numberIndex = msg.indexOf(FIRST_PARAM);
+        int notificationsIndex = msg.indexOf(SECOND_PARAM);
 
-        StyleRange styleRange = new StyleRange();
-        styleRange.start = numberIndex;
-        styleRange.length = Integer.toString(notificationsSize).length();
-        styleRange.foreground = red;
-        text.setStyleRange(styleRange);
+        int numberLength = Integer.toString(notificationsSize).length();
 
-        styleRange = new StyleRange();
-        styleRange.start = notificationsIndex
-                + Integer.toString(notificationsSize).length() - 3;
-        styleRange.length = "notifications".length();
-        styleRange.foreground = blue;
-        text.setStyleRange(styleRange);
+        if (numberIndex != -1 || notificationsIndex != -1) {
+            if (numberIndex == -1) {
+                applyStyle(text, blue, notificationsIndex,
+                        notificationMsg.length());
+            } else if (notificationsIndex == -1) {
+                applyStyle(text, red, numberIndex, numberLength);
+            } else if (numberIndex < notificationsIndex) {
+                applyStyle(text, red, numberIndex, numberLength);
+
+                applyStyle(text, blue, notificationsIndex - FIRST_PARAM.length()
+                        + numberLength, notificationMsg.length());
+            } else {
+                applyStyle(text, blue, notificationsIndex,
+                        notificationMsg.length());
+
+                applyStyle(text, red, numberIndex - FIRST_PARAM.length()
+                        + notificationMsg.length(), numberLength);
+            }
+        }
 
         GridDataFactory.fillDefaults().grab(true, false)
                 .align(SWT.LEFT, SWT.CENTER).applyTo(text);
         return text;
+    }
+
+    private void applyStyle(StyledText text, Color color, int index,
+            int length) {
+        StyleRange styleRange = new StyleRange();
+        styleRange.start = index;
+        styleRange.length = length;
+        styleRange.foreground = color;
+        text.setStyleRange(styleRange);
     }
 
     private static class FewNotifications extends Notification {

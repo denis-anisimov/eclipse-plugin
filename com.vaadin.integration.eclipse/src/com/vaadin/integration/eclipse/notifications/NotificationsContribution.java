@@ -2,6 +2,8 @@ package com.vaadin.integration.eclipse.notifications;
 
 import java.lang.ref.WeakReference;
 
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -9,56 +11,92 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
+import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 
 public class NotificationsContribution
         extends WorkbenchWindowControlContribution {
 
     @Override
-    protected Control createControl(Composite parent) {
-        Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
+    protected Control createControl(final Composite parent) {
+        Control control = getControlAccess().doCreateControl(parent);
+        if (VaadinPlugin.getInstance().getPreferenceStore()
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED)) {
+            return control;
+        } else {
+            /*
+             * This is hack to hide toolbar depending on settings. Unfortunately
+             * it looks like extensions functionality in plugin.xml almost
+             * doesn't work for toolbars in status bar.
+             */
+            getControlAccess().getContributionToolbar(parent).setVisible(false);
+            control.getDisplay().asyncExec(new Runnable() {
 
-        init(button);
+                public void run() {
+                    getControlAccess().hideToolbar();
+                    getControlAccess().getContributionToolbar(parent)
+                            .setVisible(true);
+                }
+            });
 
-        button.setImage(getControlAccess().getRegularIcon());
-        button.addSelectionListener(new ButtonListener());
-
-        return button;
+            return null;
+        }
     }
 
-    private void init(Button control) {
-        ContributionService.getInstance().initializeContribution();
-        getControlAccess().setControl(control);
-    }
-
-    private ContributionControlAccess getControlAccess() {
+    private static ContributionControlAccess getControlAccess() {
         return ContributionService.getInstance();
     }
 
     static class ContributionControlAccess {
 
-        private WeakReference<Button> control;
+        private Button control;
+
+        private WeakReference<Composite> parentBar;
+        private Composite toolBarParent;
+
+        ContributionControlAccess() {
+            VaadinPlugin.getInstance().getPreferenceStore()
+                    .addPropertyChangeListener(new PreferencesListener());
+        }
 
         Button getContributionControl() {
-            return control.get();
+            return control;
         }
 
         void updateContributionControl() {
+            if (control == null || control.isDisposed()) {
+                return;
+            }
             for (Notification notification : ContributionService.getInstance()
                     .getNotifications()) {
                 if (!notification.isRead()) {
-                    control.get().setImage(getNewIcon());
+                    control.setImage(getNewIcon());
                     return;
                 }
             }
-            control.get().setImage(getRegularIcon());
+            control.setImage(getRegularIcon());
+        }
+
+        private void setToolBarParent(Composite parent) {
+            parentBar = new WeakReference<Composite>(parent.getParent());
+            toolBarParent = parent;
+        }
+
+        private void showContribution() {
+            if (parentBar.get() != null) {
+                toolBarParent.setVisible(true);
+                toolBarParent.setParent(parentBar.get());
+                parentBar.get().layout();
+            }
         }
 
         private void setControl(Button control) {
-            this.control = new WeakReference<Button>(control);
+            this.control = control;
         }
 
         private Image getNewIcon() {
@@ -70,6 +108,62 @@ public class NotificationsContribution
             return VaadinPlugin.getInstance().getImageRegistry()
                     .get(Utils.REGULAR_NOTIFICATION_ICON);
         }
+
+        private Control doCreateControl(final Composite parent) {
+            Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
+
+            init(button);
+
+            if (button.getImage() == null) {
+                button.setImage(getControlAccess().getRegularIcon());
+            }
+            button.addSelectionListener(new ButtonListener());
+
+            return button;
+        }
+
+        private void hideToolbar() {
+            final ToolBar toolbar = getContributionToolbar(
+                    getContributionControl());
+            Composite composite = toolbar.getParent();
+            Composite parent = composite.getParent();
+            getControlAccess().setToolBarParent(composite);
+            composite.setVisible(false);
+            composite.setParent(PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getShell());
+            parent.layout();
+        }
+
+        private void init(Button control) {
+            setControl(control);
+            ContributionService.getInstance().initializeContribution();
+        }
+
+        private ToolBar getContributionToolbar(Control control) {
+            if (control instanceof ToolBar) {
+                return (ToolBar) control;
+            } else {
+                return getContributionToolbar(control.getParent());
+            }
+        }
+
+    }
+
+    private static class PreferencesListener
+            implements IPropertyChangeListener {
+
+        public void propertyChange(PropertyChangeEvent event) {
+            if (PreferenceConstants.NOTIFICATIONS_ENABLED
+                    .equals(event.getProperty())) {
+                if (VaadinPlugin.getInstance().getPreferenceStore().getBoolean(
+                        PreferenceConstants.NOTIFICATIONS_ENABLED)) {
+                    getControlAccess().showContribution();
+                } else {
+                    getControlAccess().hideToolbar();
+                }
+            }
+        }
+
     }
 
     private static class ButtonListener extends SelectionAdapter {

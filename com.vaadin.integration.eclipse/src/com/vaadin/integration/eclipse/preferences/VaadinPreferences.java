@@ -90,6 +90,10 @@ public class VaadinPreferences extends PreferencePage
         // TODO : I18N
         notificationsPanel.setText("Vaadin notifications");
         notificationsPanel.setFont(CommonFonts.BOLD);
+
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_ENABLED,
+                "Enable Vaadin notifictions", composite));
     }
 
     private interface VaadinFieldEditor {

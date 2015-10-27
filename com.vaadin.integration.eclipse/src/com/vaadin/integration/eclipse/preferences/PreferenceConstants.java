@@ -25,4 +25,6 @@ public class PreferenceConstants {
     public static final String NOTIFICATIONS_ANONYMOUS_TOKEN = "notificationsAnonymousTokenPreference";
 
     public static final String NOTIFICATIONS_POLLING_INTERVAL = "notificationsPollingIntervalPreference";
+
+    public static final String NOTIFICATIONS_ENABLED = "notificationsEnabledPreference";
 }

@@ -20,6 +20,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -125,7 +126,11 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     void initializeContribution() {
-        refreshNotifications();
+        if (notifications.isEmpty()) {
+            refreshNotifications();
+        } else {
+            updateContributionControl();
+        }
     }
 
     boolean isEmbeddedBrowserAvailable() {
@@ -173,8 +178,8 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private int getPollingInterval() {
-        return 7000;// VaadinPlugin.getInstance().getPreferenceStore().getInt(
-        // PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL) * 1000;
+        return VaadinPlugin.getInstance().getPreferenceStore().getInt(
+                PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL) * 1000;
     }
 
     private void setNotifications(Collection<Notification> notifications) {
@@ -241,7 +246,9 @@ public final class ContributionService extends ContributionControlAccess {
 
         public void accept(T notifications) {
             ref.set(notifications);
-            display.asyncExec(this);
+            if (!display.isDisposed()) {
+                display.asyncExec(this);
+            }
         }
 
         protected abstract void handleData(T data);
@@ -285,6 +292,11 @@ public final class ContributionService extends ContributionControlAccess {
 
         @Override
         protected void handleData(Collection<Notification> collection) {
+            Control control = ContributionService.getInstance()
+                    .getContributionControl();
+            if (control == null || control.isDisposed()) {
+                return;
+            }
             if (collection.size() == 1) {
                 NewNotificationPopup popup = new NewNotificationPopup(
                         collection.iterator().next());
@@ -307,8 +319,10 @@ public final class ContributionService extends ContributionControlAccess {
 
         @Override
         public void done(IJobChangeEvent event) {
-            display.asyncExec(this);
-            event.getJob().removeJobChangeListener(this);
+            if (!display.isDisposed()) {
+                display.asyncExec(this);
+                event.getJob().removeJobChangeListener(this);
+            }
         }
 
         public void run() {
