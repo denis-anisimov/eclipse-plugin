@@ -228,6 +228,26 @@ class NotificationsListPopup extends AbstractPopup {
         return link;
     }
 
+    private void resetNotificationsList(Control activeListControl) {
+        Composite main = mainLayout.topControl.getParent();
+        NotificationsListComposite newList = createListArea(main);
+        if (activeListControl.isVisible()) {
+            mainLayout.topControl = newList;
+            main.layout();
+        }
+        notificationsList.dispose();
+        notificationsList = newList;
+
+        updateSignOut();
+    }
+
+    private void updateSignOut() {
+        // TODO: check whether there is a token
+        if (true) {
+            signOutWidget.setVisible(true);
+        }
+    }
+
     private class UpdateManagerImpl extends HyperlinkAdapter
             implements PopupUpdateManager {
 
@@ -263,9 +283,12 @@ class NotificationsListPopup extends AbstractPopup {
             main.layout();
         }
 
-        public void showNotificationsList() {
+        public void showNotificationsList(String token) {
             activateNotificationsList();
-            resetNotificationsList();
+            showList();
+
+            ContributionService.getInstance()
+                    .signIn(new RefreshCallback(mainLayout.topControl));
         }
 
         @Override
@@ -304,40 +327,23 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
         private void handleSignOut() {
-            ContributionService.getInstance().signOut();
-            resetNotificationsList();
+            showList();
+
+            ContributionService.getInstance()
+                    .signOut(new RefreshCallback(mainLayout.topControl));
             signOutWidget.setVisible(false);
         }
 
         private void handleReturnLink() {
             activateNotificationsList();
 
+            showList();
+        }
+
+        private void showList() {
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = notificationsList;
             main.layout();
-        }
-
-        private void resetNotificationsList() {
-            // TODO: this should show the same list (without login sign in
-            // item)
-            // as previously and schedule fetch notifications with logic
-            // below
-            // applied after notifications are fetched.
-            Composite main = mainLayout.topControl.getParent();
-            NotificationsListComposite newList = createListArea(main);
-            mainLayout.topControl = newList;
-            main.layout();
-            notificationsList.dispose();
-            notificationsList = newList;
-
-            updateSignOut();
-        }
-
-        private void updateSignOut() {
-            // TODO: check whether there is a token
-            if (true) {
-                signOutWidget.setVisible(true);
-            }
         }
 
         private void activateNotificationsList() {
@@ -377,6 +383,8 @@ class NotificationsListPopup extends AbstractPopup {
             Point location = event.widget.getDisplay().getCursorLocation();
             if (!getShell().isDisposed()
                     && !getShell().getBounds().contains(location)) {
+                getShell().getDisplay().removeFilter(SWT.MouseDown,
+                        mouseListener);
                 // Move closing operation out of filter events handling (do it
                 // after this handling).
                 event.widget.getDisplay().asyncExec(this);
@@ -388,4 +396,20 @@ class NotificationsListPopup extends AbstractPopup {
         }
     }
 
+    private class RefreshCallback implements Runnable {
+
+        private final Control activeListControl;
+
+        RefreshCallback(Control control) {
+            activeListControl = control;
+        }
+
+        public void run() {
+            if (mainLayout.topControl == activeListControl
+                    && !activeListControl.isDisposed()) {
+                resetNotificationsList(activeListControl);
+            }
+        }
+
+    }
 }

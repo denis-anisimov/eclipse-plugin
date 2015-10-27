@@ -85,22 +85,24 @@ public final class ContributionService extends ContributionControlAccess {
         return signIn;
     }
 
-    void signIn(String token) {
+    void signIn(Runnable callback) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
-        VaadinPlugin.getInstance().getPreferenceStore()
-                .setValue(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, token);
-        refreshNotifications();
+        VaadinPlugin.getInstance().getPreferenceStore().setValue(
+                PreferenceConstants.NOTIFICATIONS_USER_TOKEN, getToken());
+        refreshNotifications(callback);
     }
 
-    void signOut() {
+    // TODO : this requires runnable which will be executed after notifications
+    // are refreshed
+    void signOut(Runnable callback) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
         VaadinPlugin.getInstance().getPreferenceStore()
                 .setValue(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, null);
-        refreshNotifications();
+        refreshNotifications(callback);
     }
 
     void markRead(Notification notification) {
@@ -110,7 +112,7 @@ public final class ContributionService extends ContributionControlAccess {
         // TODO : call REST API
     }
 
-    void refreshNotifications() {
+    void refreshNotifications(Runnable runnable) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
@@ -120,14 +122,14 @@ public final class ContributionService extends ContributionControlAccess {
                         PlatformUI.getWorkbench().getDisplay()),
                 new TokenConsumer(PlatformUI.getWorkbench().getDisplay()),
                 getToken());
-        job.addJobChangeListener(
-                new JobListener(PlatformUI.getWorkbench().getDisplay()));
+        job.addJobChangeListener(new JobListener(
+                PlatformUI.getWorkbench().getDisplay(), runnable));
         job.schedule();
     }
 
     void initializeContribution() {
         if (notifications.isEmpty()) {
-            refreshNotifications();
+            refreshNotifications(null);
         } else {
             updateContributionControl();
         }
@@ -173,7 +175,7 @@ public final class ContributionService extends ContributionControlAccess {
                 new AllNotificationsConsumer(display),
                 new NewNotificationsConsumer(display), existingIds, getToken());
         job.addJobChangeListener(
-                new JobListener(PlatformUI.getWorkbench().getDisplay()));
+                new JobListener(PlatformUI.getWorkbench().getDisplay(), null));
         job.schedule(getPollingInterval());
     }
 
@@ -187,8 +189,7 @@ public final class ContributionService extends ContributionControlAccess {
     }
 
     private boolean isSignedIn() {
-        // TODO
-        return false;
+        return getUserToken() != null && !getUserToken().isEmpty();
     }
 
     private boolean checkBrowserSupport() {
@@ -297,14 +298,17 @@ public final class ContributionService extends ContributionControlAccess {
             if (control == null || control.isDisposed()) {
                 return;
             }
-            if (collection.size() == 1) {
-                NewNotificationPopup popup = new NewNotificationPopup(
-                        collection.iterator().next());
-                popup.open();
-            } else if (!collection.isEmpty()) {
-                NewNotificationsPopup popup = new NewNotificationsPopup(
-                        collection);
-                popup.open();
+            if (VaadinPlugin.getInstance().getPreferenceStore().getBoolean(
+                    PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED)) {
+                if (collection.size() == 1) {
+                    NewNotificationPopup popup = new NewNotificationPopup(
+                            collection.iterator().next());
+                    popup.open();
+                } else if (!collection.isEmpty()) {
+                    NewNotificationsPopup popup = new NewNotificationsPopup(
+                            collection);
+                    popup.open();
+                }
             }
         }
     }
@@ -312,9 +316,11 @@ public final class ContributionService extends ContributionControlAccess {
     private class JobListener extends JobChangeAdapter implements Runnable {
 
         private final Display display;
+        private final Runnable callback;
 
-        JobListener(Display display) {
+        JobListener(Display display, Runnable runnable) {
             this.display = display;
+            callback = runnable;
         }
 
         @Override
@@ -326,6 +332,9 @@ public final class ContributionService extends ContributionControlAccess {
         }
 
         public void run() {
+            if (callback != null) {
+                callback.run();
+            }
             schedulePollingJob(display);
         }
 

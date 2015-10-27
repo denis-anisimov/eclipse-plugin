@@ -46,7 +46,7 @@ class TokenInputComposite extends Composite implements SelectionListener {
             if (browser != null) {
                 browser.close();
             }
-            manager.showNotificationsList();
+            manager.showNotificationsList(token.getText().trim());
         } else if (wrongTokenLabel == null || wrongTokenLabel.isDisposed()) {
             wrongTokenLabel = new Label(this, SWT.NONE);
             wrongTokenLabel

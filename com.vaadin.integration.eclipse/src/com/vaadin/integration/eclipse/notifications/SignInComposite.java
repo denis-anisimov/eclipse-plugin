@@ -146,7 +146,8 @@ class SignInComposite extends Composite {
             passwd.setText("");
             notifyFailedLogin();
         } else {
-            manager.showNotificationsList();
+            String token = null;
+            manager.showNotificationsList(token);
             dispose();
             // Navigate back and rebuild notification list from scratch
         }

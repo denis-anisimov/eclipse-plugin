@@ -27,4 +27,6 @@ public class PreferenceConstants {
     public static final String NOTIFICATIONS_POLLING_INTERVAL = "notificationsPollingIntervalPreference";
 
     public static final String NOTIFICATIONS_ENABLED = "notificationsEnabledPreference";
+
+    public static final String NOTIFICATIONS_POPUP_ENABLED = "notificationsPopupEnabledPreference";
 }

@@ -208,9 +208,6 @@ public class NotificationsContribution
         }
 
         public void run() {
-            if (getControlAccess().isPopupOpen()) {
-                return;
-            }
             NotificationsListPopup popup = new NotificationsListPopup();
             popup.open();
             getControlAccess().setPopupOpen(true);
@@ -218,7 +215,7 @@ public class NotificationsContribution
         }
 
         public void handleEvent(Event event) {
-            if (event.widget == source) {
+            if (event.widget == source && !getControlAccess().isPopupOpen) {
                 // Do this out of filter events handling
                 event.widget.getDisplay().asyncExec(this);
             }
