@@ -368,23 +368,24 @@ class NotificationsListPopup extends AbstractPopup {
         }
     }
 
-    private class ActiveControlListener implements Listener {
+    private class ActiveControlListener implements Listener, Runnable {
 
         public void handleEvent(Event event) {
             if (event.widget.isDisposed()) {
                 return;
             }
-            if (event.widget == ContributionService.getInstance()
-                    .getContributionControl()) {
-                event.doit = false;
-            }
             Point location = event.widget.getDisplay().getCursorLocation();
             if (!getShell().isDisposed()
                     && !getShell().getBounds().contains(location)) {
-                close();
+                // Move closing operation out of filter events handling (do it
+                // after this handling).
+                event.widget.getDisplay().asyncExec(this);
             }
         }
 
+        public void run() {
+            close();
+        }
     }
 
 }

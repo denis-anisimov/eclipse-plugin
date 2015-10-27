@@ -5,12 +5,16 @@ import java.lang.ref.WeakReference;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.WorkbenchWindowControlContribution;
@@ -59,6 +63,8 @@ public class NotificationsContribution
         private WeakReference<Composite> parentBar;
         private Composite toolBarParent;
 
+        private boolean isPopupOpen;
+
         ContributionControlAccess() {
             VaadinPlugin.getInstance().getPreferenceStore()
                     .addPropertyChangeListener(new PreferencesListener());
@@ -95,6 +101,14 @@ public class NotificationsContribution
             }
         }
 
+        private void setPopupOpen(boolean visible) {
+            isPopupOpen = visible;
+        }
+
+        private boolean isPopupOpen() {
+            return isPopupOpen;
+        }
+
         private void setControl(Button control) {
             this.control = control;
         }
@@ -112,12 +126,15 @@ public class NotificationsContribution
         private Control doCreateControl(final Composite parent) {
             Button button = new Button(parent, SWT.PUSH | SWT.FLAT);
 
+            button.getDisplay().addFilter(SWT.MouseDown,
+                    new ButtonListener(button));
+
             init(button);
 
             if (button.getImage() == null) {
                 button.setImage(getControlAccess().getRegularIcon());
             }
-            button.addSelectionListener(new ButtonListener());
+            // button.addSelectionListener(new ButtonListener(button));
 
             return button;
         }
@@ -166,12 +183,45 @@ public class NotificationsContribution
 
     }
 
-    private static class ButtonListener extends SelectionAdapter {
+    private static class ButtonListener extends SelectionAdapter
+            implements Listener, DisposeListener, Runnable {
+
+        private final Control source;
+
+        ButtonListener(Control control) {
+            source = control;
+        }
 
         @Override
         public void widgetSelected(SelectionEvent e) {
             NotificationsListPopup popup = new NotificationsListPopup();
             popup.open();
+        }
+
+        public void widgetDisposed(DisposeEvent e) {
+            if (e.widget == source) {
+                e.widget.getDisplay().removeFilter(SWT.MouseDown, this);
+            } else {
+                // shell
+                getControlAccess().setPopupOpen(false);
+            }
+        }
+
+        public void run() {
+            if (getControlAccess().isPopupOpen()) {
+                return;
+            }
+            NotificationsListPopup popup = new NotificationsListPopup();
+            popup.open();
+            getControlAccess().setPopupOpen(true);
+            popup.getShell().addDisposeListener(this);
+        }
+
+        public void handleEvent(Event event) {
+            if (event.widget == source) {
+                // Do this out of filter events handling
+                event.widget.getDisplay().asyncExec(this);
+            }
         }
     }
 }
