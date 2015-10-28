@@ -85,6 +85,28 @@ public final class ContributionService extends ContributionControlAccess {
         return signIn;
     }
 
+    void login(String mail, String pwd, Consumer<Boolean> resultConsumer) {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+
+        SignInJob job = new SignInJob(
+                new TokenConsumer(PlatformUI.getWorkbench().getDisplay(),
+                        resultConsumer),
+                mail, pwd);
+        job.schedule();
+    }
+
+    void validateToken(String token, Consumer<Boolean> callback) {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+
+        ValidationJob job = new ValidationJob(
+                new ValidationConsumer(PlatformUI.getWorkbench().getDisplay(),
+                        token, callback),
+                token);
+        job.schedule();
+    }
+
     void signIn(Runnable callback) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
@@ -94,14 +116,12 @@ public final class ContributionService extends ContributionControlAccess {
         refreshNotifications(callback);
     }
 
-    // TODO : this requires runnable which will be executed after notifications
-    // are refreshed
     void signOut(Runnable callback) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
         VaadinPlugin.getInstance().getPreferenceStore()
-                .setValue(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, null);
+                .setValue(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, "");
         refreshNotifications(callback);
     }
 
@@ -120,7 +140,8 @@ public final class ContributionService extends ContributionControlAccess {
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
                         PlatformUI.getWorkbench().getDisplay()),
-                new TokenConsumer(PlatformUI.getWorkbench().getDisplay()),
+                new AnonymousTokenConsumer(
+                        PlatformUI.getWorkbench().getDisplay()),
                 getToken());
         job.addJobChangeListener(new JobListener(
                 PlatformUI.getWorkbench().getDisplay(), runnable));
@@ -140,6 +161,10 @@ public final class ContributionService extends ContributionControlAccess {
         assert Display.getCurrent() != null;
 
         return isEmbeddedBrowserAvaialble;
+    }
+
+    boolean isSignedIn() {
+        return getUserToken() != null && !getUserToken().isEmpty();
     }
 
     private String getToken() {
@@ -186,10 +211,6 @@ public final class ContributionService extends ContributionControlAccess {
 
     private void setNotifications(Collection<Notification> notifications) {
         this.notifications = new ArrayList<Notification>(notifications);
-    }
-
-    private boolean isSignedIn() {
-        return getUserToken() != null && !getUserToken().isEmpty();
     }
 
     private boolean checkBrowserSupport() {
@@ -258,7 +279,54 @@ public final class ContributionService extends ContributionControlAccess {
 
     private class TokenConsumer extends AbstractConsumer<String> {
 
-        TokenConsumer(Display display) {
+        private final Consumer<Boolean> callback;
+
+        TokenConsumer(Display display, Consumer<Boolean> successCallback) {
+            super(display);
+            callback = successCallback;
+        }
+
+        @Override
+        protected void handleData(String token) {
+            if (token == null) {
+                callback.accept(false);
+            } else {
+                VaadinPlugin.getInstance().getPreferenceStore().setValue(
+                        PreferenceConstants.NOTIFICATIONS_USER_TOKEN, token);
+                callback.accept(true);
+            }
+        }
+
+    }
+
+    private class ValidationConsumer extends AbstractConsumer<Boolean> {
+
+        private final String token;
+        private final Consumer<Boolean> callback;
+
+        ValidationConsumer(Display display, String token,
+                Consumer<Boolean> successCallback) {
+            super(display);
+            this.token = token;
+            callback = successCallback;
+        }
+
+        @Override
+        protected void handleData(Boolean success) {
+            if (success) {
+                VaadinPlugin.getInstance().getPreferenceStore().setValue(
+                        PreferenceConstants.NOTIFICATIONS_USER_TOKEN, token);
+                callback.accept(true);
+            } else {
+                callback.accept(false);
+            }
+        }
+
+    }
+
+    private class AnonymousTokenConsumer extends AbstractConsumer<String> {
+
+        AnonymousTokenConsumer(Display display) {
             super(display);
         }
 
@@ -332,11 +400,16 @@ public final class ContributionService extends ContributionControlAccess {
         }
 
         public void run() {
-            if (callback != null) {
+            if (callback == null) {
+                // Polling should be scheduled only on initial notification
+                // fetching. The job is initiated by UI action when callback is
+                // available
+                schedulePollingJob(display);
+            } else {
                 callback.run();
             }
-            schedulePollingJob(display);
         }
 
     }
+
 }

@@ -41,28 +41,8 @@ class TokenInputComposite extends Composite implements SelectionListener {
     }
 
     public void widgetSelected(SelectionEvent e) {
-        if (validate()) {
-            // TODO: close if option is selected
-            if (browser != null) {
-                browser.close();
-            }
-            manager.showNotificationsList(token.getText().trim());
-        } else if (wrongTokenLabel == null || wrongTokenLabel.isDisposed()) {
-            wrongTokenLabel = new Label(this, SWT.NONE);
-            wrongTokenLabel
-                    .setForeground(getDisplay().getSystemColor(SWT.COLOR_RED));
-            wrongTokenLabel.setText("Provided token is incorrect.");
-
-            GridDataFactory.fillDefaults().grab(true, false)
-                    .align(SWT.FILL, SWT.TOP).applyTo(wrongTokenLabel);
-            layout();
-        }
-    }
-
-    private boolean validate() {
-        String hash = token.getText().trim();
-        // TODO : validate the hash
-        return false;
+        ContributionService.getInstance().validateToken(token.getText().trim(),
+                new ValidationCallback());
     }
 
     private void initComponents() {
@@ -81,5 +61,28 @@ class TokenInputComposite extends Composite implements SelectionListener {
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(button);
 
         button.addSelectionListener(this);
+    }
+
+    private class ValidationCallback implements Consumer<Boolean> {
+
+        public void accept(Boolean success) {
+            if (success) {
+                if (browser != null) {
+                    browser.close();
+                }
+                manager.showNotificationsList();
+            } else if (wrongTokenLabel == null
+                    || wrongTokenLabel.isDisposed()) {
+                wrongTokenLabel = new Label(TokenInputComposite.this, SWT.NONE);
+                wrongTokenLabel.setForeground(
+                        getDisplay().getSystemColor(SWT.COLOR_RED));
+                wrongTokenLabel.setText("Provided token is incorrect.");
+
+                GridDataFactory.fillDefaults().grab(true, false)
+                        .align(SWT.FILL, SWT.TOP).applyTo(wrongTokenLabel);
+                layout();
+            }
+        }
+
     }
 }

@@ -16,10 +16,9 @@ interface PopupUpdateManager {
     void showSignIn();
 
     /**
-     * Show recent notifications list (request its latest state and show) for
-     * given {@code token}.
+     * Show recent notifications list (request its latest state and show).
      */
-    void showNotificationsList(String token);
+    void showNotificationsList();
 
     /**
      * Show provided {@code notification} (navigate to notification info view).

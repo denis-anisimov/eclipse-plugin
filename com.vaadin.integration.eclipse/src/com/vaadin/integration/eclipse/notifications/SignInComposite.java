@@ -139,19 +139,12 @@ class SignInComposite extends Composite {
     private void login() {
         String mail = email.getText().trim();
         String pwd = passwd.getText();
-        // TODO: request login via REST/Web and retrieve hash and store it
-        if (true) {
-            // TODO : do not block UI. Do sign in request in background and show
-            // info label (in green/blue color) about operation in progress
-            passwd.setText("");
-            notifyFailedLogin();
-        } else {
-            String token = null;
-            manager.showNotificationsList(token);
-            dispose();
-            // Navigate back and rebuild notification list from scratch
-        }
+        showOperationProgress();
+        ContributionService.getInstance().login(mail, pwd, listener);
+    }
 
+    private void showOperationProgress() {
+        // TODO : show info label about request is in progress
     }
 
     private void notifyFailedLogin() {
@@ -175,7 +168,7 @@ class SignInComposite extends Composite {
     }
 
     private class Listener extends HyperlinkAdapter
-            implements DisposeListener, SelectionListener {
+            implements DisposeListener, SelectionListener, Consumer<Boolean> {
 
         public void widgetDisposed(DisposeEvent e) {
             if (titleFont != null) {
@@ -201,6 +194,16 @@ class SignInComposite extends Composite {
 
         public void widgetSelected(SelectionEvent e) {
             login();
+        }
+
+        public void accept(Boolean success) {
+            if (success) {
+                manager.showNotificationsList();
+                dispose();
+            } else {
+                passwd.setText("");
+                notifyFailedLogin();
+            }
         }
 
     }

@@ -119,6 +119,17 @@ public final class NotificationsService {
         HttpClientUtils.closeQuietly(client);
     }
 
+    public String signIn(String login, String passwd)
+            throws InvalidCredentialsException {
+        // TODO
+        return "";
+    }
+
+    public boolean validate(String token) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
     private Collection<Notification> getNotifications(String url) {
         HttpClient client = createHttpClient();
         return getNotifications(client, url);
@@ -387,6 +398,11 @@ public final class NotificationsService {
 
     public static NotificationsService getInstance() {
         return INSTANCE;
+    }
+
+    public static class InvalidCredentialsException extends Exception {
+
+        private static final long serialVersionUID = -5466608327464552050L;
     }
 
 }

@@ -19,7 +19,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.DISABLE_ALL_UPDATE_NOTIFICATIONS,
                 false);
         store.setDefault(PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL,
-                10);
+                120);
 
         store.setDefault(PreferenceConstants.NOTIFICATIONS_ENABLED, true);
 

@@ -242,10 +242,8 @@ class NotificationsListPopup extends AbstractPopup {
     }
 
     private void updateSignOut() {
-        // TODO: check whether there is a token
-        if (true) {
-            signOutWidget.setVisible(true);
-        }
+        signOutWidget
+                .setVisible(ContributionService.getInstance().isSignedIn());
     }
 
     private class UpdateManagerImpl extends HyperlinkAdapter
@@ -283,7 +281,7 @@ class NotificationsListPopup extends AbstractPopup {
             main.layout();
         }
 
-        public void showNotificationsList(String token) {
+        public void showNotificationsList() {
             activateNotificationsList();
             showList();
 
