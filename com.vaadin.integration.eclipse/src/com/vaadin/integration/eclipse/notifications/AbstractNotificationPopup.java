@@ -59,9 +59,6 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
         if (blockPopupListener != null) {
             PlatformUI.getWorkbench().getDisplay().removeFilter(SWT.Activate,
                     blockPopupListener);
-        } else {
-            // TODO
-            // log(ERROR_LISTENER_NULL);
         }
         return super.close();
     }
@@ -222,8 +219,7 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
         private void deactivate() {
             isPopupBlocked = true;
             if (titleLabel != null) {
-                // TODO
-                titleLabel.setText("(Waiting for focus) " + title);
+                titleLabel.setText(Messages.Notifications_waitingFocus + title);
             }
         }
 

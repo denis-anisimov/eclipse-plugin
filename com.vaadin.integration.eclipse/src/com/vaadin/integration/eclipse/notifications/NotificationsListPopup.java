@@ -115,8 +115,7 @@ class NotificationsListPopup extends AbstractPopup {
         titleImageLabel.setVisible(showContent);
 
         titleTextLabel = new Label(parent, SWT.NONE);
-        // TODO
-        titleTextLabel.setText("Vaadin Notification");
+        titleTextLabel.setText(getPopupShellTitle());
         titleTextLabel.setFont(CommonFonts.BOLD);
         titleTextLabel.setForeground(getTitleForeground());
         titleTextLabel
@@ -195,8 +194,7 @@ class NotificationsListPopup extends AbstractPopup {
 
     private Control createClearAll(Composite parent) {
         ScalingHyperlink link = new NotificationHyperlink(parent);
-        // TODO
-        link.setText("Clear All");
+        link.setText(Messages.Notifications_ClearAll);
         link.registerMouseTrackListener();
         link.setImage(VaadinPlugin.getInstance().getImageRegistry()
                 .get(Utils.CLEAR_ALL_ICON));
@@ -206,10 +204,10 @@ class NotificationsListPopup extends AbstractPopup {
     }
 
     private void createToolBar(Composite parent) {
-        // TODO : I18N
-        signOutWidget = createAction(parent, SWT.LEFT, "Sign Out");
+        signOutWidget = createAction(parent, SWT.LEFT,
+                Messages.Notifications_SignOut);
         signOutWidget.setVisible(false);
-        createAction(parent, SWT.RIGHT, "Notif. settings");
+        createAction(parent, SWT.RIGHT, Messages.Notifications_Settings);
     }
 
     private NotificationsListComposite createListArea(Composite pane) {
@@ -360,8 +358,7 @@ class NotificationsListPopup extends AbstractPopup {
             if (returnLink == null || returnLink.isDisposed()) {
                 returnLink = new NotificationHyperlink(
                         titleImageLabel.getParent());
-                // TODO : I18N
-                returnLink.setText("Back to notifications");
+                returnLink.setText(Messages.Notifications_BackAction);
                 returnLink.setImage(VaadinPlugin.getInstance()
                         .getImageRegistry().get(Utils.RETURN_ICON));
                 returnLink.moveAbove(titleImageLabel);

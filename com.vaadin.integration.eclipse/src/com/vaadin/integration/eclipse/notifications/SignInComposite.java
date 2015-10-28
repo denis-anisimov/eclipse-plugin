@@ -57,8 +57,7 @@ class SignInComposite extends Composite {
 
         title.setFont(titleFont);
 
-        // TODO : I18N
-        title.setText("Sign in");
+        title.setText(Messages.Notifications_SignIn);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
                 .align(SWT.FILL, SWT.TOP).applyTo(title);
 
@@ -78,8 +77,7 @@ class SignInComposite extends Composite {
         layout.horizontalSpacing = 0;
 
         NotificationHyperlink link = new NotificationHyperlink(openId);
-        // TODO
-        link.setText("Sign in");
+        link.setText(Messages.Notifications_SignIn);
         link.setFont(CommonFonts.BOLD);
         link.registerMouseTrackListener();
         // TODO: color
@@ -90,8 +88,7 @@ class SignInComposite extends Composite {
         // Use hyperlink here to align text with previous hyperlink (label will
         // be shown a bit above the base line of link
         NotificationHyperlink label = new NotificationHyperlink(openId);
-        // TODO: I18N
-        label.setText("with Google, Facebook or Twitter");
+        label.setText(Messages.Notifications_SignInWithSuffix);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(label);
         label.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
     }
@@ -113,8 +110,7 @@ class SignInComposite extends Composite {
                 .align(SWT.FILL, SWT.TOP).applyTo(label);
 
         label.setFont(labelsFont);
-        // TODO: I18N
-        label.setText("Password");
+        label.setText(Messages.Notifications_SignInPassword);
 
         passwd = new Text(this, SWT.PASSWORD | SWT.BORDER);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
@@ -128,8 +124,7 @@ class SignInComposite extends Composite {
                 .align(SWT.FILL, SWT.TOP).applyTo(label);
 
         label.setFont(labelsFont);
-        // TODO: I18N
-        label.setText("E-mail address");
+        label.setText(Messages.Notifications_SignInEmail);
 
         email = new Text(this, SWT.BORDER);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
@@ -152,9 +147,7 @@ class SignInComposite extends Composite {
             loginFailedLabel = new Label(this, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
                     .align(SWT.FILL, SWT.TOP).applyTo(loginFailedLabel);
-            // TODO: I18N
-            loginFailedLabel
-                    .setText("Incorrect email/password. Please try again");
+            loginFailedLabel.setText(Messages.Notifications_SignInError);
             loginFailedLabel
                     .setForeground(getDisplay().getSystemColor(SWT.COLOR_RED));
             layout();

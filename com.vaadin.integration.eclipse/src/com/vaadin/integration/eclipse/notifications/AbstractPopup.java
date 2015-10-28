@@ -30,8 +30,7 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
 
     @Override
     protected String getPopupShellTitle() {
-        // TODO
-        return "Vaadin Notification";
+        return Messages.Notifications_PopupNotificationsTitle;
     }
 
     @Override

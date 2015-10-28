@@ -21,6 +21,11 @@ class NewNotificationPopup extends AbstractNotificationPopup {
     }
 
     @Override
+    protected String getPopupShellTitle() {
+        return Messages.Notifications_PopupNotificationTitle;
+    }
+
+    @Override
     protected void createContentArea(Composite parent) {
         super.createContentArea(parent);
 
