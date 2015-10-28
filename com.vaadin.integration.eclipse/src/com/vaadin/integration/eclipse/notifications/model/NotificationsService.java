@@ -100,6 +100,16 @@ public final class NotificationsService {
         return getNotifications(ALL_NOTIFICATIONS_URL);
     }
 
+    public Collection<Notification> getCachedNotifications(String token) {
+        synchronized (lock) {
+            if (getCacheFile().exists()) {
+                return getCachedNotifications();
+            } else {
+                return getAllNotifications(token);
+            }
+        }
+    }
+
     /**
      * Fetches "session" anonymous token which is used to identify
      * non-registered user (to be able to track its session/ read
@@ -182,22 +192,10 @@ public final class NotificationsService {
             LOG.info("Fetching all notifications");
             HttpResponse response = client.execute(request);
 
-            JSONParser parser = new JSONParser();
-            reader = new InputStreamReader(response.getEntity().getContent(),
-                    UTF8);
+            InputStream inputStream = response.getEntity().getContent();
 
-            LOG.info("Parse notifications");
-            JSONObject object = (JSONObject) parser.parse(reader);
-
-            LOG.info("Cache notifications");
-            saveCache(object);
-
+            Collection<Notification> list = getNotifications(inputStream, true);
             HttpClientUtils.closeQuietly(response);
-            JSONArray array = (JSONArray) object.get(NOTIFICATIONS);
-            List<Notification> list = new ArrayList<Notification>(array.size());
-            for (int i = 0; i < array.size(); i++) {
-                list.add(buildNotification((JSONObject) array.get(i)));
-            }
 
             return list;
         } catch (ClientProtocolException e) {
@@ -208,7 +206,6 @@ public final class NotificationsService {
             handleException(Level.WARNING, e);
         } catch (ParseException e) {
             handleException(Level.WARNING, e);
-            getCacheFile().delete();
         } finally {
             if (reader != null) {
                 try {
@@ -219,20 +216,79 @@ public final class NotificationsService {
             }
         }
         HttpClientUtils.closeQuietly(client);
+        return getCachedNotifications();
+    }
+
+    private Collection<Notification> getCachedNotifications() {
+        synchronized (lock) {
+            InputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(getCacheFile());
+                return getNotifications(inputStream, false);
+            } catch (IOException e) {
+                handleException(Level.WARNING, e);
+            } catch (ParseException e) {
+                handleException(Level.WARNING, e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        handleException(Level.INFO, e);
+                    }
+                }
+            }
+        }
         return Collections.emptyList();
     }
 
-    private void saveCache(JSONObject object) throws IOException {
-        FileOutputStream outputStream = new FileOutputStream(getCacheFile());
+    private Collection<Notification> getNotifications(InputStream inputStream,
+            boolean cache) throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        InputStreamReader reader = null;
         try {
-            LOG.info("Save JSON notifications content to cache file "
-                    + getCacheFile());
-            IOUtils.write(object.toJSONString(), outputStream);
+            parser = new JSONParser();
+            reader = new InputStreamReader(inputStream, UTF8);
+
+            LOG.info("Parse notifications");
+            JSONObject object = (JSONObject) parser.parse(reader);
+
+            if (cache) {
+                saveCache(object);
+            }
+
+            JSONArray array = (JSONArray) object.get(NOTIFICATIONS);
+            List<Notification> list = new ArrayList<Notification>(array.size());
+            for (int i = 0; i < array.size(); i++) {
+                list.add(buildNotification((JSONObject) array.get(i)));
+            }
+
+            return list;
         } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    handleException(Level.INFO, e);
+                }
+            }
+        }
+    }
+
+    private void saveCache(JSONObject object) throws IOException {
+        synchronized (lock) {
+            FileOutputStream outputStream = new FileOutputStream(
+                    getCacheFile());
             try {
-                outputStream.close();
-            } catch (IOException e) {
-                handleException(Level.INFO, e);
+                LOG.info("Save JSON notifications content to cache file "
+                        + getCacheFile());
+                IOUtils.write(object.toJSONString(), outputStream);
+            } finally {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    handleException(Level.INFO, e);
+                }
             }
         }
     }

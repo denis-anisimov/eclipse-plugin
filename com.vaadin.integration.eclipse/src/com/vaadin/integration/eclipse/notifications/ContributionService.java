@@ -149,8 +149,7 @@ public final class ContributionService extends ContributionControlAccess {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
-        if (VaadinPlugin.getInstance().getPreferenceStore()
-                .getBoolean(PreferenceConstants.NOTIFICATIONS_STAT_ENABLED)) {
+        if (isStatisticsEnabled()) {
             new StatisticsJob(getToken(), notification.getId()).schedule();
         }
     }
@@ -160,12 +159,13 @@ public final class ContributionService extends ContributionControlAccess {
         assert Display.getCurrent() != null;
 
         LOG.info("Schedule fetching all notifications");
+        boolean useCached = runnable == null && fetchOnStart();
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
                         PlatformUI.getWorkbench().getDisplay()),
                 new AnonymousTokenConsumer(
                         PlatformUI.getWorkbench().getDisplay()),
-                getToken());
+                getToken(), useCached);
         job.addJobChangeListener(new JobListener(
                 PlatformUI.getWorkbench().getDisplay(), runnable));
         job.schedule();
@@ -188,6 +188,20 @@ public final class ContributionService extends ContributionControlAccess {
 
     boolean isSignedIn() {
         return getUserToken() != null && !getUserToken().isEmpty();
+    }
+
+    private boolean fetchOnStart() {
+        return VaadinPlugin.getInstance().getPreferenceStore()
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_FETCH_ON_START)
+                && VaadinPlugin.getInstance().getPreferenceStore()
+                        .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED);
+    }
+
+    private boolean isStatisticsEnabled() {
+        return VaadinPlugin.getInstance().getPreferenceStore()
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_STAT_ENABLED)
+                && VaadinPlugin.getInstance().getPreferenceStore()
+                        .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED);
     }
 
     private String getToken() {
@@ -389,8 +403,7 @@ public final class ContributionService extends ContributionControlAccess {
             if (control == null || control.isDisposed()) {
                 return;
             }
-            if (VaadinPlugin.getInstance().getPreferenceStore().getBoolean(
-                    PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED)) {
+            if (isPopupEnabled()) {
                 if (collection.size() == 1) {
                     NewNotificationPopup popup = new NewNotificationPopup(
                             collection.iterator().next());
@@ -401,6 +414,14 @@ public final class ContributionService extends ContributionControlAccess {
                     popup.open();
                 }
             }
+        }
+
+        private boolean isPopupEnabled() {
+            return VaadinPlugin.getInstance().getPreferenceStore()
+                    .getBoolean(PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED)
+                    && VaadinPlugin.getInstance().getPreferenceStore()
+                            .getBoolean(
+                                    PreferenceConstants.NOTIFICATIONS_ENABLED);
         }
     }
 

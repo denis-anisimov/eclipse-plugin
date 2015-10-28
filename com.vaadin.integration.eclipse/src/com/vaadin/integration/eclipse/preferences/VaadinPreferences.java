@@ -8,7 +8,10 @@ import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -100,36 +103,85 @@ public class VaadinPreferences extends PreferencePage
         expandable.setText("Vaadin notifications");
         expandable.setFont(CommonFonts.BOLD);
 
-        addField(new VaadinBooleanFieldEditor(
+        final VaadinBooleanFieldEditor enabled = new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_ENABLED,
-                "Enable Vaadin notifictions", panel));
+                "Enable Vaadin notifictions", panel, true);
+        addField(enabled);
+        enabled.getControl().addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                for (VaadinFieldEditor editor : editors) {
+                    if (!editor.equals(enabled)
+                            && editor.isNotificationEditor()) {
+                        editor.setEnable(enabled.getBooleanValue());
+                    }
+                }
+            }
+
+        });
 
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED,
-                "Inform me about new notifications using popup", panel));
+                "Inform me about new notifications using popup", panel, true));
 
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_STAT_ENABLED,
-                "Allow collecting notification statistics", panel));
+                "Allow collecting notification statistics", panel, true));
+
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
+                "Get notifications on IDE start", panel, true));
     }
 
     private interface VaadinFieldEditor {
         void store();
 
         void setPresentsDefaultValue(boolean booleanValue);
+
+        void setEnable(boolean enable);
+
+        boolean isNotificationEditor();
     }
 
     private static class VaadinBooleanFieldEditor extends BooleanFieldEditor
             implements VaadinFieldEditor {
 
+        private Button control;
+        private boolean isNotificationEditor;
+
         VaadinBooleanFieldEditor(String name, String label,
                 Composite composite) {
+            this(name, label, composite, false);
+        }
+
+        VaadinBooleanFieldEditor(String name, String label, Composite composite,
+                boolean notificationRelated) {
             super(name, label, composite);
+            isNotificationEditor = notificationRelated;
         }
 
         @Override
         public void setPresentsDefaultValue(boolean booleanValue) {
             super.setPresentsDefaultValue(booleanValue);
+        }
+
+        public void setEnable(boolean enable) {
+            getControl().setEnabled(enable);
+        }
+
+        public boolean isNotificationEditor() {
+            return isNotificationEditor;
+        }
+
+        @Override
+        protected Button getChangeControl(Composite parent) {
+            control = super.getChangeControl(parent);
+            return control;
+        }
+
+        private Button getControl() {
+            return control;
         }
     }
 

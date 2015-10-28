@@ -18,13 +18,16 @@ public class FetchNotificationsJob
 
     private final Consumer<String> tokenConsumer;
     private final String token;
+    private final boolean useCached;
 
     public FetchNotificationsJob(Consumer<Collection<Notification>> consumer,
-            Consumer<String> anonymousTokenConsumer, String token) {
+            Consumer<String> anonymousTokenConsumer, String token,
+            boolean useCached) {
         // TODO: I18N
         super("Fetch all notifications", consumer);
 
         this.token = token;
+        this.useCached = useCached;
         tokenConsumer = anonymousTokenConsumer;
     }
 
@@ -47,9 +50,16 @@ public class FetchNotificationsJob
                 i++;
             }
 
-            Collection<Notification> notifications = Collections
-                    .unmodifiableCollection(NotificationsService.getInstance()
-                            .getAllNotifications(token));
+            Collection<Notification> notifications;
+            if (useCached) {
+                notifications = Collections
+                        .unmodifiableCollection(NotificationsService
+                                .getInstance().getCachedNotifications(token));
+            } else {
+                notifications = Collections
+                        .unmodifiableCollection(NotificationsService
+                                .getInstance().getAllNotifications(token));
+            }
 
             // TODO: remove this. Only for testing (artificially remove the
             // last notification).
