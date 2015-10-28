@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -50,6 +51,8 @@ import com.vaadin.integration.eclipse.notifications.Utils;
 public final class NotificationsService {
 
     private static final String IMAGES_CACHE = "notification-images-cache";
+
+    private static final String CACHE_FILE = "notifications-cache.json";
 
     private static final String ICON_URL = "iconUrl";
 
@@ -173,20 +176,21 @@ public final class NotificationsService {
 
     private Collection<Notification> getNotifications(String url) {
         HttpClient client = createHttpClient();
-        return getNotifications(client, url);
-    }
-
-    private Collection<Notification> getNotifications(HttpClient client,
-            String url) {
         HttpGet request = new HttpGet(url);
         InputStreamReader reader = null;
         try {
+            LOG.info("Fetching all notifications");
             HttpResponse response = client.execute(request);
-            JSONParser parser = new JSONParser();
 
+            JSONParser parser = new JSONParser();
             reader = new InputStreamReader(response.getEntity().getContent(),
                     UTF8);
+
+            LOG.info("Parse notifications");
             JSONObject object = (JSONObject) parser.parse(reader);
+
+            LOG.info("Cache notifications");
+            saveCache(object);
 
             HttpClientUtils.closeQuietly(response);
             JSONArray array = (JSONArray) object.get(NOTIFICATIONS);
@@ -204,6 +208,7 @@ public final class NotificationsService {
             handleException(Level.WARNING, e);
         } catch (ParseException e) {
             handleException(Level.WARNING, e);
+            getCacheFile().delete();
         } finally {
             if (reader != null) {
                 try {
@@ -215,6 +220,27 @@ public final class NotificationsService {
         }
         HttpClientUtils.closeQuietly(client);
         return Collections.emptyList();
+    }
+
+    private void saveCache(JSONObject object) throws IOException {
+        FileOutputStream outputStream = new FileOutputStream(getCacheFile());
+        try {
+            LOG.info("Save JSON notifications content to cache file "
+                    + getCacheFile());
+            IOUtils.write(object.toJSONString(), outputStream);
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                handleException(Level.INFO, e);
+            }
+        }
+    }
+
+    private File getCacheFile() {
+        IPath location = VaadinPlugin.getInstance().getStateLocation();
+        location = location.append(CACHE_FILE);
+        return location.makeAbsolute().toFile();
     }
 
     private HttpClient createHttpClient() {
