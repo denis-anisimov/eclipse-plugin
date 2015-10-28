@@ -11,6 +11,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
@@ -89,13 +90,19 @@ public final class Utils {
         }
     }
 
-    public static boolean isControlClicked(Control control) {
-        Point location = control.getDisplay().getCursorLocation();
-        Point listLocation = control.toDisplay(0, 0);
-        Point size = control.getSize();
-        Rectangle bounds = new Rectangle(listLocation.x, listLocation.y, size.x,
-                size.y);
-        return bounds.contains(location);
+    public static boolean isControlClicked(Event event, Control control) {
+        if (!control.isDisposed() && !event.widget.isDisposed()
+                && control.getShell()
+                        .equals(event.widget.getDisplay().getActiveShell())) {
+            Point location = control.getDisplay().getCursorLocation();
+            Point listLocation = control.toDisplay(0, 0);
+            Point size = control.getSize();
+            Rectangle bounds = new Rectangle(listLocation.x, listLocation.y,
+                    size.x, size.y);
+            return bounds.contains(location);
+        } else {
+            return false;
+        }
     }
 
     static class UrlOpenException extends Exception {

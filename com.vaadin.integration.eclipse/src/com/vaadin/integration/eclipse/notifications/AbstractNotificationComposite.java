@@ -24,7 +24,7 @@ abstract class AbstractNotificationComposite extends AbstractNotificationItem
     }
 
     public void handleEvent(Event event) {
-        if (Utils.isControlClicked(this)) {
+        if (Utils.isControlClicked(event, this)) {
             showDetails();
         }
     }

@@ -42,15 +42,13 @@ class NotificationsListComposite extends ScrolledComposite
     }
 
     public void handleEvent(Event event) {
-        if (isVisible()) {
+        if (isVisible() && Utils.isControlClicked(event, this)) {
             Composite root = (Composite) getChildren()[0];
-            if (Utils.isControlClicked(this)) {
-                for (Control child : root.getChildren()) {
-                    AbstractNotificationItem item = (AbstractNotificationItem) child;
-                    if (Utils.isControlClicked(item)) {
-                        ((ItemAction) item).runAction(updateManager);
-                        break;
-                    }
+            for (Control child : root.getChildren()) {
+                AbstractNotificationItem item = (AbstractNotificationItem) child;
+                if (Utils.isControlClicked(event, item)) {
+                    ((ItemAction) item).runAction(updateManager);
+                    break;
                 }
             }
         }
