@@ -138,6 +138,13 @@ public final class ContributionService extends ContributionControlAccess {
         new MarkReadJob(getToken(), notification.getId()).schedule();
     }
 
+    public void setReadAll() {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+        updateContributionControl();
+        new MarkReadJob(getToken()).schedule();
+    }
+
     void notificationLaunched(Notification notification) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;

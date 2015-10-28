@@ -27,7 +27,7 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
     }
 
     public void runAction(PopupUpdateManager manager) {
-        setRead();
+        activate();
         manager.showSignIn();
     }
 

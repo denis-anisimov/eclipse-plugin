@@ -17,13 +17,13 @@ class SingleNotificationComposite extends AbstractNotificationComposite {
 
     @Override
     protected void showDetails() {
-        setRead();
+        activate();
         getManager().openNotification(getNotification());
     }
 
     @Override
-    protected void setRead() {
-        super.setRead();
+    protected void activate() {
+        super.activate();
         ContributionService.getInstance().markRead(getNotification());
     }
 

@@ -159,6 +159,18 @@ public final class NotificationsService {
 
     }
 
+    /**
+     * Mark all notifications as read for user/session identified by given
+     * {@code token}.
+     * 
+     * @param token
+     *            User token.
+     */
+    public void markReadAll(String token) {
+        // TODO Auto-generated method stub
+
+    }
+
     private Collection<Notification> getNotifications(String url) {
         HttpClient client = createHttpClient();
         return getNotifications(client, url);

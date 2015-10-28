@@ -65,6 +65,7 @@ class NotificationsListComposite extends ScrolledComposite
                 ((AbstractNotificationItem) child).setRead();
             }
         }
+        ContributionService.getInstance().setReadAll();
     }
 
     private void initComponents(Composite parent) {

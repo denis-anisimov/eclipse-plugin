@@ -15,13 +15,13 @@ class NotificationIem extends AbstractNotificationItem implements ItemAction {
     }
 
     public void runAction(PopupUpdateManager manager) {
-        setRead();
+        activate();
         manager.showNotification(getNotification());
     }
 
     @Override
-    protected void setRead() {
-        super.setRead();
+    protected void activate() {
+        super.activate();
         ContributionService.getInstance().markRead(getNotification());
     }
 
