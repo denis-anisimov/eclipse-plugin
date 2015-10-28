@@ -1,4 +1,4 @@
-package com.vaadin.integration.eclipse.notifications;
+package com.vaadin.integration.eclipse.notifications.jobs;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,25 +8,22 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
+import com.vaadin.integration.eclipse.notifications.Consumer;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 
-class FetchNotificationsJob extends Job {
+public class FetchNotificationsJob
+        extends AbstractNotificationJob<Collection<Notification>> {
 
-    private final Consumer<Collection<Notification>> consumer;
     private final Consumer<String> tokenConsumer;
     private final String token;
 
-    FetchNotificationsJob(Consumer<Collection<Notification>> consumer,
+    public FetchNotificationsJob(Consumer<Collection<Notification>> consumer,
             Consumer<String> anonymousTokenConsumer, String token) {
         // TODO: I18N
-        super("Fetch all notifications");
-        setUser(false);
-        setSystem(true);
+        super("Fetch all notifications", consumer);
 
-        this.consumer = consumer;
         this.token = token;
         tokenConsumer = anonymousTokenConsumer;
     }
@@ -72,7 +69,8 @@ class FetchNotificationsJob extends Job {
 
             NotificationsService.getInstance().downloadIcons(notifications);
             monitor.worked(i);
-            consumer.accept(Collections.unmodifiableCollection(notifications));
+            getConsumer()
+                    .accept(Collections.unmodifiableCollection(notifications));
             if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
             }

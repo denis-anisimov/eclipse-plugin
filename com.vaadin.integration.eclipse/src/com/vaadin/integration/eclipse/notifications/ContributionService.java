@@ -27,6 +27,12 @@ import org.eclipse.ui.PlatformUI;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.NotificationsContribution.ContributionControlAccess;
+import com.vaadin.integration.eclipse.notifications.jobs.FetchNotificationsJob;
+import com.vaadin.integration.eclipse.notifications.jobs.NewNotificationsJob;
+import com.vaadin.integration.eclipse.notifications.jobs.SignInJob;
+import com.vaadin.integration.eclipse.notifications.jobs.StatisticsJob;
+import com.vaadin.integration.eclipse.notifications.jobs.ValidationJob;
+import com.vaadin.integration.eclipse.notifications.jobs.StatisticsJob.Action;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
@@ -129,7 +135,16 @@ public final class ContributionService extends ContributionControlAccess {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
         updateContributionControl();
-        // TODO : call REST API
+        new StatisticsJob(getToken(), notification.getId(),
+                Action.DETAILS_REQUEST).schedule();
+    }
+
+    void notificationLaunched(Notification notification) {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+
+        new StatisticsJob(getToken(), notification.getId(), Action.READ_MORE)
+                .schedule();
     }
 
     void refreshNotifications(Runnable runnable) {

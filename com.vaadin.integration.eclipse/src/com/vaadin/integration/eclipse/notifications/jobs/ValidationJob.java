@@ -1,24 +1,22 @@
-package com.vaadin.integration.eclipse.notifications;
+package com.vaadin.integration.eclipse.notifications.jobs;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
+import com.vaadin.integration.eclipse.notifications.Consumer;
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 
-class ValidationJob extends Job {
+public class ValidationJob extends AbstractNotificationJob<Boolean> {
 
-    private final Consumer<Boolean> consumer;
     private final String token;
 
-    ValidationJob(Consumer<Boolean> consumer, String token) {
+    public ValidationJob(Consumer<Boolean> consumer, String token) {
         // TODO: I18N
-        super("Token validation");
+        super("Token validation", consumer);
         setUser(false);
         setSystem(true);
 
-        this.consumer = consumer;
         this.token = token;
     }
 
@@ -31,7 +29,7 @@ class ValidationJob extends Job {
         try {
             isValid = NotificationsService.getInstance().validate(token);
         } finally {
-            consumer.accept(isValid);
+            getConsumer().accept(isValid);
             monitor.worked(1);
             monitor.done();
         }

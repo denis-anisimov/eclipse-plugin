@@ -234,6 +234,8 @@ class NotificationInfoComposite extends Composite {
 
         @Override
         public void linkActivated(HyperlinkEvent e) {
+            ContributionService.getInstance()
+                    .notificationLaunched(notification);
             if (Program.launch(notification.getLink())) {
                 manager.close();
             }

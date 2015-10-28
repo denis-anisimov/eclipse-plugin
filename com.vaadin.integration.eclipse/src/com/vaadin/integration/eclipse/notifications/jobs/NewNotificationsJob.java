@@ -1,4 +1,4 @@
-package com.vaadin.integration.eclipse.notifications;
+package com.vaadin.integration.eclipse.notifications.jobs;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,29 +9,26 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
+import com.vaadin.integration.eclipse.notifications.Consumer;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 
-class NewNotificationsJob extends Job {
+public class NewNotificationsJob
+        extends AbstractNotificationJob<Collection<Notification>> {
 
-    private final Consumer<Collection<Notification>> consumer;
     private final Consumer<Collection<Notification>> newNotiifcationsConsumer;
 
     private final Set<String> notificationIds;
 
     private final String token;
 
-    NewNotificationsJob(Consumer<Collection<Notification>> consumer,
+    public NewNotificationsJob(Consumer<Collection<Notification>> consumer,
             Consumer<Collection<Notification>> newNotiifcationsConsumer,
             Set<String> existingIds, String token) {
         // TODO: I18N
-        super("Fetch new notifications");
-        setUser(false);
-        setSystem(true);
+        super("Fetch new notifications", consumer);
 
-        this.consumer = consumer;
         this.newNotiifcationsConsumer = newNotiifcationsConsumer;
         this.token = token;
         notificationIds = existingIds;
@@ -66,7 +63,7 @@ class NewNotificationsJob extends Job {
             NotificationsService.getInstance().downloadIcons(
                     Collections.unmodifiableCollection(newNotifications));
             monitor.worked(3);
-            consumer.accept(notifications);
+            getConsumer().accept(notifications);
             if (monitor.isCanceled()) {
                 return Status.CANCEL_STATUS;
             }

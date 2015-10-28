@@ -1,4 +1,4 @@
-package com.vaadin.integration.eclipse.notifications;
+package com.vaadin.integration.eclipse.notifications.jobs;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -6,14 +6,13 @@ import java.util.logging.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
+import com.vaadin.integration.eclipse.notifications.Consumer;
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService.InvalidCredentialsException;
 
-class SignInJob extends Job {
+public class SignInJob extends AbstractNotificationJob<String> {
 
-    private final Consumer<String> consumer;
     private final String login;
     private final String passwd;
 
@@ -29,13 +28,12 @@ class SignInJob extends Job {
      * @param pwd
      *            Password
      */
-    SignInJob(Consumer<String> consumer, String login, String pwd) {
+    public SignInJob(Consumer<String> consumer, String login, String pwd) {
         // TODO: I18N
-        super("Sign In");
+        super("Sign In", consumer);
         setUser(false);
         setSystem(true);
 
-        this.consumer = consumer;
         this.login = login;
         passwd = pwd;
     }
@@ -52,7 +50,7 @@ class SignInJob extends Job {
         } catch (InvalidCredentialsException e) {
             LOG.log(Level.INFO, "Authentification failed", e);
         } finally {
-            consumer.accept(token);
+            getConsumer().accept(token);
             monitor.worked(1);
             monitor.done();
         }

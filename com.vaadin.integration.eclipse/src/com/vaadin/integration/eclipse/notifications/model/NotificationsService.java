@@ -130,6 +130,35 @@ public final class NotificationsService {
         return false;
     }
 
+    /**
+     * Usage statistics method: user identified by {@code token} navigated to
+     * details view for notification with given {@code notificationId}.
+     * 
+     * @param token
+     *            User token.
+     * @param notificationId
+     *            Notification id.
+     */
+    public void detailsRequested(String token, String notificationId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * Usage statistics method: user identified by {@code token} requested full
+     * info for notification with given {@code notificationId} (navigated to the
+     * read me link, f.e. via opening Web page in external browser).
+     * 
+     * @param token
+     *            User token.
+     * @param notificationId
+     *            Notification id.
+     */
+    public void infoRequested(String token, String notificationId) {
+        // TODO Auto-generated method stub
+
+    }
+
     private Collection<Notification> getNotifications(String url) {
         HttpClient client = createHttpClient();
         return getNotifications(client, url);
