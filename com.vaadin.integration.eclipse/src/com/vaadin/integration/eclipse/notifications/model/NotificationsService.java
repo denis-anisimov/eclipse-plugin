@@ -131,20 +131,6 @@ public final class NotificationsService {
     }
 
     /**
-     * Usage statistics method: user identified by {@code token} navigated to
-     * details view for notification with given {@code notificationId}.
-     * 
-     * @param token
-     *            User token.
-     * @param notificationId
-     *            Notification id.
-     */
-    public void detailsRequested(String token, String notificationId) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /**
      * Usage statistics method: user identified by {@code token} requested full
      * info for notification with given {@code notificationId} (navigated to the
      * read me link, f.e. via opening Web page in external browser).
@@ -155,6 +141,20 @@ public final class NotificationsService {
      *            Notification id.
      */
     public void infoRequested(String token, String notificationId) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * Mark notification identified by {@code notificationId} as read for
+     * user/session identified by given {@code token}.
+     * 
+     * @param token
+     *            User token.
+     * @param notificationId
+     *            Notification id.
+     */
+    public void markRead(String token, String notificationId) {
         // TODO Auto-generated method stub
 
     }

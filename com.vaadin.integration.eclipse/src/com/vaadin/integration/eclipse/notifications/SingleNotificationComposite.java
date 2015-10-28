@@ -10,17 +10,21 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
  */
 class SingleNotificationComposite extends AbstractNotificationComposite {
 
-    private final Notification notification;
-
     SingleNotificationComposite(Composite parent, Notification notification,
             PopupManager manager) {
         super(parent, notification, manager);
-        this.notification = notification;
     }
 
     @Override
     protected void showDetails() {
-        getManager().openNotification(notification);
+        setRead();
+        getManager().openNotification(getNotification());
+    }
+
+    @Override
+    protected void setRead() {
+        super.setRead();
+        ContributionService.getInstance().markRead(getNotification());
     }
 
 }

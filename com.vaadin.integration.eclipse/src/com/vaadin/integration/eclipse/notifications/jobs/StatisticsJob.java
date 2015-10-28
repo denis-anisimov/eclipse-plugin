@@ -1,53 +1,23 @@
 package com.vaadin.integration.eclipse.notifications.jobs;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-
 import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 
-public class StatisticsJob extends Job {
+public class StatisticsJob extends AbstractNotificationHandleJob {
 
-    public enum Action {
-        DETAILS_REQUEST, READ_MORE;
-    }
-
-    private final Action action;
-    private final String token;
-    private final String id;
-
-    public StatisticsJob(String token, String notificationId, Action action) {
+    public StatisticsJob(String token, String notificationId) {
         // TODO: I18N
-        super("Usage statistics");
-        setUser(false);
-        setSystem(true);
-
-        this.token = token;
-        this.action = action;
-        id = notificationId;
+        super("Usage statistics", token, notificationId);
     }
 
     @Override
-    protected IStatus run(IProgressMonitor monitor) {
-        // TODO :I18N
-        monitor.beginTask("Sending usage statistics", 1);
+    protected void handleNotification(String token, String id) {
+        NotificationsService.getInstance().infoRequested(token, id);
+    }
 
-        try {
-            switch (action) {
-            case DETAILS_REQUEST:
-                NotificationsService.getInstance().detailsRequested(token, id);
-                break;
-            case READ_MORE:
-                NotificationsService.getInstance().infoRequested(token, id);
-                break;
-            }
-        } finally {
-            monitor.worked(1);
-            monitor.done();
-        }
-
-        return Status.OK_STATUS;
+    @Override
+    protected String getTaskName() {
+        // TODO Auto-generated method stub
+        return "Sending usage statistics";
     }
 
 }
