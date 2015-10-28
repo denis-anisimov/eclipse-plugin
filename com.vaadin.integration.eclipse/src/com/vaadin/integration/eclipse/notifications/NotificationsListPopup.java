@@ -385,9 +385,21 @@ class NotificationsListPopup extends AbstractPopup {
                     && !getShell().getBounds().contains(location)) {
                 getShell().getDisplay().removeFilter(SWT.MouseDown,
                         mouseListener);
-                // Move closing operation out of filter events handling (do it
-                // after this handling).
-                event.widget.getDisplay().asyncExec(this);
+                // There can be "deadlock like" situation: if close() is
+                // scheduled via async call while main window is resizing then
+                // UI freezes.
+                // It's not really caused by dealdlock in Java code: no two
+                // threads awaiting each other but SWT UI thread freezes on some
+                // OS related call (send event) (at least on Mac). It looks like
+                // this is a bug in SWT.
+                if (Utils.isControlClicked(event, ContributionService
+                        .getInstance().getContributionControl())) {
+                    // Move closing operation out of filter events handling (do
+                    // it after this handling).
+                    event.widget.getDisplay().asyncExec(this);
+                } else {
+                    close();
+                }
             }
         }
 
