@@ -29,4 +29,6 @@ public class PreferenceConstants {
     public static final String NOTIFICATIONS_ENABLED = "notificationsEnabledPreference";
 
     public static final String NOTIFICATIONS_POPUP_ENABLED = "notificationsPopupEnabledPreference";
+
+    public static final String NOTIFICATIONS_STAT_ENABLED = "notificationsStatisticsEnabledPreference";
 }

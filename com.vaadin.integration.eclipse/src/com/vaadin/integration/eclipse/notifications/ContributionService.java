@@ -149,7 +149,10 @@ public final class ContributionService extends ContributionControlAccess {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
-        new StatisticsJob(getToken(), notification.getId()).schedule();
+        if (VaadinPlugin.getInstance().getPreferenceStore()
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_STAT_ENABLED)) {
+            new StatisticsJob(getToken(), notification.getId()).schedule();
+        }
     }
 
     void refreshNotifications(Runnable runnable) {

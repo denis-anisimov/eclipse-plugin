@@ -107,6 +107,10 @@ public class VaadinPreferences extends PreferencePage
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED,
                 "Inform me about new notifications using popup", panel));
+
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_STAT_ENABLED,
+                "Allow collecting notification statistics", panel));
     }
 
     private interface VaadinFieldEditor {
