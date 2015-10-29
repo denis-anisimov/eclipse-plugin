@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -24,6 +26,7 @@ abstract class AbstractNotificationItem extends Composite {
     private Label newNotificationLabel;
 
     private final Notification notification;
+    private Color readMoreColor;
 
     AbstractNotificationItem(Composite parent, Notification notification) {
         super(parent, SWT.NONE);
@@ -34,6 +37,8 @@ abstract class AbstractNotificationItem extends Composite {
 
         setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
         doSetBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+
+        addDisposeListener(new DisposeHandler());
     }
 
     @Override
@@ -67,8 +72,8 @@ abstract class AbstractNotificationItem extends Composite {
 
         buildPrefix(composite);
 
+        readMoreColor = new Color(getDisplay(), 0, 180, 240);
         Label label = new Label(composite, SWT.NONE);
-        // TODO : color
         label.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
         label.setText(Messages.Notifications_ReadMore);
 
@@ -130,4 +135,13 @@ abstract class AbstractNotificationItem extends Composite {
                 .align(SWT.RIGHT, SWT.CENTER).applyTo(typeLabel);
     }
 
+    private class DisposeHandler implements DisposeListener {
+
+        public void widgetDisposed(DisposeEvent e) {
+            if (readMoreColor != null) {
+                readMoreColor.dispose();
+            }
+        }
+
+    }
 }

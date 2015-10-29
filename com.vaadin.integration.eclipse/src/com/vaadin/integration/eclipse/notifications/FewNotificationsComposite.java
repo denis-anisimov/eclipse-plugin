@@ -17,8 +17,7 @@ import org.eclipse.swt.widgets.Control;
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
-class FewNotificationsComposite extends AbstractNotificationComposite
-        implements DisposeListener {
+class FewNotificationsComposite extends AbstractNotificationComposite {
 
     private static final String SECOND_PARAM = "{1}";
     private static final String FIRST_PARAM = "{0}";
@@ -31,12 +30,8 @@ class FewNotificationsComposite extends AbstractNotificationComposite
             Collection<Notification> notifications) {
         super(parent, new FewNotifications(), manager);
         notificationsSize = notifications.size();
-    }
 
-    @Override
-    public void widgetDisposed(DisposeEvent e) {
-        red.dispose();
-        blue.dispose();
+        addDisposeListener(new DisposeHandler());
     }
 
     @Override
@@ -96,6 +91,15 @@ class FewNotificationsComposite extends AbstractNotificationComposite
         styleRange.length = length;
         styleRange.foreground = color;
         text.setStyleRange(styleRange);
+    }
+
+    private class DisposeHandler implements DisposeListener {
+
+        public void widgetDisposed(DisposeEvent e) {
+            red.dispose();
+            blue.dispose();
+        }
+
     }
 
     private static class FewNotifications extends Notification {
