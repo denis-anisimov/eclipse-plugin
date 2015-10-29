@@ -58,7 +58,7 @@ class NotificationsListComposite extends ScrolledComposite
         getParent().getDisplay().removeFilter(SWT.MouseDown, this);
     }
 
-    void refresh() {
+    void clearAll() {
         Composite composite = (Composite) getContent();
         for (Control child : composite.getChildren()) {
             if (child instanceof AbstractNotificationItem) {

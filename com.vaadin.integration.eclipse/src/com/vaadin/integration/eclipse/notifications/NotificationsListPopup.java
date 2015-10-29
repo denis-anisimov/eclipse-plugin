@@ -21,6 +21,7 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
+import com.vaadin.integration.eclipse.notifications.ContributionService.PopupViewMode;
 import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
@@ -255,6 +256,8 @@ class NotificationsListPopup extends AbstractPopup {
             main.layout();
 
             clearAll.setVisible(false);
+            ContributionService.getInstance()
+                    .setViewMode(PopupViewMode.SIGN_IN);
         }
 
         public void showNotification(Notification notification) {
@@ -266,6 +269,8 @@ class NotificationsListPopup extends AbstractPopup {
             main.layout();
 
             clearAll.setVisible(false);
+            ContributionService.getInstance()
+                    .setViewMode(PopupViewMode.NOTIFICATION);
         }
 
         public void close() {
@@ -277,6 +282,7 @@ class NotificationsListPopup extends AbstractPopup {
             mainLayout.topControl = new TokenInputComposite(main, browser,
                     updateManager);
             main.layout();
+            ContributionService.getInstance().setViewMode(PopupViewMode.TOKEN);
         }
 
         public void showNotificationsList() {
@@ -310,7 +316,7 @@ class NotificationsListPopup extends AbstractPopup {
 
         private void clearAll() {
             if (mainLayout.topControl instanceof NotificationsListComposite) {
-                ((NotificationsListComposite) mainLayout.topControl).refresh();
+                ((NotificationsListComposite) mainLayout.topControl).clearAll();
             }
         }
 
@@ -337,6 +343,8 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
         private void showList() {
+            ContributionService.getInstance().setViewMode(PopupViewMode.LIST);
+
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = notificationsList;
             main.layout();

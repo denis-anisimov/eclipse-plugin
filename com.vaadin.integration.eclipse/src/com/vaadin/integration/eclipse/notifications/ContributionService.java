@@ -50,6 +50,10 @@ import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
  */
 public final class ContributionService extends ContributionControlAccess {
 
+    enum PopupViewMode {
+        LIST, NOTIFICATION, SIGN_IN, TOKEN;
+    }
+
     private static final ContributionService INSTANCE = new ContributionService();
 
     private static final String PNG = ".png";
@@ -63,11 +67,16 @@ public final class ContributionService extends ContributionControlAccess {
     private static final Logger LOG = Logger
             .getLogger(ContributionService.class.getName());
 
+    private String selectedNotificationId;
+
+    private PopupViewMode mode;
+
     static {
         loadNotificationIcons();
     }
 
     private ContributionService() {
+        mode = PopupViewMode.LIST;
         notifications = Collections.emptyList();
     }
 
@@ -134,11 +143,13 @@ public final class ContributionService extends ContributionControlAccess {
     void markRead(Notification notification) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
+
+        selectedNotificationId = notification.getId();
         updateContributionControl();
         new MarkReadJob(getToken(), notification.getId()).schedule();
     }
 
-    public void setReadAll() {
+    void setReadAll() {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
         updateContributionControl();
@@ -188,6 +199,17 @@ public final class ContributionService extends ContributionControlAccess {
 
     boolean isSignedIn() {
         return getUserToken() != null && !getUserToken().isEmpty();
+    }
+
+    String getSelectedNotification() {
+        return selectedNotificationId;
+    }
+
+    void setViewMode(PopupViewMode viewMode) {
+        mode = viewMode;
+        if (!PopupViewMode.NOTIFICATION.equals(viewMode)) {
+            selectedNotificationId = null;
+        }
     }
 
     private boolean fetchOnStart() {
