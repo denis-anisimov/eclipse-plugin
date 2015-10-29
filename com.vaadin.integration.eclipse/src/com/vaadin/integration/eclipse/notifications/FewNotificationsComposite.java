@@ -44,6 +44,7 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
         StyledText text = new StyledText(this, SWT.NO_FOCUS);
         text.setEditable(false);
 
+        // TODO : red color ?
         red = new Color(getDisplay(), 255, 0, 0);
         blue = new Color(getDisplay(), 0, 180, 240);
 
