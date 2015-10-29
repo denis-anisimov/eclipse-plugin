@@ -6,6 +6,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -22,6 +25,9 @@ public final class Utils {
     public static final int MAX_WIDTH = 330;
 
     public static final String FORWARD_SUFFIX = " \u00BB";
+
+    static final String HELVETICA = "Helvetica";
+    static final String ARIAL = "Arial";
 
     static final String REGULAR_NOTIFICATION_ICON = "icons.vaadin-icon16";
     static final String NEW_NOTIFICATION_ICON = "icons.vaadin-icon16-new";
@@ -63,6 +69,23 @@ public final class Utils {
                     base.getStyle() | style);
         }
         return styleData;
+    }
+
+    public static Font createFont(int height, int style,
+            String... symbolicFontNames) {
+        FontRegistry registry = JFaceResources.getFontRegistry();
+        FontData[] data = null;
+        for (String name : symbolicFontNames) {
+            if (registry.hasValueFor(name)) {
+                data = registry.getFontData(name);
+                break;
+            }
+        }
+        if (data == null) {
+            data = registry.defaultFont().getFontData();
+        }
+        return new Font(PlatformUI.getWorkbench().getDisplay(),
+                getModifiedFontData(data, height, style));
     }
 
     public static IWebBrowser openUrl(String url) throws UrlOpenException {

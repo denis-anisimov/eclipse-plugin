@@ -1,7 +1,6 @@
 package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.mylyn.commons.workbench.forms.ScalingHyperlink;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -34,7 +33,7 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
  */
 class NotificationsListPopup extends AbstractPopup {
 
-    private static final int TITLE_HEIGHT = 24;
+    private static final int TITLE_HEIGHT = 36;
     private static final int MAX_HEIGHT = 400;
 
     private final Composite nullComposite = new Composite(new Shell(),
@@ -132,13 +131,18 @@ class NotificationsListPopup extends AbstractPopup {
     protected void createTitleArea(Composite parent) {
         ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
 
+        adjustHeader(parent);
+
         titleImageLabel = new Label(parent, SWT.NONE);
         titleImageLabel.setImage(getPopupShellImage(TITLE_HEIGHT));
         titleImageLabel.setVisible(showContent);
 
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(0, 5)
+                .applyTo(titleImageLabel);
+
         titleTextLabel = new Label(parent, SWT.NONE);
         titleTextLabel.setText(getPopupShellTitle());
-        titleTextLabel.setFont(CommonFonts.BOLD);
+        titleTextLabel.setFont(getBoldFont());
         titleTextLabel.setForeground(getTitleForeground());
         titleTextLabel
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
@@ -146,6 +150,10 @@ class NotificationsListPopup extends AbstractPopup {
 
         clearAll = createClearAll(parent);
         clearAll.setVisible(showContent);
+        clearAll.setFont(getRegularFont());
+
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(0, 2)
+                .applyTo(clearAll);
     }
 
     @Override
@@ -154,7 +162,9 @@ class NotificationsListPopup extends AbstractPopup {
 
         // composite below title
         Composite pane = new Composite(parent, SWT.NONE);
-        GridLayout gridLayout = new GridLayout(2, false);
+        GridLayout gridLayout = new GridLayout(1, false);
+        cancelVerticalSpace(gridLayout);
+
         GridDataFactory.fillDefaults().grab(true, true)
                 .align(SWT.FILL, SWT.FILL).applyTo(pane);
         pane.setLayout(gridLayout);
@@ -163,7 +173,7 @@ class NotificationsListPopup extends AbstractPopup {
         // main composite whose content is dynamic
         Composite main = new Composite(pane, SWT.NO_FOCUS);
         GridDataFactory.fillDefaults().grab(true, true)
-                .align(SWT.FILL, SWT.FILL).span(2, 1).applyTo(main);
+                .align(SWT.FILL, SWT.FILL).applyTo(main);
         mainLayout = new StackLayout();
         main.setLayout(mainLayout);
 
@@ -220,10 +230,23 @@ class NotificationsListPopup extends AbstractPopup {
     }
 
     private void createToolBar(Composite parent) {
-        signOutWidget = createAction(parent, SWT.LEFT,
+        Composite toolBar = new Composite(parent, SWT.NO_FOCUS);
+        GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        data.heightHint = TITLE_HEIGHT;
+        toolBar.setLayoutData(data);
+
+        GridLayout layout = new GridLayout(2, false);
+        toolBar.setLayout(layout);
+        cancelVerticalSpace(layout);
+
+        signOutWidget = createAction(toolBar, SWT.LEFT,
                 Messages.Notifications_SignOut);
         signOutWidget.setVisible(false);
-        createAction(parent, SWT.RIGHT, Messages.Notifications_Settings);
+        signOutWidget.setFont(getBoldFont());
+
+        Control settings = createAction(toolBar, SWT.RIGHT,
+                Messages.Notifications_Settings);
+        settings.setFont(getBoldFont());
     }
 
     private NotificationsListComposite createListArea(Composite pane) {
@@ -236,8 +259,7 @@ class NotificationsListPopup extends AbstractPopup {
         ScalingHyperlink link = new NotificationHyperlink(parent);
         link.setText(text);
         link.registerMouseTrackListener();
-        GridDataFactory.fillDefaults().align(alignment, SWT.BOTTOM)
-                .applyTo(link);
+        link.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
         link.addHyperlinkListener(updateManager);
         return link;
     }
@@ -389,6 +411,8 @@ class NotificationsListPopup extends AbstractPopup {
                 returnLink.moveAbove(titleImageLabel);
                 returnLink.registerMouseTrackListener();
                 returnLink.addHyperlinkListener(this);
+
+                returnLink.setFont(getRegularFont());
             }
             return returnLink;
         }
