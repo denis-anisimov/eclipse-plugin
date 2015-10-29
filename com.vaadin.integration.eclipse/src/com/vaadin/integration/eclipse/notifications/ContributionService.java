@@ -1,5 +1,6 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,8 +16,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -71,6 +75,8 @@ public final class ContributionService extends ContributionControlAccess {
 
     private PopupViewMode mode;
 
+    private WeakReference<Job> currentPollingJob;
+
     static {
         loadNotificationIcons();
     }
@@ -78,6 +84,11 @@ public final class ContributionService extends ContributionControlAccess {
     private ContributionService() {
         mode = PopupViewMode.LIST;
         notifications = Collections.emptyList();
+
+        currentPollingJob = new WeakReference<Job>(null);
+
+        VaadinPlugin.getInstance().getPreferenceStore()
+                .addPropertyChangeListener(new FeatureEnableListener());
     }
 
     static ContributionService getInstance() {
@@ -177,6 +188,7 @@ public final class ContributionService extends ContributionControlAccess {
                 new AnonymousTokenConsumer(
                         PlatformUI.getWorkbench().getDisplay()),
                 getToken(), useCached);
+        currentPollingJob = new WeakReference<Job>(job);
         job.addJobChangeListener(new JobListener(
                 PlatformUI.getWorkbench().getDisplay(), runnable));
         job.schedule();
@@ -254,17 +266,26 @@ public final class ContributionService extends ContributionControlAccess {
         assert Display.getCurrent() != null;
         LOG.info("Schedule fetching new notifications");
 
-        Set<String> existingIds = new HashSet<String>();
-        for (Notification notification : getNotifications()) {
-            existingIds.add(notification.getId());
-        }
+        if (isNotificationsEnabled()) {
+            Set<String> existingIds = new HashSet<String>();
+            for (Notification notification : getNotifications()) {
+                existingIds.add(notification.getId());
+            }
 
-        NewNotificationsJob job = new NewNotificationsJob(
-                new AllNotificationsConsumer(display),
-                new NewNotificationsConsumer(display), existingIds, getToken());
-        job.addJobChangeListener(
-                new JobListener(PlatformUI.getWorkbench().getDisplay(), null));
-        job.schedule(getPollingInterval());
+            NewNotificationsJob job = new NewNotificationsJob(
+                    new AllNotificationsConsumer(display),
+                    new NewNotificationsConsumer(display), existingIds,
+                    getToken());
+            currentPollingJob = new WeakReference<Job>(job);
+            job.addJobChangeListener(new JobListener(
+                    PlatformUI.getWorkbench().getDisplay(), null));
+            job.schedule(getPollingInterval());
+        }
+    }
+
+    private boolean isNotificationsEnabled() {
+        return VaadinPlugin.getInstance().getPreferenceStore()
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED);
     }
 
     private int getPollingInterval() {
@@ -340,7 +361,7 @@ public final class ContributionService extends ContributionControlAccess {
 
     }
 
-    private class TokenConsumer extends AbstractConsumer<String> {
+    private final class TokenConsumer extends AbstractConsumer<String> {
 
         private final Consumer<Boolean> callback;
 
@@ -362,7 +383,7 @@ public final class ContributionService extends ContributionControlAccess {
 
     }
 
-    private class ValidationConsumer extends AbstractConsumer<Boolean> {
+    private final class ValidationConsumer extends AbstractConsumer<Boolean> {
 
         private final String token;
         private final Consumer<Boolean> callback;
@@ -387,7 +408,8 @@ public final class ContributionService extends ContributionControlAccess {
 
     }
 
-    private class AnonymousTokenConsumer extends AbstractConsumer<String> {
+    private final class AnonymousTokenConsumer
+            extends AbstractConsumer<String> {
 
         AnonymousTokenConsumer(Display display) {
             super(display);
@@ -400,7 +422,7 @@ public final class ContributionService extends ContributionControlAccess {
 
     }
 
-    private class AllNotificationsConsumer
+    private final class AllNotificationsConsumer
             extends AbstractConsumer<Collection<Notification>> {
 
         AllNotificationsConsumer(Display display) {
@@ -415,7 +437,7 @@ public final class ContributionService extends ContributionControlAccess {
 
     }
 
-    private class NewNotificationsConsumer
+    private final class NewNotificationsConsumer
             extends AbstractConsumer<Collection<Notification>> {
 
         NewNotificationsConsumer(Display display) {
@@ -451,19 +473,23 @@ public final class ContributionService extends ContributionControlAccess {
         }
     }
 
-    private class JobListener extends JobChangeAdapter implements Runnable {
+    private final class JobListener extends JobChangeAdapter
+            implements Runnable {
 
         private final Display display;
         private final Runnable callback;
+        private final AtomicReference<Job> job;
 
         JobListener(Display display, Runnable runnable) {
             this.display = display;
             callback = runnable;
+            job = new AtomicReference<Job>(null);
         }
 
         @Override
         public void done(IJobChangeEvent event) {
             if (!display.isDisposed()) {
+                job.set(event.getJob());
                 display.asyncExec(this);
                 event.getJob().removeJobChangeListener(this);
             }
@@ -474,12 +500,36 @@ public final class ContributionService extends ContributionControlAccess {
                 // Polling should be scheduled only on initial notification
                 // fetching. The job is initiated by UI action when callback is
                 // available
-                schedulePollingJob(display);
+                if (job != null && job.get().equals(currentPollingJob.get())) {
+                    // the check above will prevent rescheduling polling if the
+                    // job has been cancelled because of preferences
+                    schedulePollingJob(display);
+                }
             } else {
                 callback.run();
             }
         }
 
+    }
+
+    private final class FeatureEnableListener
+            implements IPropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent event) {
+            // This method has to be called inside SWT UI thread.
+            assert Display.getCurrent() != null;
+
+            if (PreferenceConstants.NOTIFICATIONS_ENABLED
+                    .equals(event.getProperty())) {
+                if (isNotificationsEnabled()) {
+                    schedulePollingJob(PlatformUI.getWorkbench().getDisplay());
+                } else {
+                    Job job = currentPollingJob.get();
+                    if (job != null) {
+                        job.cancel();
+                    }
+                }
+            }
+        }
     }
 
 }
