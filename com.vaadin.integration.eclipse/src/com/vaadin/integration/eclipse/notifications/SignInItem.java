@@ -33,15 +33,13 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
 
     @Override
     protected String getSummary() {
-        // TODO : I18N
-        return "Sign in with your vaadin account";
+        return Messages.Notifications_SignInItemUseAccount;
     }
 
     @Override
     protected Control buildPrefix(Composite composite) {
         Label label = new Label(composite, SWT.NONE);
-        // TODO : I18N
-        label.setText("See all your own notifications");
+        label.setText(Messages.Notifications_SignInItemSeeYourNotifications);
         return label;
     }
 }

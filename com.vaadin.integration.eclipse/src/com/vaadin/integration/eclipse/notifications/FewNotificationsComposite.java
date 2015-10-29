@@ -52,10 +52,9 @@ class FewNotificationsComposite extends AbstractNotificationComposite
         red = new Color(getDisplay(), 255, 0, 0);
         blue = new Color(getDisplay(), 0, 180, 240);
 
-        // TODO: I18N
-        String msg = "You have {0} new {1}";
+        String msg = Messages.Notifications_SeveralNotificationsMessage;
 
-        String notificationMsg = "notifications";
+        String notificationMsg = Messages.Notifications_SeveralNotificaitonsMsgParameter;
 
         text.setText(
                 MessageFormat.format(msg, notificationsSize, notificationMsg));

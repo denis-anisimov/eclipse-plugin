@@ -70,8 +70,7 @@ abstract class AbstractNotificationItem extends Composite {
         Label label = new Label(composite, SWT.NONE);
         // TODO : color
         label.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
-        // TODO : I18N
-        label.setText("Read more" + Utils.FORWARD_SUFFIX);
+        label.setText(Messages.Notifications_ReadMore);
 
         return composite;
     }

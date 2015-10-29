@@ -1,5 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.text.MessageFormat;
+
 import org.eclipse.mylyn.commons.workbench.forms.CommonFormUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -219,7 +221,8 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
         private void deactivate() {
             isPopupBlocked = true;
             if (titleLabel != null) {
-                titleLabel.setText(Messages.Notifications_waitingFocus + title);
+                titleLabel.setText(MessageFormat
+                        .format(Messages.Notifications_waitingFocus, title));
             }
         }
 

@@ -70,14 +70,12 @@ public class VaadinPreferences extends PreferencePage
     private void createFieldEditors(Composite composite) {
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.UPDATE_NOTIFICATIONS_IN_NEW_PROJECTS,
-                "Enable Vaadin version update notifications in new projects",
-                composite));
+                Messages.VaadinPreferences_EnableVersionUpdate, composite));
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.DISABLE_ALL_UPDATE_NOTIFICATIONS,
-                "Never inform of Vaadin version updates", composite));
-        new Label(composite, SWT.LEFT).setText(
-                "If checked, notifications about new versions of Vaadin are not shown "
-                        + "even for projects that have these notifications enabled.\nIn addition, no usage statistics will be collected. ");
+                Messages.VaadinPreferences_NeverInform, composite));
+        new Label(composite, SWT.LEFT)
+                .setText(Messages.VaadinPreferences_ExplanationText);
     }
 
     private <T extends FieldEditor & VaadinFieldEditor> void addField(
@@ -99,13 +97,13 @@ public class VaadinPreferences extends PreferencePage
         Composite panel = new Composite(expandable, SWT.NONE);
         expandable.setClient(panel);
         panel.setLayout(new GridLayout(1, false));
-        // TODO : I18N
-        expandable.setText("Vaadin notifications");
+        expandable
+                .setText(Messages.VaadinPreferences_NotificationsSectionTitle);
         expandable.setFont(CommonFonts.BOLD);
 
         final VaadinBooleanFieldEditor enabled = new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_ENABLED,
-                "Enable Vaadin notifictions", panel, true);
+                Messages.VaadinPreferences_NotificationsEnable, panel, true);
         addField(enabled);
         enabled.getControl().addSelectionListener(new SelectionAdapter() {
 
@@ -123,15 +121,17 @@ public class VaadinPreferences extends PreferencePage
 
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED,
-                "Inform me about new notifications using popup", panel, true));
+                Messages.VaadinPreferences_NotificationsPopup, panel, true));
 
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_STAT_ENABLED,
-                "Allow collecting notification statistics", panel, true));
+                Messages.VaadinPreferences_NotificationsStatistics, panel,
+                true));
 
         addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
-                "Get notifications on IDE start", panel, true));
+                Messages.VaadinPreferences_NotificationsFetchOnStart, panel,
+                true));
     }
 
     private interface VaadinFieldEditor {

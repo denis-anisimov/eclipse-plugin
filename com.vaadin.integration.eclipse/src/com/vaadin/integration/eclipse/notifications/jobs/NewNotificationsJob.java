@@ -26,8 +26,7 @@ public class NewNotificationsJob
     public NewNotificationsJob(Consumer<Collection<Notification>> consumer,
             Consumer<Collection<Notification>> newNotiifcationsConsumer,
             Set<String> existingIds, String token) {
-        // TODO: I18N
-        super("Fetch new notifications", consumer);
+        super(Messages.Notifications_FetchNewJob, consumer);
 
         this.newNotiifcationsConsumer = newNotiifcationsConsumer;
         this.token = token;
@@ -36,8 +35,7 @@ public class NewNotificationsJob
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        // TODO :I18N
-        monitor.beginTask("Retrieve new notiifcations data", 5);
+        monitor.beginTask(Messages.Notifications_FetchNewTask, 5);
 
         try {
             Collection<Notification> notifications = Collections

@@ -9,8 +9,7 @@ public class MarkReadJob extends AbstractNotificationHandleJob {
     }
 
     public MarkReadJob(String token, String notificationId) {
-        // TODO: I18N
-        super("Mark notification read", token, notificationId);
+        super(Messages.Notifications_MarkReadJobName, token, notificationId);
     }
 
     @Override
@@ -24,7 +23,6 @@ public class MarkReadJob extends AbstractNotificationHandleJob {
 
     @Override
     protected String getTaskName() {
-        // TODO: I18N
-        return "Sending 'mark read' request";
+        return Messages.Notifications_MarkReadTask;
     }
 }

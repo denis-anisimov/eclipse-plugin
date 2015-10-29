@@ -12,8 +12,7 @@ public class ValidationJob extends AbstractNotificationJob<Boolean> {
     private final String token;
 
     public ValidationJob(Consumer<Boolean> consumer, String token) {
-        // TODO: I18N
-        super("Token validation", consumer);
+        super(Messages.Notifications_ValidationJobName, consumer);
         setUser(false);
         setSystem(true);
 
@@ -22,8 +21,7 @@ public class ValidationJob extends AbstractNotificationJob<Boolean> {
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        // TODO :I18N
-        monitor.beginTask("Validating token", 1);
+        monitor.beginTask(Messages.Notifications_ValidationTask, 1);
 
         boolean isValid = false;
         try {

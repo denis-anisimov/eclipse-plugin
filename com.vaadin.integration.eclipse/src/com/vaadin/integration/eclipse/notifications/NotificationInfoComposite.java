@@ -129,8 +129,7 @@ class NotificationInfoComposite extends Composite {
                 .applyTo(readMore);
         readMore.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
         readMore.setFont(footerFont);
-        // TODO:
-        readMore.setText("Read more:");
+        readMore.setText(Messages.Notifications_NotificationInfoReadMore);
 
         NotificationHyperlink link = new NotificationHyperlink(this);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(-5, 0)

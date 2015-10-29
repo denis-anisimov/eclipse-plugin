@@ -23,8 +23,7 @@ public class FetchNotificationsJob
     public FetchNotificationsJob(Consumer<Collection<Notification>> consumer,
             Consumer<String> anonymousTokenConsumer, String token,
             boolean useCached) {
-        // TODO: I18N
-        super("Fetch all notifications", consumer);
+        super(Messages.Notifications_FetchJobName, consumer);
 
         this.token = token;
         this.useCached = useCached;
@@ -33,8 +32,7 @@ public class FetchNotificationsJob
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        // TODO :I18N
-        monitor.beginTask("Retrieve all notiifcations data",
+        monitor.beginTask(Messages.Notifications_FetchTask,
                 token == null ? 4 : 3);
         // TODO : fetch anonymous token if token field is null
 

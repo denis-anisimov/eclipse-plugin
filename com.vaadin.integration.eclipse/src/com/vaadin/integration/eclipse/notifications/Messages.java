@@ -16,14 +16,22 @@ public class Messages extends NLS {
 
     public static String Notifications_BackAction;
     public static String Notifications_ClearAll;
+    public static String Notifications_NotificationInfoReadMore;
     public static String Notifications_PopupNotificationsTitle;
     public static String Notifications_PopupNotificationTitle;
+    public static String Notifications_ReadMore;
     public static String Notifications_Settings;
+    public static String Notifications_SeveralNotificaitonsMsgParameter;
+    public static String Notifications_SeveralNotificationsMessage;
     public static String Notifications_SignIn;
     public static String Notifications_SignInEmail;
     public static String Notifications_SignInError;
+    public static String Notifications_SignInItemSeeYourNotifications;
+    public static String Notifications_SignInItemUseAccount;
     public static String Notifications_SignInPassword;
     public static String Notifications_SignInWithSuffix;
     public static String Notifications_SignOut;
+    public static String Notifications_TokenErrorMsg;
+    public static String Notifications_TokenViewTitle;
     public static String Notifications_waitingFocus;
 }

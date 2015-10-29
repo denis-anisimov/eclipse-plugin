@@ -29,8 +29,7 @@ public class SignInJob extends AbstractNotificationJob<String> {
      *            Password
      */
     public SignInJob(Consumer<String> consumer, String login, String pwd) {
-        // TODO: I18N
-        super("Sign In", consumer);
+        super(Messages.Notifications_SignInJob, consumer);
         setUser(false);
         setSystem(true);
 
@@ -40,8 +39,7 @@ public class SignInJob extends AbstractNotificationJob<String> {
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        // TODO :I18N
-        monitor.beginTask("Signing in", 1);
+        monitor.beginTask(Messages.Notifications_SignInTask, 1);
 
         String token = null;
 

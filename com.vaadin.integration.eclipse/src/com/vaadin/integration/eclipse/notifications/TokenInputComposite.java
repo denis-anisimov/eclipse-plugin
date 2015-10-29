@@ -47,8 +47,7 @@ class TokenInputComposite extends Composite implements SelectionListener {
 
     private void initComponents() {
         Label label = new Label(this, SWT.NONE);
-        // TODO: I18N
-        label.setText("Enter your user token");
+        label.setText(Messages.Notifications_TokenViewTitle);
         GridDataFactory.fillDefaults().grab(true, false)
                 .align(SWT.FILL, SWT.TOP).applyTo(label);
 
@@ -57,6 +56,7 @@ class TokenInputComposite extends Composite implements SelectionListener {
                 .align(SWT.FILL, SWT.TOP).applyTo(token);
 
         Button button = new Button(this, SWT.PUSH);
+        // TODO : perhaps this should be replaced by icon
         button.setText("Enter");
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(button);
 
@@ -76,7 +76,7 @@ class TokenInputComposite extends Composite implements SelectionListener {
                 wrongTokenLabel = new Label(TokenInputComposite.this, SWT.NONE);
                 wrongTokenLabel.setForeground(
                         getDisplay().getSystemColor(SWT.COLOR_RED));
-                wrongTokenLabel.setText("Provided token is incorrect.");
+                wrongTokenLabel.setText(Messages.Notifications_TokenErrorMsg);
 
                 GridDataFactory.fillDefaults().grab(true, false)
                         .align(SWT.FILL, SWT.TOP).applyTo(wrongTokenLabel);
