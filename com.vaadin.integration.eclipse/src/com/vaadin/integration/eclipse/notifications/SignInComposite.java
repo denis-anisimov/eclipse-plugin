@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 
@@ -156,8 +155,9 @@ class SignInComposite extends Composite {
         }
     }
 
-    private void showTokenInput(IWebBrowser browser) {
-        manager.showTokenInput(browser);
+    private void showTokenInput() {
+        manager.showTokenInput(
+                ContributionService.getInstance().getBrowserView());
     }
 
     private class Listener extends HyperlinkAdapter
@@ -175,8 +175,8 @@ class SignInComposite extends Composite {
         @Override
         public void linkActivated(HyperlinkEvent e) {
             try {
-                IWebBrowser browser = Utils.openUrl(Utils.SIGN_IN_URL);
-                showTokenInput(browser);
+                ContributionService.getInstance().openSignInUrl();
+                showTokenInput();
             } catch (UrlOpenException exception) {
                 // TODO: open error dialog about open browser failure.
             }

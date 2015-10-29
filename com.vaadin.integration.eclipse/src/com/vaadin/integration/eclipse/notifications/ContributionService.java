@@ -28,9 +28,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.NotificationsContribution.ContributionControlAccess;
+import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
 import com.vaadin.integration.eclipse.notifications.jobs.FetchNotificationsJob;
 import com.vaadin.integration.eclipse.notifications.jobs.MarkReadJob;
 import com.vaadin.integration.eclipse.notifications.jobs.NewNotificationsJob;
@@ -76,6 +78,8 @@ public final class ContributionService extends ContributionControlAccess {
     private PopupViewMode mode;
 
     private WeakReference<Job> currentPollingJob;
+
+    private WeakReference<IWebBrowser> browserView;
 
     static {
         loadNotificationIcons();
@@ -226,6 +230,18 @@ public final class ContributionService extends ContributionControlAccess {
 
     PopupViewMode getViewMode() {
         return mode;
+    }
+
+    void openSignInUrl() throws UrlOpenException {
+        // This method has to be called inside SWT UI thread.
+        assert Display.getCurrent() != null;
+
+        IWebBrowser browser = Utils.openUrl(Utils.SIGN_IN_URL);
+        browserView = new WeakReference<IWebBrowser>(browser);
+    }
+
+    IWebBrowser getBrowserView() {
+        return browserView == null ? null : browserView.get();
     }
 
     private boolean fetchOnStart() {

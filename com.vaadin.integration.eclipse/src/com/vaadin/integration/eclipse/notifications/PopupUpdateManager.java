@@ -27,10 +27,6 @@ interface PopupUpdateManager {
 
     /**
      * Show token input view.
-     * 
-     * @param browser
-     *            instance which has been used to open login web page. Can be
-     *            null. The parameter is optional.
      */
     void showTokenInput(IWebBrowser browser);
 

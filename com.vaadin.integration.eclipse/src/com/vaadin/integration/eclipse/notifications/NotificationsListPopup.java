@@ -98,7 +98,8 @@ class NotificationsListPopup extends AbstractPopup {
             break;
         case TOKEN:
             // TODO: get cached web browser from weak referene
-            updateManager.showTokenInput(null);
+            updateManager.showTokenInput(
+                    ContributionService.getInstance().getBrowserView());
             break;
         case NOTIFICATION:
             updateManager.showNotification(ContributionService.getInstance()

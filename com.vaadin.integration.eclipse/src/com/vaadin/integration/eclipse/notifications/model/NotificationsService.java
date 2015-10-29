@@ -354,7 +354,17 @@ public final class NotificationsService {
                 try {
                     // this can throw unchecked exception. Consider this as
                     // a broken cache file and reset it via downloading.
-                    return new ImageData(new FileInputStream(file));
+                    ImageData data = new ImageData(new FileInputStream(file));
+
+                    // check sizes. If required width/height has been updated in
+                    // development version then cache has to be recreated.
+                    if (icon) {
+                        if (ICON_SIZE == Math.max(data.width, data.height)) {
+                            return data;
+                        }
+                    } else if (data.width == Utils.MAX_WIDTH) {
+                        return data;
+                    }
                 } catch (SWTException e) {
                     handleException(Level.WARNING, e);
                 }
