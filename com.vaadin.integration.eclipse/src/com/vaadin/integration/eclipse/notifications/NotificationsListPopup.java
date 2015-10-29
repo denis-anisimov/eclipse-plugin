@@ -129,6 +129,7 @@ class NotificationsListPopup extends AbstractPopup {
 
     @Override
     protected void createTitleArea(Composite parent) {
+        super.createTitleArea(parent);
         ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
 
         adjustHeader(parent);
@@ -147,10 +148,12 @@ class NotificationsListPopup extends AbstractPopup {
         titleTextLabel
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
         titleTextLabel.setVisible(showContent);
+        titleTextLabel.setForeground(getTextColor());
 
         clearAll = createClearAll(parent);
         clearAll.setVisible(showContent);
         clearAll.setFont(getRegularFont());
+        clearAll.setForeground(getTextColor());
 
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(0, 2)
                 .applyTo(clearAll);
@@ -242,11 +245,8 @@ class NotificationsListPopup extends AbstractPopup {
         signOutWidget = createAction(toolBar, SWT.LEFT,
                 Messages.Notifications_SignOut);
         signOutWidget.setVisible(false);
-        signOutWidget.setFont(getBoldFont());
 
-        Control settings = createAction(toolBar, SWT.RIGHT,
-                Messages.Notifications_Settings);
-        settings.setFont(getBoldFont());
+        createAction(toolBar, SWT.RIGHT, Messages.Notifications_Settings);
     }
 
     private NotificationsListComposite createListArea(Composite pane) {
@@ -261,6 +261,8 @@ class NotificationsListPopup extends AbstractPopup {
         link.registerMouseTrackListener();
         link.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, true));
         link.addHyperlinkListener(updateManager);
+        link.setForeground(getTextColor());
+        link.setFont(getBoldFont());
         return link;
     }
 

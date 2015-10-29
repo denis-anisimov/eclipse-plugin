@@ -4,6 +4,7 @@ import org.eclipse.mylyn.commons.ui.dialogs.AbstractNotificationPopup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
@@ -18,12 +19,23 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
     private Font boldPopupFont;
     private Font regularFont;
 
+    private Color textColor;
+    private Color bckgrnd;
+
+    private Composite headerArea;
+
     protected AbstractPopup(Display display) {
         super(display);
+
+        textColor = new Color(display, 160, 159, 145);
+        bckgrnd = new Color(display, 226, 226, 216);
     }
 
     protected AbstractPopup(Display display, int style) {
         super(display, style);
+
+        textColor = new Color(display, 160, 159, 145);
+        bckgrnd = new Color(display, 226, 226, 216);
     }
 
     @Override
@@ -41,7 +53,15 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
         Control content = super.createContents(parent);
         // reset gradient background image
         ((Composite) content).setBackgroundMode(SWT.INHERIT_NONE);
+        if (headerArea != null) {
+            headerArea.setBackground(bckgrnd);
+        }
         return content;
+    }
+
+    @Override
+    protected void createTitleArea(Composite parent) {
+        headerArea = parent;
     }
 
     @Override
@@ -87,6 +107,10 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
         layout.marginHeight = 0;
     }
 
+    protected Color getTextColor() {
+        return textColor;
+    }
+
     protected Font getBoldFont() {
         return boldPopupFont;
     }
@@ -100,6 +124,8 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
             if (boldPopupFont != null) {
                 boldPopupFont.dispose();
                 regularFont.dispose();
+                textColor.dispose();
+                bckgrnd.dispose();
             }
         }
     }
