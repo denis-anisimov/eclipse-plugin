@@ -67,7 +67,7 @@ public final class ContributionService extends ContributionControlAccess {
     private static final Logger LOG = Logger
             .getLogger(ContributionService.class.getName());
 
-    private String selectedNotificationId;
+    private Notification selectedNotification;
 
     private PopupViewMode mode;
 
@@ -144,7 +144,7 @@ public final class ContributionService extends ContributionControlAccess {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
-        selectedNotificationId = notification.getId();
+        selectedNotification = notification;
         updateContributionControl();
         new MarkReadJob(getToken(), notification.getId()).schedule();
     }
@@ -201,15 +201,19 @@ public final class ContributionService extends ContributionControlAccess {
         return getUserToken() != null && !getUserToken().isEmpty();
     }
 
-    String getSelectedNotification() {
-        return selectedNotificationId;
+    Notification getSelectedNotification() {
+        return selectedNotification;
     }
 
     void setViewMode(PopupViewMode viewMode) {
         mode = viewMode;
         if (!PopupViewMode.NOTIFICATION.equals(viewMode)) {
-            selectedNotificationId = null;
+            selectedNotification = null;
         }
+    }
+
+    PopupViewMode getViewMode() {
+        return mode;
     }
 
     private boolean fetchOnStart() {

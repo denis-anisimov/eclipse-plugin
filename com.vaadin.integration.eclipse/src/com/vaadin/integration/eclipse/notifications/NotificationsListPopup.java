@@ -72,7 +72,18 @@ class NotificationsListPopup extends AbstractPopup {
 
     @Override
     public void create() {
+        switch (ContributionService.getInstance().getViewMode()) {
+        case SIGN_IN:
+        case TOKEN:
+        case NOTIFICATION:
+            showContent = false;
+            break;
+        case LIST:
+            break;
+        }
+
         super.create();
+
         mouseListener = new ActiveControlListener();
         PlatformUI.getWorkbench().getDisplay().addFilter(SWT.MouseDown,
                 mouseListener);
@@ -80,6 +91,22 @@ class NotificationsListPopup extends AbstractPopup {
                 mouseListener);
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
                 .addListener(SWT.Resize, mouseListener);
+
+        switch (ContributionService.getInstance().getViewMode()) {
+        case SIGN_IN:
+            updateManager.showSignIn();
+            break;
+        case TOKEN:
+            // TODO: get cached web browser from weak referene
+            updateManager.showTokenInput(null);
+            break;
+        case NOTIFICATION:
+            updateManager.showNotification(ContributionService.getInstance()
+                    .getSelectedNotification());
+            break;
+        case LIST:
+            break;
+        }
     }
 
     @Override
@@ -98,13 +125,6 @@ class NotificationsListPopup extends AbstractPopup {
         nullComposite.getShell().dispose();
         nullComposite.dispose();
         return super.close();
-    }
-
-    @Override
-    public int open() {
-        int result = super.open();
-        activateTitle();
-        return result;
     }
 
     @Override
@@ -185,12 +205,6 @@ class NotificationsListPopup extends AbstractPopup {
     void open(Notification notification) {
         open();
         updateManager.showNotification(notification);
-    }
-
-    private void activateTitle() {
-        titleImageLabel.setVisible(true);
-        titleTextLabel.setVisible(true);
-        clearAll.setVisible(true);
     }
 
     private Control createClearAll(Composite parent) {
@@ -278,6 +292,7 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
         public void showTokenInput(IWebBrowser browser) {
+            updateTitle();
             Composite main = mainLayout.topControl.getParent();
             mainLayout.topControl = new TokenInputComposite(main, browser,
                     updateManager);
@@ -356,7 +371,8 @@ class NotificationsListPopup extends AbstractPopup {
 
             titleImageLabel.setParent(titleTextLabel.getParent());
             titleTextLabel.setVisible(true);
-            titleImageLabel.moveAbove(titleImageLabel);
+            titleImageLabel.moveAbove(titleTextLabel);
+            titleImageLabel.setVisible(true);
             titleImageLabel.getParent().layout(true);
 
             clearAll.setVisible(true);
