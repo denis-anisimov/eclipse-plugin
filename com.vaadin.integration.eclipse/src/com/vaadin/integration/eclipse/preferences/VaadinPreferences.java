@@ -109,12 +109,7 @@ public class VaadinPreferences extends PreferencePage
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                for (VaadinFieldEditor editor : editors) {
-                    if (!editor.equals(enabled)
-                            && editor.isNotificationEditor()) {
-                        editor.setEnable(enabled.getBooleanValue());
-                    }
-                }
+                updateNotificationContols(enabled);
             }
 
         });
@@ -132,6 +127,17 @@ public class VaadinPreferences extends PreferencePage
                 PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
                 Messages.VaadinPreferences_NotificationsFetchOnStart, panel,
                 true));
+
+        updateNotificationContols(enabled);
+    }
+
+    private void updateNotificationContols(
+            final VaadinBooleanFieldEditor enabled) {
+        for (VaadinFieldEditor editor : editors) {
+            if (!editor.equals(enabled) && editor.isNotificationEditor()) {
+                editor.setEnable(enabled.getBooleanValue());
+            }
+        }
     }
 
     private interface VaadinFieldEditor {
