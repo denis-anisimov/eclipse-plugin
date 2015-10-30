@@ -7,6 +7,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -22,7 +23,11 @@ import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
 class SignInComposite extends Composite {
 
     private Font titleFont;
+    private Color textColor;
     private Font labelsFont;
+
+    private Color signInColor;
+
     private final Listener listener;
 
     private Text email;
@@ -49,12 +54,16 @@ class SignInComposite extends Composite {
 
     private void initComponenets() {
         Label title = new Label(this, SWT.NONE);
-        titleFont = new Font(getDisplay(),
-                Utils.getModifiedFontData(title.getFont().getFontData(), 18));
-        labelsFont = new Font(getDisplay(),
-                Utils.getModifiedFontData(title.getFont().getFontData(), 12));
+        titleFont = Utils.createFont(18, SWT.NORMAL, Utils.HELVETICA,
+                Utils.ARIAL);
+        labelsFont = Utils.createFont(12, SWT.NORMAL, Utils.HELVETICA,
+                Utils.ARIAL);
+
+        textColor = new Color(getDisplay(), 70, 68, 64);
+        signInColor = new Color(getDisplay(), 0, 180, 240);
 
         title.setFont(titleFont);
+        title.setForeground(textColor);
 
         title.setText(Messages.Notifications_SignIn);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
@@ -69,7 +78,8 @@ class SignInComposite extends Composite {
     private void addOpenIdAction() {
         Composite openId = new Composite(this, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.TOP).applyTo(openId);
+                .indent(SWT.DEFAULT, 10).align(SWT.FILL, SWT.TOP)
+                .applyTo(openId);
 
         GridLayout layout = new GridLayout(2, false);
         openId.setLayout(layout);
@@ -79,14 +89,16 @@ class SignInComposite extends Composite {
         link.setText(Messages.Notifications_SignIn);
         link.setFont(CommonFonts.BOLD);
         link.registerMouseTrackListener();
-        // TODO: color
-        link.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        link.setFont(labelsFont);
+        link.setForeground(signInColor);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(link);
         link.addHyperlinkListener(listener);
 
         // Use hyperlink here to align text with previous hyperlink (label will
         // be shown a bit above the base line of link
         NotificationHyperlink label = new NotificationHyperlink(openId);
+        label.setFont(labelsFont);
+        label.setForeground(textColor);
         label.setText(Messages.Notifications_SignInWithSuffix);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(label);
         label.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
@@ -99,17 +111,20 @@ class SignInComposite extends Composite {
 
         button.addSelectionListener(listener);
 
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(button);
+        GridDataFactory.fillDefaults().indent(SWT.DEFAULT, 10)
+                .align(SWT.LEFT, SWT.TOP).applyTo(button);
         new Label(this, SWT.NONE);
     }
 
     private void addPassword() {
         Label label = new Label(this, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.TOP).applyTo(label);
+                .indent(SWT.DEFAULT, 10).align(SWT.FILL, SWT.TOP)
+                .applyTo(label);
 
         label.setFont(labelsFont);
         label.setText(Messages.Notifications_SignInPassword);
+        label.setForeground(textColor);
 
         passwd = new Text(this, SWT.PASSWORD | SWT.BORDER);
         passwd.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
@@ -121,10 +136,11 @@ class SignInComposite extends Composite {
     private void addEmail() {
         Label label = new Label(this, SWT.NONE);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.TOP).applyTo(label);
+                .indent(SWT.DEFAULT, 5).align(SWT.FILL, SWT.TOP).applyTo(label);
 
         label.setFont(labelsFont);
         label.setText(Messages.Notifications_SignInEmail);
+        label.setForeground(textColor);
 
         email = new Text(this, SWT.BORDER);
         email.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
@@ -171,6 +187,10 @@ class SignInComposite extends Composite {
                 titleFont = null;
                 labelsFont.dispose();
                 labelsFont = null;
+                textColor.dispose();
+                textColor = null;
+                signInColor.dispose();
+                signInColor = null;
             }
         }
 
