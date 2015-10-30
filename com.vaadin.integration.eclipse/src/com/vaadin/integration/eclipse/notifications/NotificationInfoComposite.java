@@ -37,6 +37,8 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
  */
 class NotificationInfoComposite extends Composite {
 
+    private static final int LEFT_MARGIN = 10;
+
     private static final String STRIP_HTML_ERROR = "Unable to strip html ";
 
     private final Notification notification;
@@ -53,8 +55,9 @@ class NotificationInfoComposite extends Composite {
 
     private Color footerColor;
 
-    private static final String HTML_PREFIX = "<style>" + "span {"
-            + "font-family:Helvetica, Arial, Sans-Serif;" + "font-size: 12px;"
+    private static final String HTML_PREFIX = "<style>"
+            + "body { margin: 5px; padding:0px;} span {"
+            + "font-family:Helvetica, Arial;" + "font-size: 12px;"
             + "font-weight: light;" + "} " + "pre {"
             + "font-family: 'Courier New',Courier,monospace;"
             + "font-size:14 px;" + "}" + "</style> <span>";
@@ -78,6 +81,8 @@ class NotificationInfoComposite extends Composite {
         GridLayout layout = new GridLayout(2, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
+        layout.marginBottom = 10;
+        layout.verticalSpacing = 15;
         setLayout(layout);
 
         listener = new Listener();
@@ -105,28 +110,31 @@ class NotificationInfoComposite extends Composite {
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
                 .align(SWT.FILL, SWT.FILL).applyTo(label);
 
-        Label title = new Label(this, SWT.NONE);
+        Text title = new Text(this, SWT.WRAP);
+        title.setEditable(false);
         title.setText(notification.getTitle());
-        titleFont = new Font(getDisplay(),
-                Utils.getModifiedFontData(title.getFont().getFontData(), 18));
+        titleFont = Utils.createFont(18, SWT.NORMAL, Utils.HELVETICA,
+                Utils.ARIAL);
 
-        footerFont = new Font(getDisplay(), Utils.getModifiedFontData(
-                title.getFont().getFontData(), 12, SWT.BOLD));
+        footerFont = Utils.createFont(12, SWT.BOLD, Utils.HELVETICA,
+                Utils.ARIAL);
 
         footerColor = new Color(getDisplay(), 0, 180, 240);
 
         title.setFont(titleFont);
 
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.FILL).applyTo(title);
+                .indent(10, SWT.DEFAULT).align(SWT.FILL, SWT.FILL)
+                .applyTo(title);
 
         Control description = createDescription();
         GridDataFactory.fillDefaults().grab(true, true).span(2, 1)
-                .align(SWT.FILL, SWT.FILL).applyTo(description);
+                .indent(10, SWT.DEFAULT).align(SWT.FILL, SWT.FILL)
+                .applyTo(description);
 
         NotificationHyperlink readMore = new NotificationHyperlink(this);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER)
-                .applyTo(readMore);
+                .indent(LEFT_MARGIN, SWT.DEFAULT).applyTo(readMore);
         readMore.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
         readMore.setFont(footerFont);
         readMore.setText(Messages.Notifications_NotificationInfoReadMore);
