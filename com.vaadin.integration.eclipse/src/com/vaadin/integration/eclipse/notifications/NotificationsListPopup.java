@@ -19,6 +19,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.events.IHyperlinkListener;
 
 import com.vaadin.integration.eclipse.VaadinPlugin;
 import com.vaadin.integration.eclipse.notifications.ContributionService.PopupViewMode;
@@ -54,7 +55,7 @@ class NotificationsListPopup extends AbstractPopup {
 
     private Control clearAll;
 
-    private NotificationHyperlink returnLink;
+    private BackWidget returnLink;
 
     private boolean showContent;
 
@@ -338,7 +339,7 @@ class NotificationsListPopup extends AbstractPopup {
 
         @Override
         public void linkActivated(HyperlinkEvent e) {
-            if (e.widget == returnLink) {
+            if (returnLink != null && returnLink.isActionSource(e)) {
                 handleReturnLink();
             } else if (e.widget == signOutWidget) {
                 handleSignOut();
@@ -350,7 +351,7 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
         private void updateTitle() {
-            NotificationHyperlink link = setBackLink();
+            BackWidget link = setBackLink();
 
             titleImageLabel.setParent(nullComposite);
             titleTextLabel.setVisible(false);
@@ -406,18 +407,10 @@ class NotificationsListPopup extends AbstractPopup {
             clearAll.setVisible(true);
         }
 
-        private NotificationHyperlink setBackLink() {
+        private BackWidget setBackLink() {
             if (returnLink == null || returnLink.isDisposed()) {
-                returnLink = new NotificationHyperlink(
-                        titleImageLabel.getParent());
-                returnLink.setText(Messages.Notifications_BackAction);
-                returnLink.setImage(VaadinPlugin.getInstance()
-                        .getImageRegistry().get(Utils.RETURN_ICON));
-                returnLink.moveAbove(titleImageLabel);
-                returnLink.registerMouseTrackListener();
-                returnLink.addHyperlinkListener(this);
-
-                returnLink.setFont(getRegularFont());
+                returnLink = new BackWidget(titleImageLabel.getParent(), this);
+                returnLink.moveAbove(titleTextLabel);
             }
             return returnLink;
         }
@@ -470,6 +463,42 @@ class NotificationsListPopup extends AbstractPopup {
                     && !activeListControl.isDisposed()) {
                 resetNotificationsList(activeListControl);
             }
+        }
+
+    }
+
+    class BackWidget extends Composite {
+
+        private final IHyperlinkListener listener;
+
+        BackWidget(Composite parent, IHyperlinkListener listener) {
+            super(parent, SWT.NO_FOCUS);
+
+            this.listener = listener;
+            initComponents();
+        }
+
+        boolean isActionSource(HyperlinkEvent event) {
+            return event.widget == getChildren()[1];
+        }
+
+        private void initComponents() {
+            GridLayout layout = new GridLayout(2, false);
+            setLayout(layout);
+
+            cancelVerticalSpace(layout);
+
+            Label label = new Label(this, SWT.NONE);
+            label.setImage(VaadinPlugin.getInstance().getImageRegistry()
+                    .get(Utils.RETURN_ICON));
+
+            NotificationHyperlink link = new NotificationHyperlink(this);
+            link.setText(Messages.Notifications_BackAction);
+            link.registerMouseTrackListener();
+            link.addHyperlinkListener(listener);
+
+            link.setFont(getRegularFont());
+            link.setForeground(getTextColor());
         }
 
     }
