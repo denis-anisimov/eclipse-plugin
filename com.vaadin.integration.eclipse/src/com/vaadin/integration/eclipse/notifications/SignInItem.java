@@ -1,7 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -10,17 +10,22 @@ import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
 class SignInItem extends AbstractNotificationItem implements ItemAction {
 
-    SignInItem(Composite parent, SignInNotification notification) {
-        super(parent, notification);
+    SignInItem(Composite parent, SignInNotification notification,
+            ItemStyle style) {
+        super(parent, notification, style);
     }
 
     @Override
     protected Control createInfoSection() {
         Composite composite = new Composite(this, SWT.NONE);
-        FillLayout layout = new FillLayout(SWT.VERTICAL);
+        GridLayout layout = new GridLayout(1, false);
         composite.setLayout(layout);
 
-        new Label(composite, SWT.NONE).setText(getSummary());
+        Label label = new Label(composite, SWT.NONE);
+        label.setText(getSummary());
+        label.setFont(getItemFont());
+        label.setForeground(getItemTextColor());
+
         buildPrefix(composite);
 
         return composite;
@@ -40,6 +45,8 @@ class SignInItem extends AbstractNotificationItem implements ItemAction {
     protected Control buildPrefix(Composite composite) {
         Label label = new Label(composite, SWT.NONE);
         label.setText(Messages.Notifications_SignInItemSeeYourNotifications);
+        label.setFont(getItemFont());
+        label.setForeground(getItemTextColor());
         return label;
     }
 }

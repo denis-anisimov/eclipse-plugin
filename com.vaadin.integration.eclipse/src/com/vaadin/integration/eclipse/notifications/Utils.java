@@ -46,6 +46,8 @@ public final class Utils {
     static final int MIN_HEIGHT = 100;
     static final int PADDING_EDGE = 5;
 
+    static final int ITEM_HEIGHT = 68;
+
     private Utils() {
     }
 

@@ -10,8 +10,9 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
  */
 class NotificationIem extends AbstractNotificationItem implements ItemAction {
 
-    NotificationIem(Composite parent, Notification notification) {
-        super(parent, notification);
+    NotificationIem(Composite parent, Notification notification,
+            ItemStyle style) {
+        super(parent, notification, style);
     }
 
     public void runAction(PopupUpdateManager manager) {

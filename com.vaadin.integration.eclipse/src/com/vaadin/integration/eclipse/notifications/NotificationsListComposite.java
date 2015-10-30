@@ -6,12 +6,14 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import com.vaadin.integration.eclipse.notifications.AbstractNotificationItem.ItemStyle;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
 
@@ -25,8 +27,6 @@ class NotificationsListComposite extends ScrolledComposite {
 
         CustomComposite composite = new CustomComposite(this, manager);
         setContent(composite);
-
-        initComponents(composite);
 
         parent.getDisplay().addFilter(SWT.MouseDown, composite);
         addDisposeListener(composite);
@@ -54,29 +54,14 @@ class NotificationsListComposite extends ScrolledComposite {
         super.setBackground(color);
     }
 
-    private void initComponents(Composite parent) {
-        SignInNotification signIn = ContributionService.getInstance()
-                .getSignInNotification();
-        if (signIn != null) {
-            setControlLayoutData(new SignInItem(parent, signIn));
-        }
-        for (Notification notification : ContributionService.getInstance()
-                .getNotifications()) {
-            setControlLayoutData(new NotificationIem(parent, notification));
-        }
-    }
-
-    private void setControlLayoutData(Control item) {
-        GridDataFactory.fillDefaults().grab(true, false)
-                .align(SWT.FILL, SWT.FILL).applyTo(item);
-    }
-
     private static final class CustomComposite extends Composite
             implements Listener, DisposeListener {
 
         private final PopupUpdateManager updateManager;
 
         private final Color bckgrnd;
+
+        private ItemStyle itemStyle;
 
         CustomComposite(Composite parent, PopupUpdateManager manager) {
             super(parent, SWT.NONE);
@@ -90,6 +75,8 @@ class NotificationsListComposite extends ScrolledComposite {
             layout.marginHeight = 0;
             layout.verticalSpacing = 2;
             setLayout(layout);
+
+            initComponents();
         }
 
         @Override
@@ -100,6 +87,11 @@ class NotificationsListComposite extends ScrolledComposite {
         public void widgetDisposed(DisposeEvent e) {
             getParent().getDisplay().removeFilter(SWT.MouseDown, this);
             bckgrnd.dispose();
+            if (itemStyle != null) {
+                itemStyle.getFont().dispose();
+                itemStyle.getReadMoreColor().dispose();
+                itemStyle.getTextColor().dispose();
+            }
         }
 
         public void handleEvent(Event event) {
@@ -112,6 +104,27 @@ class NotificationsListComposite extends ScrolledComposite {
                     }
                 }
             }
+        }
+
+        private void initComponents() {
+            itemStyle = new ItemStyle();
+            SignInNotification signIn = ContributionService.getInstance()
+                    .getSignInNotification();
+            if (signIn != null) {
+                setControlLayoutData(new SignInItem(this, signIn, itemStyle));
+            }
+            for (Notification notification : ContributionService.getInstance()
+                    .getNotifications()) {
+                setControlLayoutData(
+                        new NotificationIem(this, notification, itemStyle));
+            }
+        }
+
+        private void setControlLayoutData(Control item) {
+            GridDataFactory.fillDefaults().grab(true, false)
+                    .align(SWT.FILL, SWT.FILL).applyTo(item);
+            GridData data = (GridData) item.getLayoutData();
+            data.heightHint = Utils.ITEM_HEIGHT;
         }
     }
 
