@@ -10,6 +10,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -26,10 +27,13 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
     private Color red;
     private Color blue;
 
+    private final ItemStyle style;
+
     FewNotificationsComposite(Composite parent, PopupManager manager,
             Collection<Notification> notifications) {
         super(parent, new FewNotifications(), manager);
         notificationsSize = notifications.size();
+        style = new ItemStyle();
 
         addDisposeListener(new DisposeHandler());
     }
@@ -43,6 +47,9 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
     protected Control createInfoSection() {
         StyledText text = new StyledText(this, SWT.NO_FOCUS);
         text.setEditable(false);
+
+        text.setForeground(getItemTextColor());
+        text.setFont(getItemFont());
 
         // TODO : red color ?
         red = new Color(getDisplay(), 255, 0, 0);
@@ -85,6 +92,16 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
         return text;
     }
 
+    @Override
+    protected Font getItemFont() {
+        return style.getFont();
+    }
+
+    @Override
+    protected Color getItemTextColor() {
+        return style.getTextColor();
+    }
+
     private void applyStyle(StyledText text, Color color, int index,
             int length) {
         StyleRange styleRange = new StyleRange();
@@ -99,6 +116,9 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
         public void widgetDisposed(DisposeEvent e) {
             red.dispose();
             blue.dispose();
+            style.getFont().dispose();
+            style.getReadMoreColor().dispose();
+            style.getTextColor().dispose();
         }
 
     }

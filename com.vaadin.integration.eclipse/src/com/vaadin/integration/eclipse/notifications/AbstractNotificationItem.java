@@ -138,11 +138,11 @@ abstract class AbstractNotificationItem extends Composite {
         newNotificationLabel.setImage(null);
     }
 
-    Font getItemFont() {
+    protected Font getItemFont() {
         return style == null ? font : style.getFont();
     }
 
-    Color getItemTextColor() {
+    protected Color getItemTextColor() {
         return style == null ? textColor : style.getTextColor();
     }
 
