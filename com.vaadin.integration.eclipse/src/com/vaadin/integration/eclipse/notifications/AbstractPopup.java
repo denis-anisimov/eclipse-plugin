@@ -22,8 +22,6 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
     private Color textColor;
     private Color bckgrnd;
 
-    private Composite headerArea;
-
     protected AbstractPopup(Display display) {
         super(display);
 
@@ -52,16 +50,12 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
     protected Control createContents(Composite parent) {
         Control content = super.createContents(parent);
         // reset gradient background image
-        ((Composite) content).setBackgroundMode(SWT.INHERIT_NONE);
-        if (headerArea != null) {
-            headerArea.setBackground(bckgrnd);
+        Composite panel = (Composite) content;
+        panel.setBackgroundMode(SWT.INHERIT_NONE);
+        for (Control control : panel.getChildren()) {
+            control.setBackground(bckgrnd);
         }
         return content;
-    }
-
-    @Override
-    protected void createTitleArea(Composite parent) {
-        headerArea = parent;
     }
 
     @Override

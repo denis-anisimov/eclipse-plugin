@@ -129,7 +129,6 @@ class NotificationsListPopup extends AbstractPopup {
 
     @Override
     protected void createTitleArea(Composite parent) {
-        super.createTitleArea(parent);
         ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
 
         adjustHeader(parent);
@@ -138,7 +137,7 @@ class NotificationsListPopup extends AbstractPopup {
         titleImageLabel.setImage(getPopupShellImage(TITLE_HEIGHT));
         titleImageLabel.setVisible(showContent);
 
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(0, 5)
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(0, 3)
                 .applyTo(titleImageLabel);
 
         titleTextLabel = new Label(parent, SWT.NONE);
