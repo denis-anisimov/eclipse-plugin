@@ -112,6 +112,7 @@ class SignInComposite extends Composite {
         label.setText(Messages.Notifications_SignInPassword);
 
         passwd = new Text(this, SWT.PASSWORD | SWT.BORDER);
+        passwd.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
                 .align(SWT.FILL, SWT.TOP).applyTo(passwd);
 
@@ -126,6 +127,7 @@ class SignInComposite extends Composite {
         label.setText(Messages.Notifications_SignInEmail);
 
         email = new Text(this, SWT.BORDER);
+        email.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
                 .align(SWT.FILL, SWT.TOP).applyTo(email);
     }
