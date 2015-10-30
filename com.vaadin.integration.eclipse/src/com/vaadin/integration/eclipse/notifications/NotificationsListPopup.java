@@ -4,6 +4,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.mylyn.commons.workbench.forms.ScalingHyperlink;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,7 +34,6 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
  */
 class NotificationsListPopup extends AbstractPopup {
 
-    private static final int TITLE_HEIGHT = 36;
     private static final int MAX_HEIGHT = 400;
 
     private final Composite nullComposite = new Composite(new Shell(),
@@ -147,7 +147,6 @@ class NotificationsListPopup extends AbstractPopup {
         titleTextLabel
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
         titleTextLabel.setVisible(showContent);
-        titleTextLabel.setForeground(getTextColor());
 
         clearAll = createClearAll(parent);
         clearAll.setVisible(showContent);
@@ -156,6 +155,11 @@ class NotificationsListPopup extends AbstractPopup {
 
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER).indent(0, 2)
                 .applyTo(clearAll);
+    }
+
+    @Override
+    protected Color getTitleForeground() {
+        return getTextColor();
     }
 
     @Override

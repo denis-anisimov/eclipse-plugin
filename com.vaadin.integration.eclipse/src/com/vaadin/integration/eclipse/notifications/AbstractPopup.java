@@ -22,6 +22,8 @@ abstract class AbstractPopup extends AbstractNotificationPopup {
     private Color textColor;
     private Color bckgrnd;
 
+    static final int TITLE_HEIGHT = 36;
+
     protected AbstractPopup(Display display) {
         super(display);
 

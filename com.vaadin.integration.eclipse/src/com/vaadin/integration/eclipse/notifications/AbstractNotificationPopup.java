@@ -2,11 +2,11 @@ package com.vaadin.integration.eclipse.notifications;
 
 import java.text.MessageFormat;
 
-import org.eclipse.mylyn.commons.workbench.forms.CommonFormUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.IFormColors;
 
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 
@@ -77,8 +76,31 @@ abstract class AbstractNotificationPopup extends AbstractPopup {
     }
 
     @Override
+    protected void createTitleArea(Composite parent) {
+        super.createTitleArea(parent);
+
+        ((GridData) parent.getLayoutData()).heightHint = TITLE_HEIGHT;
+
+        adjustHeader(parent);
+
+        Control[] children = parent.getChildren();
+        Control image = children[0];
+        Control text = children[1];
+
+        GridData data = (GridData) image.getLayoutData();
+        if (data == null) {
+            data = new GridData(SWT.LEFT, SWT.CENTER, false, true);
+            image.setLayoutData(data);
+        }
+        data.verticalIndent = 3;
+
+        text.setFont(getBoldFont());
+        text.setForeground(getTitleForeground());
+    }
+
+    @Override
     protected Color getTitleForeground() {
-        return CommonFormUtil.getSharedColors().getColor(IFormColors.TITLE);
+        return getTextColor();
     }
 
     @Override
