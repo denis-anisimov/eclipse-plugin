@@ -119,11 +119,6 @@ public class VaadinPreferences extends PreferencePage
                 Messages.VaadinPreferences_NotificationsPopup, panel, true));
 
         addField(new VaadinBooleanFieldEditor(
-                PreferenceConstants.NOTIFICATIONS_STAT_ENABLED,
-                Messages.VaadinPreferences_NotificationsStatistics, panel,
-                true));
-
-        addField(new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
                 Messages.VaadinPreferences_NotificationsFetchOnStart, panel,
                 true));

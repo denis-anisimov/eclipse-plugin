@@ -26,7 +26,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         store.setDefault(PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED, true);
         store.setDefault(PreferenceConstants.NOTIFICATIONS_USER_TOKEN, "");
         store.setDefault(PreferenceConstants.NOTIFICATIONS_ANONYMOUS_TOKEN, "");
-        store.setDefault(PreferenceConstants.NOTIFICATIONS_STAT_ENABLED, true);
         store.setDefault(PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
                 true);
     }
