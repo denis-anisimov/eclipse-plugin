@@ -97,10 +97,12 @@ public final class NotificationsService {
     }
 
     public Collection<Notification> getAllNotifications(String token) {
+        // TODO : use anonymous user identifier instead of token if it's null
         return getNotifications(ALL_NOTIFICATIONS_URL);
     }
 
     public Collection<Notification> getCachedNotifications(String token) {
+        // TODO : use anonymous user identifier instead of token if it's null
         synchronized (lock) {
             if (getCacheFile().exists()) {
                 return getCachedNotifications();

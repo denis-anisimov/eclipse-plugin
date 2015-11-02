@@ -189,8 +189,6 @@ public final class ContributionService extends ContributionControlAccess {
         FetchNotificationsJob job = new FetchNotificationsJob(
                 new AllNotificationsConsumer(
                         PlatformUI.getWorkbench().getDisplay()),
-                new AnonymousTokenConsumer(
-                        PlatformUI.getWorkbench().getDisplay()),
                 getToken(), useCached);
         currentPollingJob = new WeakReference<Job>(job);
         job.addJobChangeListener(new JobListener(
@@ -425,20 +423,6 @@ public final class ContributionService extends ContributionControlAccess {
             } else {
                 callback.accept(false);
             }
-        }
-
-    }
-
-    private final class AnonymousTokenConsumer
-            extends AbstractConsumer<String> {
-
-        AnonymousTokenConsumer(Display display) {
-            super(display);
-        }
-
-        @Override
-        protected void handleData(String token) {
-            setAnonymousToken(token);
         }
 
     }
