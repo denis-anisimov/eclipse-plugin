@@ -16,23 +16,37 @@ import com.vaadin.integration.eclipse.notifications.model.NotificationsService;
 public class FetchNotificationsJob
         extends AbstractNotificationJob<Collection<Notification>> {
 
+    private final Consumer<String> tokenConsumer;
     private final String token;
     private final boolean useCached;
 
     public FetchNotificationsJob(Consumer<Collection<Notification>> consumer,
-            String token, boolean useCached) {
+            Consumer<String> anonymousTokenConsumer, String token,
+            boolean useCached) {
         super(Messages.Notifications_FetchJobName, consumer);
 
         this.token = token;
         this.useCached = useCached;
+        tokenConsumer = anonymousTokenConsumer;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        monitor.beginTask(Messages.Notifications_FetchTask, 3);
+        monitor.beginTask(Messages.Notifications_FetchTask,
+                token == null ? 4 : 3);
+        // TODO : fetch anonymous token if token field is null
 
         try {
             int i = 1;
+            if (token == null) {
+                tokenConsumer.accept(NotificationsService.getInstance()
+                        .acquireAnonymousToken());
+                monitor.worked(i);
+                if (monitor.isCanceled()) {
+                    return Status.CANCEL_STATUS;
+                }
+                i++;
+            }
 
             Collection<Notification> notifications;
             if (useCached) {
