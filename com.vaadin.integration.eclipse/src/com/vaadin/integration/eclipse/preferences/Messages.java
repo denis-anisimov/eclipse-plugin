@@ -13,7 +13,7 @@ public class Messages extends NLS {
     public static String VaadinPreferences_NotificationsFetchOnStart;
     public static String VaadinPreferences_NotificationsPopup;
     public static String VaadinPreferences_NotificationsSectionTitle;
-    public static String VaadinPreferences_NotificationsStatistics;
+    public static String VaadinPreferences_NotificationsFetchOnOpen;
 
     static {
         // initialize resource bundle

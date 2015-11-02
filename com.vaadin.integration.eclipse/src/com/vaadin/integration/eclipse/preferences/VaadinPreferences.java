@@ -123,6 +123,11 @@ public class VaadinPreferences extends PreferencePage
                 Messages.VaadinPreferences_NotificationsFetchOnStart, panel,
                 true));
 
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_FETCH_ON_OPEN,
+                Messages.VaadinPreferences_NotificationsFetchOnOpen, panel,
+                true));
+
         updateNotificationContols(enabled);
     }
 

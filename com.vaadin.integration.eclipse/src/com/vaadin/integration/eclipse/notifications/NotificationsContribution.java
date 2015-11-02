@@ -209,7 +209,7 @@ public class NotificationsContribution
 
         public void run() {
             NotificationsListPopup popup = new NotificationsListPopup();
-            popup.open();
+            popup.open(ContributionService.getInstance().isRefreshOnOpen());
             getControlAccess().setPopupOpen(true);
             popup.getShell().addDisposeListener(this);
         }

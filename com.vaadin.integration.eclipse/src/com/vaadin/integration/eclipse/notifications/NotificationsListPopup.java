@@ -225,6 +225,14 @@ class NotificationsListPopup extends AbstractPopup {
         updateManager.showNotification(notification);
     }
 
+    void open(boolean refreshOnOpen) {
+        open();
+        if (refreshOnOpen) {
+            ContributionService.getInstance().refreshNotifications(
+                    new RefreshCallback(mainLayout.topControl));
+        }
+    }
+
     private Control createClearAll(Composite parent) {
         ScalingHyperlink link = new NotificationHyperlink(parent);
         link.setText(Messages.Notifications_ClearAll);
@@ -502,4 +510,5 @@ class NotificationsListPopup extends AbstractPopup {
         }
 
     }
+
 }

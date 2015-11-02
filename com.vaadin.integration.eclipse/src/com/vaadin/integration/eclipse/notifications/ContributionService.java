@@ -244,6 +244,11 @@ public final class ContributionService extends ContributionControlAccess {
         return browserView == null ? null : browserView.get();
     }
 
+    boolean isRefreshOnOpen() {
+        return VaadinPlugin.getInstance().getPreferenceStore()
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_FETCH_ON_OPEN);
+    }
+
     private boolean fetchOnStart() {
         return VaadinPlugin.getInstance().getPreferenceStore()
                 .getBoolean(PreferenceConstants.NOTIFICATIONS_FETCH_ON_START)
