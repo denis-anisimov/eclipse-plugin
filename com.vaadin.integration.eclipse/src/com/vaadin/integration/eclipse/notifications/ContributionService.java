@@ -41,6 +41,7 @@ import com.vaadin.integration.eclipse.notifications.jobs.StatisticsJob;
 import com.vaadin.integration.eclipse.notifications.jobs.ValidationJob;
 import com.vaadin.integration.eclipse.notifications.model.Notification;
 import com.vaadin.integration.eclipse.notifications.model.SignInNotification;
+import com.vaadin.integration.eclipse.preferences.NotificationsPollingSchedule;
 import com.vaadin.integration.eclipse.preferences.PreferenceConstants;
 
 /**
@@ -175,9 +176,7 @@ public final class ContributionService extends ContributionControlAccess {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
 
-        if (isStatisticsEnabled()) {
-            new StatisticsJob(getToken(), notification.getId()).schedule();
-        }
+        new StatisticsJob(getToken(), notification.getId()).schedule();
     }
 
     void refreshNotifications(Runnable runnable) {
@@ -256,13 +255,6 @@ public final class ContributionService extends ContributionControlAccess {
                         .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED);
     }
 
-    private boolean isStatisticsEnabled() {
-        return VaadinPlugin.getInstance().getPreferenceStore()
-                .getBoolean(PreferenceConstants.NOTIFICATIONS_STAT_ENABLED)
-                && VaadinPlugin.getInstance().getPreferenceStore()
-                        .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED);
-    }
-
     private String getToken() {
         return getUserToken() == null ? getAnonymousToken() : getUserToken();
     }
@@ -285,9 +277,10 @@ public final class ContributionService extends ContributionControlAccess {
     private void schedulePollingJob(Display display) {
         // This method has to be called inside SWT UI thread.
         assert Display.getCurrent() != null;
-        LOG.info("Schedule fetching new notifications");
 
-        if (isNotificationsEnabled()) {
+        if (isNotificationsUpdateEnabled()) {
+            LOG.info("Schedule fetching new notifications");
+
             Set<String> existingIds = new HashSet<String>();
             for (Notification notification : getNotifications()) {
                 existingIds.add(notification.getId());
@@ -304,14 +297,31 @@ public final class ContributionService extends ContributionControlAccess {
         }
     }
 
-    private boolean isNotificationsEnabled() {
+    private boolean isNotificationsUpdateEnabled() {
         return VaadinPlugin.getInstance().getPreferenceStore()
-                .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED);
+                .getBoolean(PreferenceConstants.NOTIFICATIONS_ENABLED)
+                && getPollingInterval() != -1;
     }
 
     private int getPollingInterval() {
-        return VaadinPlugin.getInstance().getPreferenceStore().getInt(
-                PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL) * 1000;
+        String interval = VaadinPlugin.getInstance().getPreferenceStore()
+                .getString(PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL);
+        int perHour = 60 * 60 * 1000;
+        int per4Hours = 4 * perHour;
+
+        if (NotificationsPollingSchedule.NEVER.name().equals(interval)) {
+            return -1;
+        } else if (NotificationsPollingSchedule.PER_HOUR.name()
+                .equals(interval)) {
+            return perHour;
+        } else if (NotificationsPollingSchedule.PER_FOUR_HOUR.name()
+                .equals(interval)) {
+            return per4Hours;
+        } else if (NotificationsPollingSchedule.PER_DAY.name()
+                .equals(interval)) {
+            return per4Hours * 6;
+        }
+        return per4Hours;
     }
 
     private void setNotifications(Collection<Notification> notifications) {
@@ -519,8 +529,8 @@ public final class ContributionService extends ContributionControlAccess {
         public void run() {
             if (callback == null) {
                 // Polling should be scheduled only on initial notification
-                // fetching. The job is initiated by UI action when callback is
-                // available
+                // fetching. The callback availability (!= null) is an indicator
+                // that job is initiated by UI action
                 if (job != null && job.get().equals(currentPollingJob.get())) {
                     // the check above will prevent rescheduling polling if the
                     // job has been cancelled because of preferences
@@ -541,14 +551,25 @@ public final class ContributionService extends ContributionControlAccess {
 
             if (PreferenceConstants.NOTIFICATIONS_ENABLED
                     .equals(event.getProperty())) {
-                if (isNotificationsEnabled()) {
+                if (isNotificationsUpdateEnabled()) {
                     schedulePollingJob(PlatformUI.getWorkbench().getDisplay());
                 } else {
                     Job job = currentPollingJob.get();
                     if (job != null) {
+                        LOG.info("Cancelling current pollign job due disabling "
+                                + "functionality or polling schedule");
                         job.cancel();
                     }
                 }
+            } else if (PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL
+                    .equals(event.getProperty())) {
+                Job job = currentPollingJob.get();
+                if (job instanceof NewNotificationsJob) {
+                    LOG.info(
+                            "Cancelling current pollign job due change polling interval");
+                    job.cancel();
+                }
+                schedulePollingJob(PlatformUI.getWorkbench().getDisplay());
             }
         }
     }

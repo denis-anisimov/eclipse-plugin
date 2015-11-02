@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
@@ -13,6 +14,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -139,17 +141,23 @@ public class VaadinPreferences extends PreferencePage
         data.grabExcessHorizontalSpace = true;
 
         group.setText(Messages.VaadinPreferences_UpdateSchedule);
-        addField(new VaadinBooleanFieldEditor(
+        VaadinBooleanFieldEditor editor = new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_FETCH_ON_OPEN,
                 Messages.VaadinPreferences_NotificationsFetchOnOpen, group,
-                true));
+                true);
+        ((GridData) editor.getControl().getLayoutData()).horizontalSpan = 2;
+        addField(editor);
 
-        addField(new VaadinBooleanFieldEditor(
+        editor = new VaadinBooleanFieldEditor(
                 PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
                 Messages.VaadinPreferences_NotificationsFetchOnStart, group,
-                true));
+                true);
+        ((GridData) editor.getControl().getLayoutData()).horizontalSpan = 2;
+        addField(editor);
 
-        GridLayout groupLayout = (GridLayout) group.getLayout();
+        addField(new NotificationsComboFieldEditor(group));
+
+        GridLayout groupLayout = new GridLayout(2, false);
         groupLayout.marginTop = 5;
         groupLayout.marginBottom = 5;
         group.setLayout(groupLayout);
@@ -213,6 +221,60 @@ public class VaadinPreferences extends PreferencePage
 
         private Button getControl() {
             return control;
+        }
+    }
+
+    private static class NotificationsComboFieldEditor extends ComboFieldEditor
+            implements VaadinFieldEditor {
+
+        private Combo control;
+
+        public NotificationsComboFieldEditor(Composite parent) {
+            super(PreferenceConstants.NOTIFICATIONS_POLLING_INTERVAL,
+                    Messages.VaadinPreferences_NotificationsPollingInterval,
+                    getOptions(), parent);
+        }
+
+        public void setEnable(boolean enable) {
+            getLabelControl().setEnabled(enable);
+            control.setEnabled(enable);
+        }
+
+        public boolean isNotificationEditor() {
+            return true;
+        }
+
+        @Override
+        protected void doFillIntoGrid(Composite parent, int numColumns) {
+            int size = parent.getChildren().length;
+            super.doFillIntoGrid(parent, numColumns);
+            parent.getChildren()[size].setEnabled(false);
+            control = (Combo) parent.getChildren()[size + 1];
+            GridData data = ((GridData) control.getLayoutData());
+            data.horizontalAlignment = SWT.RIGHT;
+            data.grabExcessHorizontalSpace = true;
+        }
+
+        @Override
+        public void setPresentsDefaultValue(boolean booleanValue) {
+            super.setPresentsDefaultValue(booleanValue);
+        }
+
+        private static String[][] getOptions() {
+            String[][] values = new String[NotificationsPollingSchedule
+                    .values().length][];
+            values[0] = new String[] { Messages.VaadinPreferences_OncePerHour,
+                    NotificationsPollingSchedule.PER_HOUR.name() };
+
+            values[1] = new String[] { Messages.VaadinPreferences_OncePer4Hours,
+                    NotificationsPollingSchedule.PER_FOUR_HOUR.name() };
+
+            values[2] = new String[] { Messages.VaadinPreferences_OncePerDay,
+                    NotificationsPollingSchedule.PER_DAY.name() };
+
+            values[3] = new String[] { Messages.VaadinPreferences_Never,
+                    NotificationsPollingSchedule.NEVER.name() };
+            return values;
         }
     }
 

@@ -30,8 +30,6 @@ public class PreferenceConstants {
 
     public static final String NOTIFICATIONS_POPUP_ENABLED = "notificationsPopupEnabledPreference";
 
-    public static final String NOTIFICATIONS_STAT_ENABLED = "notificationsStatisticsEnabledPreference";
-
     public static final String NOTIFICATIONS_FETCH_ON_START = "notificationsFetchOnStartPreference";
 
     public static final String NOTIFICATIONS_FETCH_ON_OPEN = "notificationsFetchOnOpenPreference";
