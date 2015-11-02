@@ -10,10 +10,12 @@ import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -88,9 +90,13 @@ public class VaadinPreferences extends PreferencePage
 
     private void createNotificationsSecton(Composite composite) {
         final ExpandableComposite expandable = new ExpandableComposite(
-                composite, SWT.NONE, ExpandableComposite.TWISTIE
+                composite, SWT.FILL, ExpandableComposite.TWISTIE
                         | ExpandableComposite.CLIENT_INDENT);
         // expandable.setExpanded(true);
+        GridData data = new GridData();
+        data.horizontalAlignment = SWT.FILL;
+        data.grabExcessHorizontalSpace = true;
+        expandable.setLayoutData(data);
 
         expandable.addExpansionListener(new ExpansionListener());
 
@@ -118,17 +124,36 @@ public class VaadinPreferences extends PreferencePage
                 PreferenceConstants.NOTIFICATIONS_POPUP_ENABLED,
                 Messages.VaadinPreferences_NotificationsPopup, panel, true));
 
-        addField(new VaadinBooleanFieldEditor(
-                PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
-                Messages.VaadinPreferences_NotificationsFetchOnStart, panel,
-                true));
-
-        addField(new VaadinBooleanFieldEditor(
-                PreferenceConstants.NOTIFICATIONS_FETCH_ON_OPEN,
-                Messages.VaadinPreferences_NotificationsFetchOnOpen, panel,
-                true));
+        createUpdateSection(panel);
 
         updateNotificationContols(enabled);
+    }
+
+    private void createUpdateSection(Composite panel) {
+        Group group = new Group(panel, SWT.FILL);
+
+        GridData data = new GridData();
+        data.verticalIndent = 10;
+        data.horizontalAlignment = SWT.FILL;
+        group.setLayoutData(data);
+        data.grabExcessHorizontalSpace = true;
+
+        group.setText(Messages.VaadinPreferences_UpdateSchedule);
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_FETCH_ON_OPEN,
+                Messages.VaadinPreferences_NotificationsFetchOnOpen, group,
+                true));
+
+        addField(new VaadinBooleanFieldEditor(
+                PreferenceConstants.NOTIFICATIONS_FETCH_ON_START,
+                Messages.VaadinPreferences_NotificationsFetchOnStart, group,
+                true));
+
+        GridLayout groupLayout = (GridLayout) group.getLayout();
+        groupLayout.marginTop = 5;
+        groupLayout.marginBottom = 5;
+        group.setLayout(groupLayout);
+
     }
 
     private void updateNotificationContols(
