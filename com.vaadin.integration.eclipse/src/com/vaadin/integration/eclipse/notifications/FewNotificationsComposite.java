@@ -31,7 +31,7 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
 
     FewNotificationsComposite(Composite parent, PopupManager manager,
             Collection<Notification> notifications) {
-        super(parent, new FewNotifications(), manager);
+        super(parent, new FewNotifications(), manager, false);
         notificationsSize = notifications.size();
         style = new ItemStyle();
 

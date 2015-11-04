@@ -9,6 +9,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -37,15 +38,30 @@ abstract class AbstractNotificationItem extends Composite {
 
     private final ItemStyle style;
 
-    AbstractNotificationItem(Composite parent, Notification notification) {
+    private final boolean hasNewIndicator;
+
+    protected AbstractNotificationItem(Composite parent,
+            Notification notification) {
         this(parent, notification, null);
     }
 
-    AbstractNotificationItem(Composite parent, Notification notification,
-            ItemStyle style) {
+    protected AbstractNotificationItem(Composite parent,
+            Notification notification, boolean hasNewIndicator) {
+        this(parent, notification, null, hasNewIndicator);
+    }
+
+    protected AbstractNotificationItem(Composite parent,
+            Notification notification, ItemStyle style) {
+        this(parent, notification, style, true);
+    }
+
+    protected AbstractNotificationItem(Composite parent,
+            Notification notification, ItemStyle style,
+            boolean hasNewIndicator) {
         super(parent, SWT.NONE);
         this.notification = notification;
         this.style = style;
+        this.hasNewIndicator = hasNewIndicator;
 
         GridLayout layout = new GridLayout(4, false);
         layout.marginRight = ITEM_H_MARGIN;
@@ -69,6 +85,10 @@ abstract class AbstractNotificationItem extends Composite {
             initComponents();
         }
         super.setLayoutData(layoutData);
+    }
+
+    protected final boolean hasNewIndicator() {
+        return hasNewIndicator;
     }
 
     protected Notification getNotification() {
@@ -100,7 +120,7 @@ abstract class AbstractNotificationItem extends Composite {
         title.setText(getSummary());
         title.setFont(font);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.FILL).applyTo(title);
+                .align(SWT.FILL, SWT.CENTER).applyTo(title);
         title.setForeground(textColor);
 
         buildPrefix(composite);
@@ -116,6 +136,8 @@ abstract class AbstractNotificationItem extends Composite {
         label.setForeground(readMoreColor);
         label.setText(Messages.Notifications_ReadMore);
         label.setFont(font);
+        label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+        title.setForeground(textColor);
 
         return composite;
     }
@@ -127,7 +149,8 @@ abstract class AbstractNotificationItem extends Composite {
     protected Control buildPrefix(Composite parent) {
         Label label = new Label(parent, SWT.NONE);
         label.setText(getDate(getNotification()) + DASH);
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.CENTER)
+                .applyTo(label);
         label.setFont(getItemFont());
         label.setForeground(getItemTextColor());
         return label;
@@ -173,20 +196,24 @@ abstract class AbstractNotificationItem extends Composite {
 
         Label typeLabel = new Label(this, SWT.NONE);
         typeLabel.setImage(notification.getIcon());
-        GridDataFactory.fillDefaults().grab(false, true)
-                .align(SWT.CENTER, SWT.CENTER).applyTo(typeLabel);
+        GridDataFactory factory = GridDataFactory.fillDefaults()
+                .grab(false, true).align(SWT.CENTER, SWT.CENTER);
+        if (hasNewIndicator) {
+            factory.indent(5, 0);
+        }
+        factory.applyTo(typeLabel);
 
         Control infoSection = createInfoSection();
         if (infoSection.getLayoutData() == null) {
             GridDataFactory.fillDefaults().grab(true, true)
-                    .align(SWT.FILL, SWT.FILL).applyTo(infoSection);
+                    .align(SWT.FILL, SWT.CENTER).applyTo(infoSection);
         }
 
         Label goLabel = new Label(this, SWT.NONE);
         goLabel.setImage(VaadinPlugin.getInstance().getImageRegistry()
                 .get(Utils.GO_ICON));
         GridDataFactory.fillDefaults().grab(false, true)
-                .align(SWT.RIGHT, SWT.CENTER).applyTo(typeLabel);
+                .align(SWT.RIGHT, SWT.CENTER).applyTo(goLabel);
     }
 
     private class DisposeHandler implements DisposeListener {

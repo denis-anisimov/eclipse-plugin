@@ -16,7 +16,13 @@ abstract class AbstractNotificationComposite extends AbstractNotificationItem {
 
     AbstractNotificationComposite(Composite parent, Notification notification,
             PopupManager manager) {
-        super(parent, notification);
+        this(parent, notification, manager, true);
+    }
+
+    protected AbstractNotificationComposite(Composite parent,
+            Notification notification, PopupManager manager,
+            boolean hasNewIndicator) {
+        super(parent, notification, hasNewIndicator);
         this.manager = manager;
 
         listener = new ClickListener();
