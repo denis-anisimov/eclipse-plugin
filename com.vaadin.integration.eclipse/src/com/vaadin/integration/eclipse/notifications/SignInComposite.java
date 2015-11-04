@@ -36,6 +36,7 @@ class SignInComposite extends Composite {
     private Text passwd;
 
     private Label loginFailedLabel;
+    private Color errorColor;
 
     private PopupUpdateManager manager;
 
@@ -184,10 +185,12 @@ class SignInComposite extends Composite {
         if (loginFailedLabel == null) {
             loginFailedLabel = new Label(this, SWT.NONE);
             GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                    .align(SWT.FILL, SWT.TOP).applyTo(loginFailedLabel);
+                    .indent(3, 0).align(SWT.FILL, SWT.TOP)
+                    .applyTo(loginFailedLabel);
             loginFailedLabel.setText(Messages.Notifications_SignInError);
-            loginFailedLabel
-                    .setForeground(getDisplay().getSystemColor(SWT.COLOR_RED));
+            errorColor = new Color(getDisplay(), 181, 3, 3);
+            loginFailedLabel.setForeground(errorColor);
+            loginFailedLabel.setFont(labelsFont);
             layout();
         } else {
             loginFailedLabel.setVisible(true);
@@ -214,6 +217,10 @@ class SignInComposite extends Composite {
                 signInColor = null;
                 inputFont.dispose();
                 inputFont = null;
+                if (errorColor != null) {
+                    errorColor.dispose();
+                    errorColor = null;
+                }
             }
         }
 
