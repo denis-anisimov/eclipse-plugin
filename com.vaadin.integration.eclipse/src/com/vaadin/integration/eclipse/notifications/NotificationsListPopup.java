@@ -419,7 +419,7 @@ class NotificationsListPopup extends AbstractPopup {
 
         private BackWidget setBackLink() {
             if (returnLink == null || returnLink.isDisposed()) {
-                returnLink = new BackWidget(titleImageLabel.getParent(), this);
+                returnLink = new BackWidget(titleTextLabel.getParent(), this);
                 returnLink.moveAbove(titleTextLabel);
             }
             return returnLink;
@@ -432,9 +432,7 @@ class NotificationsListPopup extends AbstractPopup {
             if (event.widget.isDisposed() || getShell() == null) {
                 return;
             }
-            // Point location = event.widget.getDisplay().getCursorLocation();
-            if (!getShell().equals(event.widget.getDisplay().getActiveShell())
-                    && !getShell().isDisposed()) {
+            if (isCloseEvent(event)) {
                 getShell().getDisplay().removeFilter(SWT.MouseDown,
                         mouseListener);
                 // There can be "deadlock like" situation: if close() is
@@ -457,6 +455,16 @@ class NotificationsListPopup extends AbstractPopup {
 
         public void run() {
             close();
+        }
+
+        private boolean isCloseEvent(Event event) {
+            // Be very careful with this logic : there can be unexpected effects
+            // (leading to Exceptions) if this is written inaccurate
+            Point location = event.widget.getDisplay().getCursorLocation();
+            return !getShell()
+                    .equals(event.widget.getDisplay().getActiveShell())
+                    && !getShell().isDisposed()
+                    && !getShell().getBounds().contains(location);
         }
     }
 
