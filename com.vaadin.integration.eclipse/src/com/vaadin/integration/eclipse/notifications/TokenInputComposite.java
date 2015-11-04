@@ -6,8 +6,10 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -15,6 +17,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
+
+import com.vaadin.integration.eclipse.VaadinPlugin;
 
 /**
  * Composite widget which accept user token to access notifications.
@@ -60,12 +64,15 @@ class TokenInputComposite extends Composite {
                 .align(SWT.FILL, SWT.TOP).applyTo(token);
 
         Label button = new Label(this, SWT.NONE);
-        button.setBackground(getBackground());
-        // TODO : perhaps this should be replaced by icon
-        button.setText("Enter");
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(button);
+        Image image = VaadinPlugin.getInstance().getImageRegistry()
+                .get(Utils.SUBMIT_BUTTON);
+        button.setBackgroundImage(image);
+        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP)
+                .hint(image.getImageData().width, image.getImageData().height)
+                .applyTo(button);
 
         button.addMouseListener(listener);
+        button.addMouseTrackListener(listener);
     }
 
     private class ValidationCallback implements Consumer<Boolean> {
@@ -92,7 +99,7 @@ class TokenInputComposite extends Composite {
     }
 
     private class Listener extends HyperlinkAdapter
-            implements DisposeListener, MouseListener {
+            implements DisposeListener, MouseListener, MouseTrackListener {
 
         public void widgetDisposed(DisposeEvent e) {
             if (font != null) {
@@ -111,19 +118,37 @@ class TokenInputComposite extends Composite {
 
         public void mouseDoubleClick(MouseEvent e) {
             Label button = (Label) e.widget;
-            // button.setImage(image);
+            button.setImage(VaadinPlugin.getInstance().getImageRegistry()
+                    .get(Utils.SIGN_IN_PRESSED_BUTTON));
             handleClick();
         }
 
         public void mouseDown(MouseEvent e) {
-            Label button = (Label) e.widget;
-            // button.setImage(image);
+            final Label button = (Label) e.widget;
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SUBMIT_PRESSED_BUTTON));
         }
 
         public void mouseUp(MouseEvent e) {
             Label button = (Label) e.widget;
-            // button.setImage(image);
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SUBMIT_BUTTON));
             handleClick();
+        }
+
+        public void mouseEnter(MouseEvent e) {
+            Label button = (Label) e.widget;
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SUBMIT_HOVER_BUTTON));
+        }
+
+        public void mouseExit(MouseEvent e) {
+            Label button = (Label) e.widget;
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SUBMIT_BUTTON));
+        }
+
+        public void mouseHover(MouseEvent e) {
         }
 
         private void handleClick() {

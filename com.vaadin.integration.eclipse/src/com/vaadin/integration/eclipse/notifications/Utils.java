@@ -40,9 +40,9 @@ public final class Utils {
     static final String SIGN_IN_PRESSED_BUTTON = "icons.sign-in-hit-btn";
     static final String SIGN_IN_HOVER_BUTTON = "icons.sign-in-hover-btn";
 
-    static final String SUBMIT_BUTTON = "icons.submit-in-btn";
-    static final String SUBMIT_PRESSED_BUTTON = "icons.submit-in-hit-btn";
-    static final String SUBMIT_HOVER_BUTTON = "icons.submit-in-hover-btn";
+    static final String SUBMIT_BUTTON = "icons.submit-btn";
+    static final String SUBMIT_PRESSED_BUTTON = "icons.submit-hit-btn";
+    static final String SUBMIT_HOVER_BUTTON = "icons.submit-hover-btn";
 
     static final String NEW_NOTIFICATIONS_ICON = "icons.red-bell";
 

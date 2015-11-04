@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
@@ -461,10 +462,18 @@ class NotificationsListPopup extends AbstractPopup {
             // Be very careful with this logic : there can be unexpected effects
             // (leading to Exceptions) if this is written inaccurate
             Point location = event.widget.getDisplay().getCursorLocation();
-            return !getShell()
-                    .equals(event.widget.getDisplay().getActiveShell())
+            return !shellContainsWidget(event.widget)
+                    && !getShell()
+                            .equals(event.widget.getDisplay().getActiveShell())
                     && !getShell().isDisposed()
                     && !getShell().getBounds().contains(location);
+        }
+
+        private boolean shellContainsWidget(Widget widget) {
+            if (widget instanceof Control) {
+                return ((Control) widget).getShell() == getShell();
+            }
+            return false;
         }
     }
 
