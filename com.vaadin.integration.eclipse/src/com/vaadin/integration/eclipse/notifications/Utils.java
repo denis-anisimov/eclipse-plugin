@@ -22,7 +22,7 @@ import org.eclipse.ui.browser.IWebBrowser;
 public final class Utils {
 
     public static final String SIGN_IN_ICON = "icons.sign-in-icon40";
-    public static final int MAX_WIDTH = 330;
+    public static final int MAX_WIDTH = 350;
 
     public static final String FORWARD_SUFFIX = " \u00BB";
 

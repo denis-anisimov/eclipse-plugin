@@ -36,6 +36,7 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
 class NotificationsListPopup extends AbstractPopup {
 
     private static final int MAX_HEIGHT = 400;
+    private static final int RIGHT_SHIFT = 5;
 
     private final Composite nullComposite = new Composite(new Shell(),
             SWT.NONE);
@@ -214,6 +215,7 @@ class NotificationsListPopup extends AbstractPopup {
         if (location.x + width > mainWindowLocation.x + mainWindowSize.x) {
             location.x = mainWindowLocation.x + mainWindowSize.x - width;
         }
+        location.x -= RIGHT_SHIFT;
 
         Point size = new Point(width, height);
         shell.setLocation(location);

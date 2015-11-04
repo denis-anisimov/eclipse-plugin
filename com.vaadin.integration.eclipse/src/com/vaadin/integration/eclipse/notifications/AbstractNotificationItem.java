@@ -22,6 +22,8 @@ abstract class AbstractNotificationItem extends Composite {
 
     private static final String DASH = " -";
 
+    private static final int ITEM_H_MARGIN = 5;
+
     private static final DateFormat FORMAT = new SimpleDateFormat(
             "MMMMM d, yyyy");
 
@@ -46,6 +48,8 @@ abstract class AbstractNotificationItem extends Composite {
         this.style = style;
 
         GridLayout layout = new GridLayout(4, false);
+        layout.marginRight = ITEM_H_MARGIN;
+        layout.marginLeft = ITEM_H_MARGIN;
         setLayout(layout);
 
         setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
