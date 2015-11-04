@@ -22,9 +22,12 @@ import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
 
 class SignInComposite extends Composite {
 
+    private static final int FIELD_HEIGHT = 40;
+
     private Font titleFont;
     private Color textColor;
     private Font labelsFont;
+    private Font inputFont;
 
     private Color signInColor;
 
@@ -57,6 +60,8 @@ class SignInComposite extends Composite {
         titleFont = Utils.createFont(18, SWT.NORMAL, Utils.HELVETICA,
                 Utils.ARIAL);
         labelsFont = Utils.createFont(12, SWT.NORMAL, Utils.HELVETICA,
+                Utils.ARIAL);
+        inputFont = Utils.createFont(14, SWT.NORMAL, Utils.HELVETICA,
                 Utils.ARIAL);
 
         textColor = new Color(getDisplay(), 70, 68, 64);
@@ -126,11 +131,24 @@ class SignInComposite extends Composite {
         label.setText(Messages.Notifications_SignInPassword);
         label.setForeground(textColor);
 
-        passwd = new Text(this, SWT.PASSWORD | SWT.BORDER);
-        passwd.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.TOP).applyTo(passwd);
+        Composite wrapper = createWrapper();
 
+        passwd = new Text(wrapper, SWT.PASSWORD);
+        passwd.setFont(inputFont);
+        passwd.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        GridDataFactory.fillDefaults().grab(true, true)
+                .align(SWT.FILL, SWT.CENTER).applyTo(passwd);
+
+    }
+
+    private Composite createWrapper() {
+        Composite wrapper = new Composite(this, SWT.BORDER);
+        wrapper.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
+                .hint(SWT.DEFAULT, FIELD_HEIGHT).align(SWT.FILL, SWT.FILL)
+                .applyTo(wrapper);
+        wrapper.setLayout(new GridLayout(1, false));
+        return wrapper;
     }
 
     private void addEmail() {
@@ -142,10 +160,13 @@ class SignInComposite extends Composite {
         label.setText(Messages.Notifications_SignInEmail);
         label.setForeground(textColor);
 
-        email = new Text(this, SWT.BORDER);
+        Composite wrapper = createWrapper();
+
+        email = new Text(wrapper, SWT.NONE);
         email.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.TOP).applyTo(email);
+        email.setFont(inputFont);
+        GridDataFactory.fillDefaults().grab(true, true)
+                .align(SWT.FILL, SWT.CENTER).applyTo(email);
     }
 
     private void login() {
@@ -191,6 +212,8 @@ class SignInComposite extends Composite {
                 textColor = null;
                 signInColor.dispose();
                 signInColor = null;
+                inputFont.dispose();
+                inputFont = null;
             }
         }
 
