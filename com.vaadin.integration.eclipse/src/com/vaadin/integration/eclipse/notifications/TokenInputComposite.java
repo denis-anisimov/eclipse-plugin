@@ -2,20 +2,25 @@ package com.vaadin.integration.eclipse.notifications;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
 
 /**
  * Composite widget which accept user token to access notifications.
  *
  */
-class TokenInputComposite extends Composite implements SelectionListener {
+class TokenInputComposite extends Composite {
 
     private final PopupUpdateManager manager;
     private final IWebBrowser browser;
@@ -23,6 +28,10 @@ class TokenInputComposite extends Composite implements SelectionListener {
     private Text token;
 
     private Label wrongTokenLabel;
+    private Color errorColor;
+    private Font font;
+
+    private final Listener listener;
 
     TokenInputComposite(Composite parent, IWebBrowser browser,
             PopupUpdateManager updateManager) {
@@ -30,6 +39,7 @@ class TokenInputComposite extends Composite implements SelectionListener {
 
         manager = updateManager;
         this.browser = browser;
+        listener = new Listener();
 
         GridLayout layout = new GridLayout(1, false);
         setLayout(layout);
@@ -37,15 +47,9 @@ class TokenInputComposite extends Composite implements SelectionListener {
         initComponents();
     }
 
-    public void widgetDefaultSelected(SelectionEvent e) {
-    }
-
-    public void widgetSelected(SelectionEvent e) {
-        ContributionService.getInstance().validateToken(token.getText().trim(),
-                new ValidationCallback());
-    }
-
     private void initComponents() {
+        font = Utils.createFont(12, SWT.NORMAL, Utils.HELVETICA, Utils.ARIAL);
+
         Label label = new Label(this, SWT.NONE);
         label.setText(Messages.Notifications_TokenViewTitle);
         GridDataFactory.fillDefaults().grab(true, false)
@@ -55,12 +59,13 @@ class TokenInputComposite extends Composite implements SelectionListener {
         GridDataFactory.fillDefaults().grab(true, false)
                 .align(SWT.FILL, SWT.TOP).applyTo(token);
 
-        Button button = new Button(this, SWT.PUSH);
+        Label button = new Label(this, SWT.NONE);
+        button.setBackground(getBackground());
         // TODO : perhaps this should be replaced by icon
         button.setText("Enter");
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.TOP).applyTo(button);
 
-        button.addSelectionListener(this);
+        button.addMouseListener(listener);
     }
 
     private class ValidationCallback implements Consumer<Boolean> {
@@ -82,6 +87,48 @@ class TokenInputComposite extends Composite implements SelectionListener {
                         .align(SWT.FILL, SWT.TOP).applyTo(wrongTokenLabel);
                 layout();
             }
+        }
+
+    }
+
+    private class Listener extends HyperlinkAdapter
+            implements DisposeListener, MouseListener {
+
+        public void widgetDisposed(DisposeEvent e) {
+            if (font != null) {
+                font.dispose();
+                font = null;
+            }
+            if (errorColor != null) {
+                errorColor.dispose();
+                errorColor = null;
+            }
+        }
+
+        @Override
+        public void linkActivated(HyperlinkEvent e) {
+        }
+
+        public void mouseDoubleClick(MouseEvent e) {
+            Label button = (Label) e.widget;
+            // button.setImage(image);
+            handleClick();
+        }
+
+        public void mouseDown(MouseEvent e) {
+            Label button = (Label) e.widget;
+            // button.setImage(image);
+        }
+
+        public void mouseUp(MouseEvent e) {
+            Label button = (Label) e.widget;
+            // button.setImage(image);
+            handleClick();
+        }
+
+        private void handleClick() {
+            ContributionService.getInstance().validateToken(
+                    token.getText().trim(), new ValidationCallback());
         }
 
     }

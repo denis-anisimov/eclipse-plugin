@@ -7,8 +7,10 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -110,14 +112,19 @@ class SignInComposite extends Composite {
     }
 
     private void addButton() {
-        Label button = new Label(this, SWT.NONE);
-        button.setImage(VaadinPlugin.getInstance().getImageRegistry()
-                .get(Utils.SIGN_IN_BUTTON));
-        button.setBackground(getBackground());
+        final Label button = new Label(this, SWT.NONE);
+        // button.setImage(VaadinPlugin.getInstance().getImageRegistry()
+        // .get(Utils.SIGN_IN_BUTTON));
+        Image image = VaadinPlugin.getInstance().getImageRegistry()
+                .get(Utils.SIGN_IN_BUTTON);
+        button.setBackgroundImage(image);
+        // button.setBackground(getBackground());
 
         button.addMouseListener(listener);
+        button.addMouseTrackListener(listener);
 
         GridDataFactory.fillDefaults().indent(SWT.DEFAULT, 10)
+                .hint(image.getImageData().width, image.getImageData().height)
                 .align(SWT.LEFT, SWT.TOP).applyTo(button);
         new Label(this, SWT.NONE);
     }
@@ -202,8 +209,8 @@ class SignInComposite extends Composite {
                 ContributionService.getInstance().getBrowserView());
     }
 
-    private class Listener extends HyperlinkAdapter
-            implements DisposeListener, MouseListener, Consumer<Boolean> {
+    private class Listener extends HyperlinkAdapter implements DisposeListener,
+            MouseListener, Consumer<Boolean>, MouseTrackListener {
 
         public void widgetDisposed(DisposeEvent e) {
             if (titleFont != null) {
@@ -217,10 +224,10 @@ class SignInComposite extends Composite {
                 signInColor = null;
                 inputFont.dispose();
                 inputFont = null;
-                if (errorColor != null) {
-                    errorColor.dispose();
-                    errorColor = null;
-                }
+            }
+            if (errorColor != null) {
+                errorColor.dispose();
+                errorColor = null;
             }
         }
 
@@ -247,18 +254,36 @@ class SignInComposite extends Composite {
         public void mouseDoubleClick(MouseEvent e) {
             login();
             Label button = (Label) e.widget;
-            // button.setImage(image);
+            button.setImage(VaadinPlugin.getInstance().getImageRegistry()
+                    .get(Utils.SIGN_IN_PRESSED_BUTTON));
         }
 
         public void mouseDown(MouseEvent e) {
-            Label button = (Label) e.widget;
-            // button.setImage(image);
+            final Label button = (Label) e.widget;
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SIGN_IN_PRESSED_BUTTON));
         }
 
         public void mouseUp(MouseEvent e) {
-            login();
             Label button = (Label) e.widget;
-            // button.setImage(image);
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SIGN_IN_BUTTON));
+            login();
+        }
+
+        public void mouseEnter(MouseEvent e) {
+            Label button = (Label) e.widget;
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SIGN_IN_HOVER_BUTTON));
+        }
+
+        public void mouseExit(MouseEvent e) {
+            Label button = (Label) e.widget;
+            button.setBackgroundImage(VaadinPlugin.getInstance()
+                    .getImageRegistry().get(Utils.SIGN_IN_BUTTON));
+        }
+
+        public void mouseHover(MouseEvent e) {
         }
 
     }

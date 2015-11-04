@@ -352,9 +352,16 @@ public final class ContributionService extends ContributionControlAccess {
         registerIcon(Utils.RETURN_ICON);
         registerIcon(Utils.CLEAR_ALL_ICON);
         registerIcon(Utils.NEW_ICON);
-        registerIcon(Utils.SIGN_IN_BUTTON);
         registerIcon(Utils.SIGN_IN_ICON);
         registerIcon(Utils.NEW_NOTIFICATIONS_ICON);
+
+        registerIcon(Utils.SIGN_IN_BUTTON);
+        registerIcon(Utils.SIGN_IN_PRESSED_BUTTON);
+        registerIcon(Utils.SIGN_IN_HOVER_BUTTON);
+
+        registerIcon(Utils.SUBMIT_BUTTON);
+        registerIcon(Utils.SUBMIT_PRESSED_BUTTON);
+        registerIcon(Utils.SUBMIT_HOVER_BUTTON);
     }
 
     private static void registerIcon(String id) {
@@ -521,23 +528,23 @@ public final class ContributionService extends ContributionControlAccess {
         public void done(IJobChangeEvent event) {
             if (!display.isDisposed()) {
                 job.set(event.getJob());
-                display.asyncExec(this);
+                if (callback == null) {
+                    display.asyncExec(this);
+                } else {
+                    display.asyncExec(callback);
+                }
                 event.getJob().removeJobChangeListener(this);
             }
         }
 
         public void run() {
-            if (callback == null) {
-                // Polling should be scheduled only on initial notification
-                // fetching. The callback availability (!= null) is an indicator
-                // that job is initiated by UI action
-                if (job != null && job.get().equals(currentPollingJob.get())) {
-                    // the check above will prevent rescheduling polling if the
-                    // job has been cancelled because of preferences
-                    schedulePollingJob(display);
-                }
-            } else {
-                callback.run();
+            // Polling should be scheduled only on initial notification
+            // fetching. The callback availability (!= null) is an indicator
+            // that job is initiated by UI action
+            if (job != null && job.get().equals(currentPollingJob.get())) {
+                // the check above will prevent rescheduling polling if the
+                // job has been cancelled because of preferences
+                schedulePollingJob(display);
             }
         }
 

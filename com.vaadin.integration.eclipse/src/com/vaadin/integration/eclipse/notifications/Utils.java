@@ -35,7 +35,15 @@ public final class Utils {
     static final String RETURN_ICON = "icons.chevron-left-icon";
     static final String CLEAR_ALL_ICON = "icons.bell-slash-icon";
     static final String NEW_ICON = "icons.dot";
+
     static final String SIGN_IN_BUTTON = "icons.sign-in-btn";
+    static final String SIGN_IN_PRESSED_BUTTON = "icons.sign-in-hit-btn";
+    static final String SIGN_IN_HOVER_BUTTON = "icons.sign-in-hover-btn";
+
+    static final String SUBMIT_BUTTON = "icons.submit-in-btn";
+    static final String SUBMIT_PRESSED_BUTTON = "icons.submit-in-hit-btn";
+    static final String SUBMIT_HOVER_BUTTON = "icons.submit-in-hover-btn";
+
     static final String NEW_NOTIFICATIONS_ICON = "icons.red-bell";
 
     static final String BROWSER_ID = UUID.randomUUID().toString();

@@ -58,7 +58,7 @@ class NotificationInfoComposite extends Composite {
     private static final String HTML_PREFIX = "<style>"
             + "body { margin: 5px; padding:0px;} span {"
             + "font-family:Helvetica, Arial;" + "font-size: 12px;"
-            + "font-weight: light;" + "} " + "pre {"
+            + "font-weight: lighter;" + "} " + "pre {"
             + "font-family: 'Courier New',Courier,monospace;"
             + "font-size:14 px;" + "}" + "</style> <span>";
 

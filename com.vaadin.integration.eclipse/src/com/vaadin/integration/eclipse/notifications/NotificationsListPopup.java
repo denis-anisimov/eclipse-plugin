@@ -283,8 +283,7 @@ class NotificationsListPopup extends AbstractPopup {
     private void resetNotificationsList(Control activeListControl) {
         Composite main = mainLayout.topControl.getParent();
         NotificationsListComposite newList = createListArea(main);
-        if (!main.isDisposed() && !activeListControl.isDisposed()
-                && activeListControl.isVisible()) {
+        if (activeListControl.isVisible()) {
             mainLayout.topControl = newList;
             main.layout();
         }
@@ -430,12 +429,12 @@ class NotificationsListPopup extends AbstractPopup {
     private class ActiveControlListener implements Listener, Runnable {
 
         public void handleEvent(Event event) {
-            if (event.widget.isDisposed()) {
+            if (event.widget.isDisposed() || getShell() == null) {
                 return;
             }
-            Point location = event.widget.getDisplay().getCursorLocation();
-            if (!getShell().isDisposed()
-                    && !getShell().getBounds().contains(location)) {
+            // Point location = event.widget.getDisplay().getCursorLocation();
+            if (!getShell().equals(event.widget.getDisplay().getActiveShell())
+                    && !getShell().isDisposed()) {
                 getShell().getDisplay().removeFilter(SWT.MouseDown,
                         mouseListener);
                 // There can be "deadlock like" situation: if close() is
