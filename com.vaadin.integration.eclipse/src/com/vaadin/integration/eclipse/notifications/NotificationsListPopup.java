@@ -460,7 +460,8 @@ class NotificationsListPopup extends AbstractPopup {
 
         private boolean isCloseEvent(Event event) {
             // Be very careful with this logic : there can be unexpected effects
-            // (leading to Exceptions) if this is written inaccurate
+            // (leading to Exceptions) if this is written inaccurate (f.e.
+            // layout may cause sending focus event)
             Point location = event.widget.getDisplay().getCursorLocation();
             return !shellContainsWidget(event.widget)
                     && !getShell()

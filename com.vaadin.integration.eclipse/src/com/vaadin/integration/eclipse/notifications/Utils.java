@@ -26,6 +26,8 @@ public final class Utils {
 
     public static final String FORWARD_SUFFIX = " \u00BB";
 
+    static final int FIELD_HEIGHT = 40;
+
     static final String HELVETICA = "Helvetica";
     static final String ARIAL = "Arial";
 

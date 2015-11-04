@@ -23,8 +23,6 @@ import com.vaadin.integration.eclipse.notifications.Utils.UrlOpenException;
 
 class SignInComposite extends Composite {
 
-    private static final int FIELD_HEIGHT = 40;
-
     private Font titleFont;
     private Color textColor;
     private Font labelsFont;
@@ -113,12 +111,9 @@ class SignInComposite extends Composite {
 
     private void addButton() {
         final Label button = new Label(this, SWT.NONE);
-        // button.setImage(VaadinPlugin.getInstance().getImageRegistry()
-        // .get(Utils.SIGN_IN_BUTTON));
         Image image = VaadinPlugin.getInstance().getImageRegistry()
                 .get(Utils.SIGN_IN_BUTTON);
         button.setBackgroundImage(image);
-        // button.setBackground(getBackground());
 
         button.addMouseListener(listener);
         button.addMouseTrackListener(listener);
@@ -153,7 +148,7 @@ class SignInComposite extends Composite {
         Composite wrapper = new Composite(this, SWT.BORDER);
         wrapper.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .hint(SWT.DEFAULT, FIELD_HEIGHT).align(SWT.FILL, SWT.FILL)
+                .hint(SWT.DEFAULT, Utils.FIELD_HEIGHT).align(SWT.FILL, SWT.FILL)
                 .applyTo(wrapper);
         wrapper.setLayout(new GridLayout(1, false));
         return wrapper;
