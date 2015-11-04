@@ -5,12 +5,11 @@ import org.eclipse.mylyn.commons.ui.compatibility.CommonFonts;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -110,11 +109,12 @@ class SignInComposite extends Composite {
     }
 
     private void addButton() {
-        Button button = new Button(this, SWT.FLAT);
+        Label button = new Label(this, SWT.NONE);
         button.setImage(VaadinPlugin.getInstance().getImageRegistry()
                 .get(Utils.SIGN_IN_BUTTON));
+        button.setBackground(getBackground());
 
-        button.addSelectionListener(listener);
+        button.addMouseListener(listener);
 
         GridDataFactory.fillDefaults().indent(SWT.DEFAULT, 10)
                 .align(SWT.LEFT, SWT.TOP).applyTo(button);
@@ -200,7 +200,7 @@ class SignInComposite extends Composite {
     }
 
     private class Listener extends HyperlinkAdapter
-            implements DisposeListener, SelectionListener, Consumer<Boolean> {
+            implements DisposeListener, MouseListener, Consumer<Boolean> {
 
         public void widgetDisposed(DisposeEvent e) {
             if (titleFont != null) {
@@ -227,13 +227,6 @@ class SignInComposite extends Composite {
             }
         }
 
-        public void widgetDefaultSelected(SelectionEvent e) {
-        }
-
-        public void widgetSelected(SelectionEvent e) {
-            login();
-        }
-
         public void accept(Boolean success) {
             if (success) {
                 manager.showNotificationsList();
@@ -242,6 +235,23 @@ class SignInComposite extends Composite {
                 passwd.setText("");
                 notifyFailedLogin();
             }
+        }
+
+        public void mouseDoubleClick(MouseEvent e) {
+            login();
+            Label button = (Label) e.widget;
+            // button.setImage(image);
+        }
+
+        public void mouseDown(MouseEvent e) {
+            Label button = (Label) e.widget;
+            // button.setImage(image);
+        }
+
+        public void mouseUp(MouseEvent e) {
+            login();
+            Label button = (Label) e.widget;
+            // button.setImage(image);
         }
 
     }

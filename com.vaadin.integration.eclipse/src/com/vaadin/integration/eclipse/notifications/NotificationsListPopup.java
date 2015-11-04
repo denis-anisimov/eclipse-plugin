@@ -283,7 +283,8 @@ class NotificationsListPopup extends AbstractPopup {
     private void resetNotificationsList(Control activeListControl) {
         Composite main = mainLayout.topControl.getParent();
         NotificationsListComposite newList = createListArea(main);
-        if (activeListControl.isVisible()) {
+        if (!main.isDisposed() && !activeListControl.isDisposed()
+                && activeListControl.isVisible()) {
             mainLayout.topControl = newList;
             main.layout();
         }
