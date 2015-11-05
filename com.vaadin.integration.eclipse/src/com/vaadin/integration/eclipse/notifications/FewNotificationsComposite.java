@@ -21,7 +21,6 @@ import com.vaadin.integration.eclipse.notifications.model.Notification;
 class FewNotificationsComposite extends AbstractNotificationComposite {
 
     private static final String SECOND_PARAM = "{1}";
-    private static final String FIRST_PARAM = "{0}";
     private final int notificationsSize;
 
     private Color red;
@@ -62,7 +61,7 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
         text.setText(
                 MessageFormat.format(msg, notificationsSize, notificationMsg));
 
-        int numberIndex = msg.indexOf(FIRST_PARAM);
+        int numberIndex = msg.indexOf(Utils.FIRST_POSITION);
         int notificationsIndex = msg.indexOf(SECOND_PARAM);
 
         int numberLength = Integer.toString(notificationsSize).length();
@@ -76,14 +75,18 @@ class FewNotificationsComposite extends AbstractNotificationComposite {
             } else if (numberIndex < notificationsIndex) {
                 applyStyle(text, red, numberIndex, numberLength);
 
-                applyStyle(text, blue, notificationsIndex - FIRST_PARAM.length()
-                        + numberLength, notificationMsg.length());
+                applyStyle(
+                        text, blue, notificationsIndex
+                                - Utils.FIRST_POSITION.length() + numberLength,
+                        notificationMsg.length());
             } else {
                 applyStyle(text, blue, notificationsIndex,
                         notificationMsg.length());
 
-                applyStyle(text, red, numberIndex - FIRST_PARAM.length()
-                        + notificationMsg.length(), numberLength);
+                applyStyle(text, red,
+                        numberIndex - Utils.FIRST_POSITION.length()
+                                + notificationMsg.length(),
+                        numberLength);
             }
         }
 

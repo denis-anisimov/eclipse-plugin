@@ -115,6 +115,7 @@ class NotificationInfoComposite extends Composite {
         title.setText(notification.getTitle());
         titleFont = Utils.createFont(18, SWT.NORMAL, Utils.HELVETICA,
                 Utils.ARIAL);
+        title.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
 
         footerFont = Utils.createFont(12, SWT.BOLD, Utils.HELVETICA,
                 Utils.ARIAL);

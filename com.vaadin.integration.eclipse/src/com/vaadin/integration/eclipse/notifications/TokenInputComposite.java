@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -39,6 +40,7 @@ class TokenInputComposite extends Composite {
     private Font font;
     private Font inputFont;
     private Color textColor;
+    private Color linkColor;
 
     private final Listener listener;
 
@@ -64,6 +66,7 @@ class TokenInputComposite extends Composite {
         inputFont = Utils.createFont(14, SWT.NORMAL, Utils.HELVETICA,
                 Utils.ARIAL);
         textColor = new Color(getDisplay(), 70, 68, 64);
+        linkColor = new Color(getDisplay(), 0, 180, 240);
 
         createSteps();
 
@@ -102,14 +105,7 @@ class TokenInputComposite extends Composite {
         int i = 1;
         createItemNumber(i);
 
-        StyledText text = new StyledText(this, SWT.WRAP);
-        text.setEditable(false);
-        String msg = Messages.Notifications_TokenDescriptionItem1;
-        String vaadin = Messages.Notifications_TokenDescriptionVaadin;
-        text.setText(MessageFormat.format(msg, vaadin));
-        text.setFont(font);
-        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
-                .grab(true, false).applyTo(text);
+        createFirstItemText();
 
         i++;
         createItemNumber(i);
@@ -126,6 +122,28 @@ class TokenInputComposite extends Composite {
 
     }
 
+    private void createFirstItemText() {
+        StyledText text = new StyledText(this, SWT.WRAP);
+        text.setEditable(false);
+        String msg = Messages.Notifications_TokenDescriptionItem1;
+        String vaadin = Messages.Notifications_TokenDescriptionVaadin;
+
+        text.setText(MessageFormat.format(msg, vaadin));
+
+        int index = msg.indexOf(Utils.FIRST_POSITION);
+        if (index != -1) {
+            StyleRange styleRange = new StyleRange();
+            styleRange.start = index;
+            styleRange.length = vaadin.length();
+            styleRange.foreground = linkColor;
+            text.setStyleRange(styleRange);
+        }
+        text.setFont(font);
+        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
+                .grab(true, false).applyTo(text);
+        text.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
+    }
+
     private void createItemText(String text) {
         Text item = new Text(this, SWT.WRAP);
         item.setEditable(false);
@@ -133,6 +151,7 @@ class TokenInputComposite extends Composite {
         item.setFont(font);
         GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
                 .grab(true, false).applyTo(item);
+        item.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
     }
 
     private void createItemNumber(int i) {
@@ -176,6 +195,8 @@ class TokenInputComposite extends Composite {
                 font = null;
                 textColor.dispose();
                 textColor = null;
+                linkColor.dispose();
+                linkColor = null;
             }
             if (errorColor != null) {
                 errorColor.dispose();
