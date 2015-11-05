@@ -31,7 +31,13 @@ public class Messages extends NLS {
     public static String Notifications_SignInPassword;
     public static String Notifications_SignInWithSuffix;
     public static String Notifications_SignOut;
-    public static String Notifications_TokenErrorMsg;
-    public static String Notifications_TokenViewTitle;
+    public static String Notifications_TokenDescriptionItem1;
+    public static String Notifications_TokenDescriptionItem2;
+    public static String Notifications_TokenDescriptionItem3;
+    public static String Notifications_TokenDescriptionItem4;
+    public static String Notifications_TokenDescriptionVaadin;
+    public static String Notifications_TokenItemNumber;
     public static String Notifications_waitingFocus;
+    public static String Notifications_TokenViewTitle;
+    public static String Notifications_TokenErrorMsg;
 }

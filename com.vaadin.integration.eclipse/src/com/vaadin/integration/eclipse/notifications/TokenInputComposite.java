@@ -1,5 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
+import java.text.MessageFormat;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -36,6 +38,7 @@ class TokenInputComposite extends Composite {
     private Color errorColor;
     private Font font;
     private Font inputFont;
+    private Color textColor;
 
     private final Listener listener;
 
@@ -60,14 +63,16 @@ class TokenInputComposite extends Composite {
         font = Utils.createFont(12, SWT.NORMAL, Utils.HELVETICA, Utils.ARIAL);
         inputFont = Utils.createFont(14, SWT.NORMAL, Utils.HELVETICA,
                 Utils.ARIAL);
+        textColor = new Color(getDisplay(), 70, 68, 64);
 
         createSteps();
 
         Label label = new Label(this, SWT.NONE);
         label.setText(Messages.Notifications_TokenViewTitle);
         GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
-                .align(SWT.FILL, SWT.TOP).applyTo(label);
+                .indent(0, 10).align(SWT.FILL, SWT.TOP).applyTo(label);
         label.setFont(font);
+        label.setForeground(textColor);
 
         token = new StyledText(this, SWT.PASSWORD | SWT.BORDER);
         token.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
@@ -94,59 +99,49 @@ class TokenInputComposite extends Composite {
     }
 
     private void createSteps() {
-        Label label = new Label(this, SWT.NONE);
         int i = 1;
-        label.setText(i + ".");
-        label.setFont(font);
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
+        createItemNumber(i);
 
         StyledText text = new StyledText(this, SWT.WRAP);
         text.setEditable(false);
-        text.setText(
-                "The Vaadin.com sign in site should open in your browser.");
+        String msg = Messages.Notifications_TokenDescriptionItem1;
+        String vaadin = Messages.Notifications_TokenDescriptionVaadin;
+        text.setText(MessageFormat.format(msg, vaadin));
         text.setFont(font);
         GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
                 .grab(true, false).applyTo(text);
 
         i++;
-        label = new Label(this, SWT.NONE);
-        label.setText(i + ".");
-        label.setFont(font);
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
+        createItemNumber(i);
 
+        createItemText(Messages.Notifications_TokenDescriptionItem2);
+
+        i++;
+        createItemNumber(i);
+        createItemText(Messages.Notifications_TokenDescriptionItem3);
+
+        i++;
+        createItemNumber(i);
+        createItemText(Messages.Notifications_TokenDescriptionItem4);
+
+    }
+
+    private void createItemText(String text) {
         Text item = new Text(this, SWT.WRAP);
         item.setEditable(false);
-        item.setText(
-                "Click on the Google, Facebook or Twitter logo to sign in.");
+        item.setText(text);
         item.setFont(font);
         GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
                 .grab(true, false).applyTo(item);
+    }
 
-        i++;
-        label = new Label(this, SWT.NONE);
-        label.setText(i + ".");
+    private void createItemNumber(int i) {
+        Label label = new Label(this, SWT.NONE);
+        String item = Messages.Notifications_TokenItemNumber;
+        label.setText(MessageFormat.format(item, i));
         label.setFont(font);
+        label.setForeground(textColor);
         GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
-        item = new Text(this, SWT.WRAP);
-        item.setEditable(false);
-        item.setText("Enter your credentials.");
-        item.setFont(font);
-        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
-                .grab(true, false).applyTo(item);
-
-        i++;
-        label = new Label(this, SWT.NONE);
-        label.setText(i + ".");
-        label.setFont(font);
-        GridDataFactory.fillDefaults().align(SWT.LEFT, SWT.FILL).applyTo(label);
-        item = new Text(this, SWT.WRAP);
-        item.setEditable(false);
-        item.setText(
-                "Copy the authentication token after sign in, paste it below and click Submit.");
-        item.setFont(font);
-        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
-                .grab(true, false).applyTo(item);
-
     }
 
     private class ValidationCallback implements Consumer<Boolean> {
@@ -179,6 +174,8 @@ class TokenInputComposite extends Composite {
             if (font != null) {
                 font.dispose();
                 font = null;
+                textColor.dispose();
+                textColor = null;
             }
             if (errorColor != null) {
                 errorColor.dispose();
