@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PartInitException;
@@ -131,6 +132,13 @@ public final class Utils {
         if (!control.isDisposed() && !event.widget.isDisposed()
                 && control.getShell()
                         .equals(event.widget.getDisplay().getActiveShell())) {
+
+            if (event.widget instanceof Control) {
+                return event.widget == control
+                        || (control instanceof Composite) && hasParent(
+                                (Control) event.widget, (Composite) control);
+            }
+
             Point location = control.getDisplay().getCursorLocation();
             Point listLocation = control.toDisplay(0, 0);
             Point size = control.getSize();
@@ -139,6 +147,16 @@ public final class Utils {
             return bounds.contains(location);
         } else {
             return false;
+        }
+    }
+
+    private static boolean hasParent(Control subject, Composite composite) {
+        if (subject == null) {
+            return false;
+        } else if (subject.getParent() == composite) {
+            return true;
+        } else {
+            return hasParent(subject.getParent(), composite);
         }
     }
 

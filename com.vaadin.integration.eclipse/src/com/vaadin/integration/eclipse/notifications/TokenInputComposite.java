@@ -1,6 +1,7 @@
 package com.vaadin.integration.eclipse.notifications;
 
 import java.text.MessageFormat;
+import java.util.logging.Logger;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -10,11 +11,16 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -67,6 +73,7 @@ class TokenInputComposite extends Composite {
                 Utils.ARIAL);
         textColor = new Color(getDisplay(), 70, 68, 64);
         linkColor = new Color(getDisplay(), 0, 180, 240);
+        errorColor = new Color(getDisplay(), 181, 3, 3);
 
         createSteps();
 
@@ -136,12 +143,20 @@ class TokenInputComposite extends Composite {
             styleRange.start = index;
             styleRange.length = vaadin.length();
             styleRange.foreground = linkColor;
+            styleRange.underlineStyle = SWT.UNDERLINE_LINK;
             text.setStyleRange(styleRange);
+
+            LinkListener linkListener = new LinkListener(index,
+                    index + vaadin.length());
+            text.addMouseListener(linkListener);
+            text.addMouseMoveListener(linkListener);
+            text.addMouseTrackListener(linkListener);
         }
         text.setFont(font);
         GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
                 .grab(true, false).applyTo(text);
         text.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
+        text.setCaret(null);
     }
 
     private void createItemText(String text) {
@@ -174,14 +189,97 @@ class TokenInputComposite extends Composite {
             } else if (wrongTokenLabel == null
                     || wrongTokenLabel.isDisposed()) {
                 wrongTokenLabel = new Label(TokenInputComposite.this, SWT.NONE);
-                wrongTokenLabel.setForeground(
-                        getDisplay().getSystemColor(SWT.COLOR_RED));
+                wrongTokenLabel.setForeground(errorColor);
                 wrongTokenLabel.setText(Messages.Notifications_TokenErrorMsg);
+                wrongTokenLabel.setFont(font);
 
-                GridDataFactory.fillDefaults().grab(true, false)
-                        .align(SWT.FILL, SWT.TOP).applyTo(wrongTokenLabel);
+                GridDataFactory.fillDefaults().grab(true, false).span(2, 1)
+                        .indent(0, 10).align(SWT.FILL, SWT.TOP)
+                        .applyTo(wrongTokenLabel);
                 layout();
             }
+        }
+
+    }
+
+    private static class LinkListener extends MouseTrackAdapter
+            implements MouseMoveListener, MouseListener {
+
+        private final int startPosition;
+        private final int endPosition;
+
+        private boolean isLinkActive;
+
+        LinkListener(int startPos, int endPos) {
+            startPosition = startPos;
+            endPosition = endPos;
+        }
+
+        public void mouseDoubleClick(MouseEvent e) {
+            if (isLinkTarget(e)) {
+                activateLink();
+            }
+        }
+
+        public void mouseUp(MouseEvent e) {
+            if (isLinkTarget(e)) {
+                activateLink();
+            }
+        }
+
+        public void mouseDown(MouseEvent e) {
+            // handle only mouse up event
+        }
+
+        @Override
+        public void mouseExit(MouseEvent e) {
+            unhover(e);
+        }
+
+        public void mouseMove(MouseEvent e) {
+            handleLinkHover(e);
+        }
+
+        private void handleLinkHover(MouseEvent e) {
+            if (isLinkTarget(e)) {
+                if (!isLinkActive) {
+                    isLinkActive = true;
+                    underlineLink(true, getTextWidget(e));
+                }
+            } else if (isLinkActive) {
+                unhover(e);
+            }
+        }
+
+        private void unhover(MouseEvent e) {
+            isLinkActive = false;
+            underlineLink(false, getTextWidget(e));
+        }
+
+        private void underlineLink(boolean underline, StyledText text) {
+            StyleRange styleRange = text.getStyleRanges()[0];
+            styleRange.underline = underline;
+
+            text.setStyleRange(null);
+            text.setStyleRange(styleRange);
+        }
+
+        private void activateLink() {
+            if (!Program.launch(Utils.SIGN_IN_URL)) {
+                Logger.getLogger(TokenInputComposite.class.getName())
+                        .warning("Couldn't open sign in URL "
+                                + Utils.SIGN_IN_URL + " in external browsrer");
+            }
+        }
+
+        private boolean isLinkTarget(MouseEvent e) {
+            Rectangle bounds = getTextWidget(e).getTextBounds(startPosition,
+                    endPosition);
+            return bounds.contains(new Point(e.x, e.y));
+        }
+
+        private StyledText getTextWidget(MouseEvent e) {
+            return (StyledText) e.widget;
         }
 
     }
